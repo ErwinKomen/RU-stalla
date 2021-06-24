@@ -1,0 +1,107 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-06-24 10:53+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\stalla\seeker\forms.py:46
+msgid "Password"
+msgstr "Wachtwoord"
+
+#: .\stalla\templates\admin\base.html:41
+msgid "Welcome,"
+msgstr "Welkom,"
+
+#: .\stalla\templates\admin\base.html:46
+msgid "View site"
+msgstr "Site bekijken"
+
+#: .\stalla\templates\admin\base.html:51
+msgid "Documentation"
+msgstr "Documentatie"
+
+#: .\stalla\templates\admin\base.html:55 .\stalla\templates\topnav.html:73
+msgid "Change password"
+msgstr "Wachtwoord wijzigen"
+
+#: .\stalla\templates\admin\base.html:57
+msgid "Log out"
+msgstr "Uitloggen"
+
+#: .\stalla\templates\admin\base.html:67
+msgid "Home"
+msgstr "Home"
+
+#: .\stalla\templates\index.html:68
+msgid ""
+"The stalla application has been designed by the Technical Service Group of "
+"the Humanities Lab at the Radboud University Nijmegen.\n"
+"          Any researcher is invited to register (via "
+msgstr ""
+"De Stalla webapplicatie is ontwikkeld door de Technische service group van "
+"het Humanities Lab van de Radboud Universiteit Nijmegen. Wanneer het nodig "
+"is, dan kun je je als medewerker registreren (via "
+
+#: .\stalla\templates\index.html:71
+#, fuzzy
+#| msgid "Sign up"
+msgid "sign up"
+msgstr "Registreren"
+
+#: .\stalla\templates\index.html:73
+msgid ""
+"Regular researchers are able to read and search through the information that "
+"is provided."
+msgstr "Voor gewone zoektochten hoef je niet als gebruiker ingelogd te zijn."
+
+#: .\stalla\templates\index.html:78
+msgid "(See the <b>Extra</b> menu for logout and other options)"
+msgstr "(Zie het menu <b>Speciaal</b> voor afmelden en andere opties)"
+
+#: .\stalla\templates\topnav.html:13
+msgid "not logged in"
+msgstr "niet aangemeld"
+
+#: .\stalla\templates\topnav.html:19
+msgid "Definitions"
+msgstr "Definities"
+
+#: .\stalla\templates\topnav.html:25
+msgid "Search"
+msgstr "Zoeken"
+
+#: .\stalla\templates\topnav.html:35
+msgid "Tools"
+msgstr "Speciaal"
+
+#: .\stalla\templates\topnav.html:66
+msgid "About"
+msgstr "Over"
+
+#: .\stalla\templates\topnav.html:72
+msgid "Log off"
+msgstr "Afmelden"
+
+#: .\stalla\templates\topnav.html:75
+#, fuzzy
+#| msgid "Log out"
+msgid "Log in"
+msgstr "Aanmelden"
+
+#: .\stalla\templates\topnav.html:76
+msgid "Sign up"
+msgstr "Registreren"

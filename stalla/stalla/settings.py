@@ -137,6 +137,15 @@ TIME_ZONE = 'Europe/Amsterdam'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+LANGUAGES = [
+    ('en-us', 'English'),
+    ('nl', 'Nederlands')
+    ]
+
+# Show where tle locale is situated
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/

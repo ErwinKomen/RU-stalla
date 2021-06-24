@@ -1038,6 +1038,17 @@ var ru = (function ($, ru) {
         return private_methods.get_template(sel_item, "api/litref/");
       },
 
+      set_language: function (elStart) {
+        var frm = null;
+
+        try {
+          frm = $(elStart).closest("form");
+          $(frm).submit();
+        } catch (ex) {
+          private_methods.errMsg("set_language", ex);
+        }
+      },
+
       /**
        * sg_template
        *    Construct the template for a Sermon Gold

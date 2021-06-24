@@ -63,6 +63,9 @@
     <Compile Include="stalla\wsgi.py" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="locale\" />
+    <Folder Include="locale\nl\" />
+    <Folder Include="locale\nl\LC_MESSAGES\" />
     <Folder Include="stalla\" />
     <Folder Include="stalla\basic\" />
     <Folder Include="stalla\basic\migrations\" />
@@ -88,6 +91,7 @@
     <Folder Include="stalla\templates\admin\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="locale\nl\LC_MESSAGES\django.po" />
     <Content Include="requirements.txt" />
     <Content Include="stalla\basic\migrations\__pycache__\0001_initial.cpython-35.pyc" />
     <Content Include="stalla\basic\migrations\__pycache__\0002_auto_20210510_1054.cpython-35.pyc" />

@@ -49,4 +49,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page=reverse_lazy('home')), name='logout'),
 
     path('admin/', admin.site.urls, name='admin_base'),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]

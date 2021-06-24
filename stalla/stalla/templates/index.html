@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% load staticfiles %}
+{% load i18n %}
 
 {% block content %}
 
@@ -63,14 +64,18 @@
            target="_blank">page</a> for more information.</p>
 
         <h2>Getting started</h2>
-        <p>
-          The stalla application has been designed by the Technical Service Group of the Humanities Lab at the Radboud University Nijmegen.
-          Any researcher is invited to register (via <a role="button" class="btn btn-default btn-xs" href="{% url 'signup' %}">sign up</a>).
-          Regular researchers are able to read and search through the information that is provided.
+        <p>          
+          {% blocktrans %}The stalla application has been designed by the Technical Service Group of the Humanities Lab at the Radboud University Nijmegen.
+          Any researcher is invited to register (via {% endblocktrans %}
+
+          <a role="button" class="btn btn-default btn-xs" href="{% url 'signup' %}">{% trans "sign up" %}</a>).
+
+          {% blocktrans %}Regular researchers are able to read and search through the information that is provided.{% endblocktrans %}
+
         </p>
         <p>
           {% if user.is_authenticated %}
-          (See the <b>Extra</b> menu for logout and other options)
+            {% blocktrans %}(See the <b>Extra</b> menu for logout and other options){% endblocktrans %}
           {% endif %}
         </p>
 

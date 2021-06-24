@@ -348,3 +348,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/stalla/locale/nl/LC_MESSAGES/django.mo

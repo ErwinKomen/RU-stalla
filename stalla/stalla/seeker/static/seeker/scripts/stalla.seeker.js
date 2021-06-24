@@ -16,7 +16,7 @@ String.prototype.format = function () {
   $(function () {
     $(document).ready(function () {
       // Initialize event listeners
-      ru.stalla.seeker.init_charts();
+      //ru.stalla.seeker.init_charts();
     });
   });
 })(django.jQuery);
