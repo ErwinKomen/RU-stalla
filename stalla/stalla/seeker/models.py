@@ -34,6 +34,8 @@ VISIT_REDUCE = 1000
 
 VIEW_STATUS = "view.status"
 STATUS_TYPE = "seeker.stype"
+AARD_TYPE = "seeker.aard"
+MATTER_TYPE = "seeker.matter"
 
 # ============ HELPER functions ================================
 
@@ -541,4 +543,288 @@ class NewsItem(models.Model):
 
 
 # ==================== Stalla/Seeker models =============================
+
+
+class IconClass(models.Model):
+    """Iconclass"""
+
+    # [1] Notatie
+    notatie = models.CharField("Iconclass notatie",  max_length=MAX_TEXT_LEN)
+
+    def __str__(self):
+        return self.notatie
+
+
+class Soort(models.Model):
+    """Kind of woodcraft object"""
+
+    # [1] Naam
+    naam = models.CharField("Name (nl)",  max_length=MAX_TEXT_LEN)
+    # [1] Naam
+    eng = models.CharField("Name (en)",  max_length=MAX_TEXT_LEN)
+
+    def __str__(self):
+        return self.naam
+
+
+class Tag(models.Model):
+    """Each object can be described by zero or more tags"""
+
+    # [1] Name
+    name = models.CharField("Name",  max_length=MAX_TEXT_LEN)
+
+    def __str__(self):
+        return self.name
+
+
+class Location(models.Model):
+    """Location where a choir bank has been found"""
+
+    # [1] Name of this location
+    name = models.CharField("Location", max_length=MAX_TEXT_LEN)
+    # [0-1] Country
+    land = models.CharField("Country", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] City
+    plaats = models.CharField("City", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [1] Location
+    x_coordinaat = models.CharField("X coordinate", max_length=MAX_TEXT_LEN)
+    # [1] Location
+    y_coordinaat = models.CharField("Y coordinate", max_length=MAX_TEXT_LEN)
+
+    def __str__(self):
+        return self.name
+
+
+class Kunstenaar(models.Model):
+    """The artist involved"""
+
+    # [1] Name of the artist
+    name = models.CharField("Name",  max_length=MAX_TEXT_LEN)
+    # [0-1] Date of birth
+    geboortedatum = models.CharField("Date of birth", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Date of death
+    sterfdatum = models.CharField("Date of death", max_length=MAX_TEXT_LEN, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Photographer(models.Model):
+    """A photographer"""
+
+    # [1] Name of the photographer
+    name = models.CharField("Name",  max_length=MAX_TEXT_LEN)
+
+    def __str__(self):
+        return self.name
+
+
+class Literatuur(models.Model):
+    """A bibliographic piece"""
+
+    # [0-1] Literature code
+    literatuurcode = models.CharField("Literature code", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Author
+    auteursvermelding = models.CharField("Author", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Title
+    title = models.CharField("Title", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Publication location
+    plaatsvanuitgave = models.CharField("City", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Year of publication
+    jaar = models.CharField("Year", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Journal
+    tijdschrift = models.CharField("Journal", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Year number
+    jaarnummer = models.CharField("Year number", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Page
+    pagina = models.CharField("Page", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Remark
+    opmerking = models.CharField("Remark", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Forced
+    geforceerd = models.CharField("Forced", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] URL
+    url = models.CharField("URL", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Location where a copy of this publication is kept
+    plaats = models.CharField("Location", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [1] Entered
+    ingevoerd = models.BooleanField("Entered", default=False)
+    # [1] Entered
+    gecontroleerd = models.BooleanField("Checked", default=False)
+
+    def __str__(self):
+        return self.literatuurcode
+
+
+class Werkstuk(models.Model):
+    """An [object], i.e. some woodcraft created on a choir bank"""
+
+    # [1] Inventory number
+    inventarisnummer = models.CharField("Inventory number",  max_length=MAX_TEXT_LEN)
+    # [1] Every codicological unit has a status - this is *NOT* related to model 'Status'
+    aard = models.CharField("Area", choices=build_abbr_list(AARD_TYPE), max_length=5, default="uncl")
+    # [0-1] Descriptions in Dutch
+    beschrijving_nl = models.TextField("Description (nl)", blank=True, null=True)
+    # [0-1] Descriptions in English
+    beschrijving_en = models.TextField("Description (en)", blank=True, null=True)
+    # [1] Nietopnet
+    nietopnet = models.BooleanField("Nietopnet", default=False)
+    # [0-1] Starting date
+    begindatum = models.CharField("Start date", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] End date
+    einddatum = models.CharField("End date", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Measures
+    afmetingen = models.CharField("Measures", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [1] Material
+    materiaal = models.CharField("Materiaal", choices=build_abbr_list(MATTER_TYPE), max_length=5, default="eik")
+    # [0-1] Condition
+    toestand = models.CharField("Condition", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Picture: start date
+    begindatering_foto = models.CharField("Start date picture", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Picture: End date
+    einddatering_foto = models.CharField("End date picture", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Measures
+    afmetingen_foto = models.CharField("Measures picture", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Lit paralel
+    lit_paralel = models.TextField("Lit paralel", blank=True, null=True)
+    # [0-1] Location of the choir bank
+    plaats_koorbank = models.CharField("Choir bank location", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Bearer
+    drager = models.CharField("Bearer", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Filepath
+    filepath = models.CharField("File path", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Jpg
+    jpg = models.CharField("Jpg", max_length=MAX_TEXT_LEN, blank=True, null=True)
+
+    # =============== Nummer codering =================================================
+    # [0-1] End date 1
+    nummer1 = models.CharField("Number 1", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Vis bijschrift 1
+    vis_bijschrift1 = models.CharField("Vis bijschrift 1", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] End date 2
+    nummer2 = models.CharField("Number 2", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Vis bijschrift 2
+    vis_bijschrift2 = models.CharField("Vis bijschrift 2", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] End date 3
+    nummer3 = models.CharField("Number 3", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Vis bijschrift 3
+    vis_bijschrift3 = models.CharField("Vis bijschrift 3", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] End date 4
+    nummer4 = models.CharField("Number 4", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Vis bijschrift 4
+    vis_bijschrift4 = models.CharField("Vis bijschrift 4", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] End date 5
+    nummer5 = models.CharField("Number 5", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Vis bijschrift 5
+    vis_bijschrift5 = models.CharField("Vis bijschrift 5", max_length=MAX_TEXT_LEN, blank=True, null=True)
+
+    # [0-1] Dub number 1
+    dubnummer1 = models.CharField("Dub number 1", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dubble picture text 1
+    dubble_afb_tekst1 = models.CharField("Dubble picture text 1", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dub number 2
+    dubnummer2 = models.CharField("Dub number 2", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dubble picture text 2
+    dubble_afb_tekst2 = models.CharField("Dubble picture text 2", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dub number 3
+    dubnummer3 = models.CharField("Dub number 3", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dubble picture text 3
+    dubble_afb_tekst3 = models.CharField("Dubble picture text 3", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dub number 4
+    dubnummer4 = models.CharField("Dub number 4", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dubble picture text 4
+    dubble_afb_tekst4 = models.CharField("Dubble picture text 4", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dub number 5
+    dubnummer5 = models.CharField("Dub number 5", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [0-1] Dubble picture text 5
+    dubble_afb_tekst5 = models.CharField("Dubble picture text 5", max_length=MAX_TEXT_LEN, blank=True, null=True)
+
+    # =============== Remarks on several things ========================================
+    # [1] Remark on the date - Dutch
+    opmerking_datering_nl = models.CharField("Date remark (nl)", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [1] Remark on the date - English
+    opmerking_datering_en = models.CharField("Date remark (en)", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [1] Remark on the location
+    opmerking_herkomstplaats = models.TextField("Remark on origin", blank=True, null=True)
+    # [1] Remark on the location
+    opmerking_toestand = models.TextField("Remark on condition", blank=True, null=True)
+    # [1] Remark on the material
+    opmerking_materiaal = models.TextField("Remark on material", blank=True, null=True)
+    # [1] Remark on the picture
+    opmerking_foto = models.TextField("Remark on picture", blank=True, null=True)
+    # [1] Remark on the 'paralel'
+    opmerking_paralel = models.TextField("Remark on paralel", blank=True, null=True)
+    # [1] Remark on the date of the picture
+    opmerking_datering_afb = models.TextField("Remark on picture date", blank=True, null=True)
+
+    # ============== Foreign keys ======================================================
+    # [1] Kind of object
+    soort = models.ForeignKey(Soort, on_delete=models.CASCADE, related_name="soortwerkstukken")
+    # [1] Location
+    locatie = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="locatiewerkstukken")
+    # [1] Photographer
+    fotograaf = models.ForeignKey(Photographer, on_delete=models.CASCADE, related_name="fotograafwerkstukken")
+
+    # ============== MANYTOMANY connections ============================================
+    # [m] Many-to-many: tags per werkstuk
+    tags = models.ManyToManyField(Tag, through="WerkstukTag", related_name="tags_werkstuk")
+    # [m] Many-to-many: iconclasses per werkstuk
+    iconclasses = models.ManyToManyField(IconClass, through="Iconclassnotatie", related_name="iconclasses_werkstuk")
+    # [m] Many-to-many: artists per werkstuk
+    kunstenaren = models.ManyToManyField(Kunstenaar, through="Kunstenaarnotatie", related_name="kunstenaren_werkstuk")
+    # [m] Many-to-many: literature per werkstuk
+    literaturen = models.ManyToManyField(Literatuur, through="Literatuurverwijzing", related_name="literaturen_werkstuk")
+
+    def __str__(self):
+        return self.inventarisnummer
+            
+
+class WerkstukTag(models.Model):
+    """Link between werkstuk and tag"""
+
+    # [1] THe link to the werkstuk
+    werkstuk = models.ForeignKey(Werkstuk, on_delete=models.CASCADE, related_name="werkstuk_tag")
+    # [1] THe link to the tag
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name="werkstuk_tag")
+    # [1] And a date: the date of saving this relation
+    created = models.DateTimeField(default=get_current_datetime)
+
+
+class Iconclassnotatie(models.Model):
+    """Link between iconclass and werkstuk"""
+
+    # [1] THe link to the werkstuk
+    werkstuk = models.ForeignKey(Werkstuk, on_delete=models.CASCADE, related_name="werkstuk_iconclass")
+    # [1] THe link to the iconclass
+    iconclass = models.ForeignKey(IconClass, on_delete=models.CASCADE, related_name="werkstuk_iconclass")
+    # [0-1] Remark on this link
+    opmerking = models.CharField("Remark", max_length=MAX_TEXT_LEN, blank=True, null=True)
+
+
+class Kunstenaarnotatie(models.Model):
+    """Link between werkstuk and tag"""
+
+    # [1] THe link to the werkstuk
+    werkstuk = models.ForeignKey(Werkstuk, on_delete=models.CASCADE, related_name="werkstuk_kunstenaar")
+    # [1] THe link to the artist
+    kunstenaar = models.ForeignKey(Kunstenaar, on_delete=models.CASCADE, related_name="werkstuk_kunstenaar")
+    # [1] And a date: the date of saving this relation
+    created = models.DateTimeField(default=get_current_datetime)
+
+
+class Literatuurverwijzing(models.Model):
+    """Link between literatuur and werkstuk"""
+
+    # [1] THe link to the werkstuk
+    werkstuk = models.ForeignKey(Werkstuk, on_delete=models.CASCADE, related_name="werkstuk_literatuur")
+    # [1] THe link to the literature
+    literatuur = models.ForeignKey(Literatuur, on_delete=models.CASCADE, related_name="werkstuk_literatuur")
+    # [0-1] Page reference
+    paginaerwijzing = models.CharField("Page reference", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    # [1] Whether an item of this literature is in possession or not
+    exemplaar = models.BooleanField(default=False) 
+    # [0-1] ROom for a remark
+    opmerking = models.TextField("Opmerking", blank=True, null=True)
+
+
+
 
