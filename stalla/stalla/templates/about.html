@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+
+{% block content %}
+
+<div class="container body-content">
+  <h2>{{ title }}</h2>
+  <div class="row">
+    <div class="col-md-6">
+      <h3>Background</h3>
+
+      <p>This user prefers language: {{LANGUAGE_CODE}} // {{lang.code}}</p>
+      <p>Available languages: {{LANGUAGES}}</p>
+      {% for lng in LANGUAGES %}
+        {{lng.code}} - {{lng.name_local}}
+      {% endfor %}
+     
+      <p>De voorstellingen op de koorbanken zijn onderverdeeld in categorieën. 
+      U kunt deze categorieën, waarin alle tot op dit moment ontsloten koorbanken gepresenteerd worden, aanklikken en u krijgt dan de resultaten gepresenteerd.</p>
+
+      <p>U kunt met vrije tekst zoeken in één van de velden. Door met de muis over de afbeeldingen te bewegen worden enkele gegevens gepresenteerd. 
+      Door dubbel op de afbeelding te klikken, worden alle gegevens gepresenteerd.</p>
+
+      <p>Indien bekend, worden bij de voorstellingen op de misericorden parallellen in de beeldende kunst gegeven. Daarbij hanteren we de volgende uitgangspunten:
+        <ul>
+          <li>De parallellen dienen zo veel mogelijk contemporain te zijn</li>
+          <li>Indien er voldoende keus is wordt geprobeerd parallellen in verschillende kunstvormen te presenteren 
+          (muurschilderkunst, prentkunst, schilderkunst, sculptuur, boekverluchting).</li>
+        </ul>
+      </p>
+
+      <p>De parallellen worden bij voorkeur uit de dezelfde regio of hetzelfde cultuurgebied gegeven.</p>
+
+    </div>
+    <div class="col-md-6">
+      <section id='statistics'>
+        <h3>Statistics</h3>
+        <p>Different people have entered manuscripts manually:</p>
+      </section>
+
+      <h3>Quick Reference</h3>
+      <p>The main purpose of the Stalla web application is to facilitate searches:
+
+      </p>
+      <p>
+        The source code of Passim is available at <a href="https://github.com/ErwinKomen/RU-stalla">github</a>.
+      </p>
+      <p>
+        <a class="btn btn-default" href="mailto:erwin.komen@ru.nl">Request assistance &raquo;</a>
+        <span class="pull-right">
+          <a class="btn btn-primary" href="" target="_blank">Short guide</a>
+          <a class="btn btn-primary" href="{% static 'browser/content/StallaManual.pdf' %}" target="_blank">Manual (pdf)</a>
+        </span>
+      </p>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <h4>Bibliography</h4>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

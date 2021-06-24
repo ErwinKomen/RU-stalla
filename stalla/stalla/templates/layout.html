@@ -1,0 +1,63 @@
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- Put that code here -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'seeker/content/bootstrap.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'seeker/content/ru-base.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'seeker/content/ru-form.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'seeker/content/ru-widgets.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'seeker/content/site.css' %}" />
+    <script src="{% static 'seeker/scripts/modernizr-2.6.2.js' %}"></script>
+    <script src="{% static 'seeker/scripts/jquery-1.10.2.js' %}"></script>
+    <script src="{% static 'seeker/scripts/bootstrap.js' %}"></script>
+    <script src="{% static 'seeker/scripts/respond.js' %}"></script>
+    <script src="{% static 'seeker/scripts/typeahead.bundle.js' %}"></script>
+    <script src="{% static 'seeker/scripts/html2canvas.js' %}"></script>
+    <script src="{% static 'seeker/scripts/xhr2.js' %}"></script>
+    <script src="{% static 'seeker/scripts/d3.v6.js' %}" charset="utf-8"></script>
+
+    <!-- Original code -->
+    <script src="{% static 'seeker/scripts/stalla.js' %}"></script>
+    <script src="{% static 'seeker/scripts/stalla.seeker.js' %}"></script>
+{% block scripts %}{% endblock %}
+</head>
+
+<body>
+{% load i18n %}
+{% include 'topnav.html' %}
+
+{% block breadcrumbs %}{% endblock %}
+
+    <div class="container-fluid body-content">
+      <div id="__baseurl__" class="hidden" url_home="{% url 'home' %}">{% url 'home' %}</div>
+      <div class="hidden" id="__typeaheads__">{{typeaheads}}</div>
+      <div id="__form__" class="hidden"><form></form></div>
+      <!-- room for all errors -->
+      <div id="passim_err"></div>
+
+{% block content %}{% endblock %}
+
+        <hr/>
+    </div>
+  <div>
+        <footer>
+            <span>PASSIM v1.1.5 &copy; jan/2019-jun/2021 </span>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <span>Sponsored by: <a href="https://cordis.europa.eu/project/rcn/218691/factsheet/en">Cordis</a></span>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <span>Developed at: <a href="http://cls.ru.nl">Radboud University Nijmegen</a></span>
+        </footer>
+
+  </div>
+{% block endcontent %}{% endblock %}
+</body>
+</html>
