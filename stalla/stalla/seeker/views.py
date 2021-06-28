@@ -34,11 +34,11 @@ import json
 import csv, re
 
 # ======= imports from my own application ======
-from stalla.settings import APP_PREFIX, WRITABLE_DIR
+from stalla.settings import APP_PREFIX, WRITABLE_DIR, MEDIA_DIR
 from stalla.utils import ErrHandle
 from stalla.seeker.forms import SignUpForm
-from stalla.seeker.models import get_now_time, get_current_datetime, \
-    User, Group, Information, Visit, NewsItem
+from stalla.seeker.models import get_now_time, get_current_datetime, process_userdata, \
+    User, Group, Information, Visit, NewsItem, Status
 
 
 # ======= from RU-Basic ========================
@@ -395,7 +395,6 @@ def about(request):
 
     return render(request,'about.html', context)
 
-
 def nlogin(request):
     """Renders the not-logged-in page."""
     assert isinstance(request, HttpRequest)
@@ -406,6 +405,128 @@ def nlogin(request):
     return render(request,'nlogin.html', context)
 
 # ================ OTHER VIEW HELP FUNCTIONS ============================
+
+def sync_stalla(request):
+    """-"""
+    assert isinstance(request, HttpRequest)
+
+    # Gather info
+    context = {'title': 'SyncStalla',
+               'message': 'Radboud University PASSIM'
+               }
+    template_name = 'seeker/syncstalla.html'
+    context['is_app_uploader'] = user_is_ingroup(request, app_uploader)
+    context['is_app_editor'] = user_is_ingroup(request, app_editor)
+    context['is_app_moderator'] = user_is_superuser(request) or user_is_ingroup(request, app_moderator)
+    context['is_superuser'] = user_is_superuser(request)
+
+    # Add the information in the 'context' of the web page
+    return render(request, template_name, context)
+
+def sync_start(request):
+    """Synchronize information"""
+
+    oErr = ErrHandle()
+    data = {'status': 'starting'}
+    try:
+        # Get the user
+        username = request.user.username
+        # Authentication
+        if not user_is_ingroup(request, app_editor):
+            return redirect('home')
+
+        # Get the synchronization type
+        get = request.GET
+        synctype = ""
+        force = False
+        if 'synctype' in get:
+            synctype = get['synctype']
+        if 'force' in get:
+            force = get['force']
+            force = (force == "true" or force == "1" )
+
+        if synctype == '':
+            # Formulate a response
+            data['status'] = 'no sync type specified'
+
+        else:
+            # Remove previous status objects for this combination of user/type
+            qs = Status.objects.filter(user=username, type=synctype)
+            qs.delete()
+
+            # Create a status object for this combination of synctype/user
+            oStatus = Status(user=username, type=synctype, status="preparing")
+            oStatus.save()
+
+            # Formulate a response
+            data['status'] = 'done'
+
+            # The actual synchronisation process starts here, depending on the type
+            if synctype == "userdata":
+                # Now perform the update
+                oStatus.set("loading")
+
+                oResult = process_userdata(oStatus)
+                if oResult == None or oResult['result'] == False:
+                    data['status'] = 'error'
+                elif oResult != None:
+                    data['count'] = oResult
+
+    except:
+        oErr.DoError("sync_start error")
+        data['status'] = "error"
+
+    # Return this response
+    return JsonResponse(data)
+
+def sync_progress(request):
+    """Get the progress on the /crpp synchronisation process"""
+
+    oErr = ErrHandle()
+    data = {'status': 'preparing'}
+
+    try:
+        # Get the user
+        username = request.user.username
+        # Get the synchronization type
+        get = request.GET
+        synctype = ""
+        if 'synctype' in get:
+            synctype = get['synctype']
+
+        if synctype == '':
+            # Formulate a response
+            data['status'] = 'error'
+            data['msg'] = "no sync type specified" 
+
+        else:
+            # Formulate a response
+            data['status'] = 'UNKNOWN'
+
+            # Get the appropriate status object
+            # sleep(1)
+            oStatus = Status.objects.filter(user=username, type=synctype).first()
+
+            # Check what we received
+            if oStatus == None:
+                # There is no status object for this type
+                data['status'] = 'error'
+                data['msg'] = "Cannot find status for {}/{}".format(
+                    username, synctype)
+            else:
+                # Get the last status information
+                data['status'] = oStatus.status
+                data['msg'] = oStatus.msg
+                data['count'] = oStatus.count
+
+        # Return this response
+        return JsonResponse(data)
+    except:
+        oErr.DoError("sync_start error")
+        data = {'status': 'error'}
+
+    # Return this response
+    return JsonResponse(data)
 
 def login_as_user(request, user_id):
     assert isinstance(request, HttpRequest)

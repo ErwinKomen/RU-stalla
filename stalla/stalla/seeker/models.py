@@ -23,7 +23,8 @@ import csv
 import math
 
 from stalla.utils import *
-from stalla.settings import APP_PREFIX, WRITABLE_DIR, TIME_ZONE
+from stalla.seeker.excel import excel_to_list, excel_generator
+from stalla.settings import APP_PREFIX, WRITABLE_DIR, TIME_ZONE, MEDIA_DIR
 
 STANDARD_LENGTH=100
 LONG_STRING=255
@@ -211,6 +212,136 @@ def get_helptext(name):
     if name != "":
         sBack = HelpChoice.get_help_markdown(name)
     return sBack
+
+def custom_add(oWerkstuk, cls, idfield, **kwargs):
+    """Add a werkstuk according to the specifications provided"""
+
+    oErr = ErrHandle()
+    manu = None
+    lst_msg = []
+    lstQ = {}
+    app_name = "seeker"
+    bNeedsSaving = False
+
+    try:
+        profile = kwargs.get("profile")
+        username = kwargs.get("username")
+        team_group = kwargs.get("team_group")
+
+        # Obligatory: accessid
+        accessid = oWerkstuk.get(idfield)
+
+        # Retrieve or create a new werkstuk with default values
+        obj = cls.objects.filter(accessid=accessid).first()
+        if obj == None:
+            # Doesn't exist: create it
+            # obj = cls.objects.create(accessid=accessid)
+            lstQ['accessid'] = accessid
+                        
+        # Process all fields in the Specification
+        for oField in cls.specification:
+            # Make sure to take the lower-case variant of the name
+            field = oField.get("name").lower()
+            value = oWerkstuk.get(field)
+            readonly = oField.get('readonly', False)
+            if value != None and value != "" and not readonly:
+                path = oField.get("path")
+                if path == None: path = field
+                type = oField.get("type")
+                if type == None: type = "field"
+                if type == "field":
+                    # Possibly correct for field type
+                    if value in ['True', 'False']:
+                        value = True if value == "True" else False
+                    # Set the correct field's value
+                    if obj == None:
+                        lstQ[path] = value
+                    elif getattr(obj,path) != value:
+                        setattr(obj, path, value)
+                        bNeedsSaving = True
+                elif type == "fk":
+                    fkfield = oField.get("fkfield")
+                    model = oField.get("model")
+                    if fkfield != None and model != None:
+                        # Find an item with the name for the particular model
+                        cls = apps.app_configs[app_name].get_model(model)
+                        instance = cls.objects.filter(**{"{}".format(fkfield): value}).first()
+                        if instance != None:
+                            if obj == None:
+                                lstQ[path]  = instance
+                            elif getattr(obj,path) != instance:
+                                setattr(obj, path, instance)
+                                bNeedsSaving = True
+                elif type == "func":
+                    # Set the KV in a special way
+                    if obj == None:
+                        oResponse = cls.custom_set(None, path, value, oWerkstuk, **kwargs)
+                        if oResponse != None:
+                            for k,v in oResponse.items():
+                                lstQ[k] = v
+                    else:
+                        bNeedsSaving = obj.custom_set(path, value, oWerkstuk, **kwargs)
+
+        # Make sure the update the object
+        if obj == None:
+            # Create one
+            obj = cls.objects.create(**lstQ)
+        elif bNeedsSaving:
+            # Save the changes
+            obj.save()
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("custom_add")
+    return obj
+
+def custom_getkv(obj, item, **kwargs):
+    """Get key and value from the manuitem entry"""
+
+    oErr = ErrHandle()
+    key = ""
+    value = ""
+    try:
+        key = item['name']
+        if self != None:
+            if item['type'] == 'field':
+                value = getattr(obj, item['path'])
+            elif item['type'] == "fk":
+                fk_obj = getattr(obj, item['path'])
+                if fk_obj != None:
+                    value = getattr( fk_obj, item['fkfield'])
+            elif item['type'] == 'func':
+                value = obj.custom_get(item['path'], kwargs=kwargs)
+                # Adaptation for empty lists
+                if value == "[]": value = ""
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("custom_getkv")
+    return key, value
+
+# ================ Application specific ==========================
+def process_userdata(oStatus):
+    """Read userdata from an Excel file"""
+
+    oBack = {}
+    oErr = ErrHandle()
+
+    try:
+        oStatus.set("preparing")
+        # Process changes in user-data as made available in Excel in the media directory
+        filename = os.path.abspath(os.path.join(MEDIA_DIR, "stalla", "StallaTables.xlsx"))
+
+        oResult = Werkstuk.read_excel(oStatus, filename)
+
+        # We are done!
+        oStatus.set("done", oBack)
+
+        # return positively
+        oBack['result'] = True
+        return oBack
+    except:
+        oStatus.set("error")
+        oErr.DoError("process_userdata", True)
+        return oBack
 
 
 
@@ -456,16 +587,6 @@ class Visit(models.Model):
             obj = Visit(user=user, name=name, path=path)
             obj.save()
 
-            ## Get to the stack of this user
-            #profile = Profile.objects.filter(user=user).first()
-            #if profile == None:
-            #    # There is no profile yet, so make it
-            #    profile = Profile(user=user)
-            #    profile.save()
-
-            ## Process this visit in the profile
-            #profile.add_visit(name, path, is_menu, **kwargs)
-
             # Possibly throw away an overflow of visit logs?
             user_visit_count = Visit.objects.filter(user=user).count()
             if user_visit_count > VISIT_MAX:
@@ -548,8 +669,17 @@ class NewsItem(models.Model):
 class IconClass(models.Model):
     """Iconclass"""
 
+    # [1] Take over the access ID
+    accessid = models.IntegerField("Access ID")
     # [1] Notatie
     notatie = models.CharField("Iconclass notatie",  max_length=MAX_TEXT_LEN)
+
+    # Scheme for downloading and uploading
+    specification = [
+        # Note: name=Excel file, path=Db field name
+        {'name': 'iconclassID',         'type': 'field',    'path': 'accessid'},
+        {'name': 'iconclassnotatie',    'type': 'field',    'path': 'notatie'},
+        ]
 
     def __str__(self):
         return self.notatie
@@ -559,9 +689,9 @@ class Soort(models.Model):
     """Kind of woodcraft object"""
 
     # [1] Naam
-    naam = models.CharField("Name (nl)",  max_length=MAX_TEXT_LEN)
+    naam = models.CharField("Name (nl)",  max_length=MAX_TEXT_LEN, blank=True, null=True)
     # [1] Naam
-    eng = models.CharField("Name (en)",  max_length=MAX_TEXT_LEN)
+    eng = models.CharField("Name (en)",  max_length=MAX_TEXT_LEN, blank=True, null=True)
 
     def __str__(self):
         return self.naam
@@ -598,12 +728,21 @@ class Location(models.Model):
 class Kunstenaar(models.Model):
     """The artist involved"""
 
+    # [1] Take over the access ID
+    accessid = models.IntegerField("Access ID")
     # [1] Name of the artist
     name = models.CharField("Name",  max_length=MAX_TEXT_LEN)
     # [0-1] Date of birth
     geboortedatum = models.CharField("Date of birth", max_length=MAX_TEXT_LEN, blank=True, null=True)
     # [0-1] Date of death
     sterfdatum = models.CharField("Date of death", max_length=MAX_TEXT_LEN, blank=True, null=True)
+
+    # Scheme for downloading and uploading
+    specification = [
+        # Note: name=Excel file, path=Db field name
+        {'name': 'KunstenaarID',        'type': 'field',    'path': 'accessid'},
+        {'name': 'Kunstenaarnotatie',   'type': 'field',    'path': 'name'},
+        ]
 
     def __str__(self):
         return self.name
@@ -622,6 +761,8 @@ class Photographer(models.Model):
 class Literatuur(models.Model):
     """A bibliographic piece"""
 
+    # [1] Take over the access ID
+    accessid = models.IntegerField("Access ID")
     # [0-1] Literature code
     literatuurcode = models.CharField("Literature code", max_length=MAX_TEXT_LEN, blank=True, null=True)
     # [0-1] Author
@@ -651,6 +792,26 @@ class Literatuur(models.Model):
     # [1] Entered
     gecontroleerd = models.BooleanField("Checked", default=False)
 
+    # Scheme for downloading and uploading
+    specification = [
+        # Note: name=Excel file, path=Db field name
+        {'name': 'literatuurID',        'type': 'field',    'path': 'accessid'},
+        {'name': 'literatuurcode'},
+        {'name': 'auteursvermelding'},
+        {'name': 'titel', 'path': 'title'},
+        {'name': 'plaatsvanuitgave'},
+        {'name': 'jaar'},
+        {'name': 'tijdschrift'},
+        {'name': 'jaarnummer'},
+        {'name': 'pagina'},
+        {'name': 'opmerking'},
+        {'name': 'geforceerd'},
+        {'name': 'plaats'},
+        {'name': 'ingevoerd'},
+        {'name': 'url'},
+        {'name': 'gecontroleerd'},
+        ]
+
     def __str__(self):
         return self.literatuurcode
 
@@ -658,9 +819,11 @@ class Literatuur(models.Model):
 class Werkstuk(models.Model):
     """An [object], i.e. some woodcraft created on a choir bank"""
 
+    # [1] Take over the access ID
+    accessid = models.IntegerField("Access ID")
     # [1] Inventory number
     inventarisnummer = models.CharField("Inventory number",  max_length=MAX_TEXT_LEN)
-    # [1] Every codicological unit has a status - this is *NOT* related to model 'Status'
+    # [1] Every werkstuk has a particular 'aard'
     aard = models.CharField("Area", choices=build_abbr_list(AARD_TYPE), max_length=5, default="uncl")
     # [0-1] Descriptions in Dutch
     beschrijving_nl = models.TextField("Description (nl)", blank=True, null=True)
@@ -774,8 +937,269 @@ class Werkstuk(models.Model):
     # [m] Many-to-many: literature per werkstuk
     literaturen = models.ManyToManyField(Literatuur, through="Literatuurverwijzing", related_name="literaturen_werkstuk")
 
+    # Scheme for downloading and uploading
+    specification = [
+        # Note: name=Excel file, path=Db field name
+        {'name': 'accessid',            'type': 'field',    'path': 'objectid'},
+        {'name': 'inventarisnummer',    'type': 'field',    'path': 'inventarisnummer'},
+        {'name': 'aard',                'type': 'func',     'path': 'aard'},
+        {'name': 'beschrijving_ned',    'type': 'field',    'path': 'beschrijving_nl'},
+        {'name': 'beschrijving_eng',    'type': 'field',    'path': 'beschrijving_en'},
+        {'name': 'nietopnet',           'type': 'field',    'path': 'nietopnet'},
+        {'name': 'begindatum',          'type': 'field',    'path': 'begindatum'},
+        {'name': 'einddatum',           'type': 'field',    'path': 'einddatum'},
+        {'name': 'afmetingen',          'type': 'field',    'path': 'afmetingen'},
+        {'name': 'materiaal',           'type': 'field',    'path': 'materiaal'},
+        {'name': 'toestand',            'type': 'field',    'path': 'toestand'},
+        {'name': 'begindatering_foto',  'type': 'field',    'path': 'begindatering_foto'},
+        {'name': 'einddatering_foto',   'type': 'field',    'path': 'einddatering_foto'},
+        {'name': 'afmetingen_foto',     'type': 'field',    'path': 'afmetingen_foto'},
+        {'name': 'lit_paralel',         'type': 'field',    'path': 'lit_paralel'},
+        {'name': 'plaats_koorbank',     'type': 'field',    'path': 'plaats_koorbank'},
+        {'name': 'drager',              'type': 'field',    'path': 'drager'},
+        {'name': 'filepath',            'type': 'field',    'path': 'filepath'},
+        {'name': 'jpg',                 'type': 'field',    'path': 'jpg'},
+
+        {'name': 'fotograaf',           'type': 'func',     'path': 'fotograaf'},
+        {'name': 'locatie',             'type': 'func',     'path': 'locatie'},
+        {'name': 'soort',               'type': 'func',     'path': 'soort'},
+        {'name': 'soort_engels',        'type': 'func',     'path': 'soort'},
+
+        {'name': 'nummer1',             'type': 'field', 'path': 'nummer1'},
+        {'name': 'vis_bijschrift1',     'type': 'field', 'path': 'vis_bijschrift1'},
+        {'name': 'nummer2',             'type': 'field', 'path': 'nummer2'},
+        {'name': 'vis_bijschrift2',     'type': 'field', 'path': 'vis_bijschrift2'},
+        {'name': 'nummer3',             'type': 'field', 'path': 'nummer3'},
+        {'name': 'vis_bijschrift3',     'type': 'field', 'path': 'vis_bijschrift3'},
+        {'name': 'nummer4',             'type': 'field', 'path': 'nummer4'},
+        {'name': 'vis_bijschrift4',     'type': 'field', 'path': 'vis_bijschrift4'},
+        {'name': 'nummer5',             'type': 'field', 'path': 'nummer5'},
+        {'name': 'vis_bijschrift5',     'type': 'field', 'path': 'vis_bijschrift5'},
+
+        {'name': 'dubnummer1',          'type': 'field', 'path': 'dubnummer1'},
+        {'name': 'dubble_afb_tekst1',   'type': 'field', 'path': 'dubble_afb_tekst1'},
+        {'name': 'dubnummer2',          'type': 'field', 'path': 'dubnummer2'},
+        {'name': 'dubble_afb_tekst2',   'type': 'field', 'path': 'dubble_afb_tekst2'},
+        {'name': 'dubnummer3',          'type': 'field', 'path': 'dubnummer3'},
+        {'name': 'dubble_afb_tekst3',   'type': 'field', 'path': 'dubble_afb_tekst3'},
+        {'name': 'dubnummer4',          'type': 'field', 'path': 'dubnummer4'},
+        {'name': 'dubble_afb_tekst4',   'type': 'field', 'path': 'dubble_afb_tekst4'},
+        {'name': 'dubnummer5',          'type': 'field', 'path': 'dubnummer5'},
+        {'name': 'dubble_afb_tekst5',   'type': 'field', 'path': 'dubble_afb_tekst5'},
+
+        {'name': 'opmerking_datering',          'type': 'field', 'path': 'opmerking_datering_nl'},
+        {'name': 'opmerking_datering_engels',   'type': 'field', 'path': 'opmerking_datering_en'},
+        {'name': 'opmerking_herkomstplaats',    'type': 'field', 'path': 'opmerking_herkomstplaats'},
+        {'name': 'opmerkingen',                 'type': 'field', 'path': 'opmerking_toestand'},
+        {'name': 'opmerking_materiaal',         'type': 'field', 'path': 'opmerking_materiaal'},
+        {'name': 'opmerking_foto',              'type': 'field', 'path': 'opmerkingen_foto'},
+        {'name': 'opmerking_paralel',           'type': 'field', 'path': 'opmerkingen_paralel'},
+        {'name': 'opmerking_datering_afb',      'type': 'field', 'path': 'opmerkingen_datering_afb'},
+        ]
+
     def __str__(self):
         return self.inventarisnummer
+
+    def custom_get(self, path, **kwargs):
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            # Specific path handling
+            if path == "aard":
+                sBack = choice_value(AARD_TYPE, self.aard)
+
+            #if path == "dateranges":
+            #    qs = self.werkstuk_dateranges.all().order_by('yearstart')
+            #    dates = []
+            #    for obj in qs:
+            #        dates.append(obj.__str__())
+            #    sBack = json.dumps(dates)
+            #elif path == "origin":
+            #    sBack = self.get_origin()
+            #elif path == "provenances":
+            #    sBack = self.get_provenance_markdown(plain=True)
+            #elif path == "aard":
+            #    sBack = choice_value(AARD_TYPE, self.aard)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Werkstuk/custom_get")
+        return sBack
+
+    def custom_set(self, path, value, oWerkstuk, **kwargs):
+        """Set related items"""
+
+        oErr = ErrHandle()
+        aard_abbr = {"4": "prof", "5": "reli", "6": "uncl"}
+        lstQ = {}
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            value_lst = []
+            if isinstance(value, str) and value[0] != '[':
+                value_lst = value.split(",")
+                for idx, item in enumerate(value_lst):
+                    value_lst[idx] = value_lst[idx].strip()
+
+            if path == "aard":
+                # Get the abbreviation
+                abbr = aard_abbr[value]
+                # Set the value
+                if self == None:
+                    lstQ['aard'] = abbr
+                else:
+                    if self.aard != abbr:
+                        self.aard = abbr
+                    else:
+                        lstQ = False
+            elif path == "fotograaf":
+                # Find the photographer
+                obj = Photographer.objects.filter(name=value).first()
+                if obj == None:
+                    obj = Photographer.objects.create(name=value)
+                # Set myself
+                if self == None:
+                    lstQ['fotograaf'] = obj
+                else:
+                    if self.fotograaf != obj:
+                        self.fotograaf = obj                
+                    else:
+                        lstQ = False
+            elif path == "locatie":
+                name = oWerkstuk.get('locatie')
+                land = oWerkstuk.get('land')
+                plaats = oWerkstuk.get('plaats')
+                x_coordinaat = oWerkstuk.get('x-coördinaat')
+                y_coordinaat = oWerkstuk.get('y-coördinaat')
+                # Find the Location entry
+                obj = Location.objects.filter(name=name, land=land, plaats=plaats).first()
+                if obj == None:
+                    obj = Location.objects.create(name=name, land=land, plaats=plaats, 
+                                                  x_coordinaat=x_coordinaat, y_coordinaat=y_coordinaat)
+                # Set myself
+                if self == None:
+                    lstQ['locatie'] = obj
+                else:
+                    if self.locatie != obj:
+                        self.locatie = obj
+                    else:
+                        lstQ = False
+            elif path == "soort":
+                soort = oWerkstuk.get("soort")
+                soort_eng = oWerkstuk.get("soort_engels")
+                # Find the Soort entry
+                obj = Soort.objects.filter(naam=soort, eng=soort_eng).first()
+                if obj == None:
+                    obj = Soort.objects.create(naam=soort, eng=soort_eng)
+                # Set myself
+                if self == None:
+                    lstQ['soort'] = obj
+                else:
+                    if self.soort != obj:
+                        self.soort = obj
+                    else:
+                        lstQ = False
+            else:
+                # Figure out what to do in this case
+                pass
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Werkstuk/custom_set")
+            lstQ = None
+        return lstQ
+
+    def read_excel(oStatus, fname):
+        """Update information from Excel file"""
+
+        oErr = ErrHandle()
+        oResult = {}
+        count = 0
+
+        try:
+            # Check
+            if not os.path.exists(fname) or not os.path.isfile(fname):
+                # Return negatively
+                oErr.Status("Werkstuk/read_excel: cannot read {}".format(fname))
+                oResult['status'] = "error"
+                oResult['msg'] = "Werkstuk/read_excel: cannot read {}".format(fname)
+                return oResult
+
+            # (1) Read the 'object' table with new werkstukken
+            for oRow in excel_generator(fname, wsName="object"):
+                bMayProcess = (int(oRow['objectid']) >= 562)
+                # Show where we are
+                count += 1
+                oStatus.set("reading object {}".format(count))
+                if bMayProcess:
+                    # Process this item into the database
+                    custom_add(oRow, Werkstuk, "objectid")
+
+            # (2) Read the 'iconclass' objects
+            for oRow in excel_generator(fname, wsName="iconclass"):
+                # Show where we are
+                count += 1
+                oStatus.set("reading iconclass {}".format(count))
+                # Process this item into the database
+                custom_add(oRow, IconClass, "iconclassID")
+
+            # (3) Read the 'Kunstenaar' objects
+            for oRow in excel_generator(fname, wsName="Kunstenaar"):
+                # Show where we are
+                count += 1
+                oStatus.set("reading kunstenaar {}".format(count))
+                # Process this item into the database
+                custom_add(oRow, Kunstenaar, "KunstenaarID")
+
+            # (4) Read the 'literatuur' objects
+            for oRow in excel_generator(fname, wsName="literatuur"):
+                # Show where we are
+                count += 1
+                oStatus.set("reading literatuur {}".format(count))
+                # Process this item into the database
+                custom_add(oRow, Literatuur, "literatuurID")
+
+            # Update many-to-many relations
+
+            # (1) Read the 'iconclassnotatie' objects
+            for oRow in excel_generator(fname, wsName="iconclassnotatie"):
+                # Show where we are
+                count += 1
+                oStatus.set("reading Iconclassnotatie {}".format(count))
+                # Process this item into the database
+                custom_add(oRow, Iconclassnotatie, "iconobjID")
+
+            # (1) Read the 'Kunstenaarnotatie' objects
+            for oRow in excel_generator(fname, wsName="Kunstenaarnotatie"):
+                # Show where we are
+                count += 1
+                oStatus.set("reading Kunstenaarnotatie {}".format(count))
+                # Process this item into the database
+                custom_add(oRow, Kunstenaarnotatie, "KunstenaarobjID")
+
+            # (1) Read the 'literatuurverwijzing' objects
+            for oRow in excel_generator(fname, wsName="literatuurverwijzing"):
+                # Show where we are
+                count += 1
+                oStatus.set("reading Literatuurverwijzing {}".format(count))
+                # Process this item into the database
+                custom_add(oRow, Literatuurverwijzing, "litobjectID")
+
+            # Now we are ready
+            oResult['status'] = "ok"
+            oResult['msg'] = "Read {} werkstuk definitions".format(count)
+            oResult['count'] = count
+        except:
+            oResult['status'] = "error"
+            oResult['msg'] = oErr.get_error_message()
+
+        # Return the correct result
+        return oResult
             
 
 class WerkstukTag(models.Model):
@@ -792,6 +1216,8 @@ class WerkstukTag(models.Model):
 class Iconclassnotatie(models.Model):
     """Link between iconclass and werkstuk"""
 
+    # [1] Take over the access ID
+    accessid = models.IntegerField("Access ID")
     # [1] THe link to the werkstuk
     werkstuk = models.ForeignKey(Werkstuk, on_delete=models.CASCADE, related_name="werkstuk_iconclass")
     # [1] THe link to the iconclass
@@ -799,10 +1225,91 @@ class Iconclassnotatie(models.Model):
     # [0-1] Remark on this link
     opmerking = models.CharField("Remark", max_length=MAX_TEXT_LEN, blank=True, null=True)
 
+    # Scheme for downloading and uploading
+    specification = [
+        # Note: name=Excel file, path=Db field name
+        {'name': 'iconobjID',   'type': 'field',    'path': 'accessid'},
+        {'name': 'iconclassID', 'type': 'func',     'path': 'iconclass'},
+        {'name': 'objectID',    'type': 'func',     'path': 'werkstuk'},
+        {'name': 'opmerking'},
+        ]
+
+    def custom_get(self, path, **kwargs):
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            # Specific path handling
+            if path == "iconclass":
+                sBack = self.iconclass.accessid
+            elif path == "werkstuk":
+                sBack = self.werkstuk.accessid
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Iconclassnotatie/custom_get")
+        return sBack
+
+    def custom_set(self, path, value, oWerkstuk, **kwargs):
+        """Set related items"""
+
+        oErr = ErrHandle()
+        lstQ = {}
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            value_lst = []
+            if isinstance(value, str) and value[0] != '[':
+                value_lst = value.split(",")
+                for idx, item in enumerate(value_lst):
+                    value_lst[idx] = value_lst[idx].strip()
+
+            # Specific path handling
+            if path == "iconclass":
+                # Get the correct IconClass object
+                iconclass = IconClass.objects.filter(accessid=value).first()
+                # Set the value
+                if self == None:
+                    lstQ['iconclass'] = iconclass
+                else:
+                    if self.iconclass != iconclass:
+                        self.iconclass = iconclass
+                    else:
+                        lstQ = False
+
+            elif path == "werkstuk":
+                # Get the correct IconClass object
+                werkstuk = Werkstuk.objects.filter(accessid=value).first()
+                # Set the value
+                if self == None:
+                    lstQ['werkstuk'] = werkstuk
+                else:
+                    if self.werkstuk != werkstuk:
+                        self.werkstuk = werkstuk
+                    else:
+                        lstQ = False
+
+            else:
+                # Figure out what to do in this case
+                pass
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Iconclassnotatie/custom_set")
+            lstQ = None
+        return lstQ
+
 
 class Kunstenaarnotatie(models.Model):
     """Link between werkstuk and tag"""
 
+    # [1] Take over the access ID
+    accessid = models.IntegerField("Access ID")
     # [1] THe link to the werkstuk
     werkstuk = models.ForeignKey(Werkstuk, on_delete=models.CASCADE, related_name="werkstuk_kunstenaar")
     # [1] THe link to the artist
@@ -810,20 +1317,181 @@ class Kunstenaarnotatie(models.Model):
     # [1] And a date: the date of saving this relation
     created = models.DateTimeField(default=get_current_datetime)
 
+    # Scheme for downloading and uploading
+    specification = [
+        # Note: name=Excel file, path=Db field name
+        {'name': 'KunstenaarobjID', 'type': 'field',    'path': 'accessid'},
+        {'name': 'KunstenaarID',    'type': 'func',     'path': 'kunstenaar'},
+        {'name': 'objectID',        'type': 'func',     'path': 'werkstuk'},
+        ]
+
+    def custom_get(self, path, **kwargs):
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            # Specific path handling
+            if path == "kunstenaar":
+                sBack = self.kunstenaar.accessid
+            elif path == "werkstuk":
+                sBack = self.werkstuk.accessid
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Kunstenaarnotatie/custom_get")
+        return sBack
+
+    def custom_set(self, path, value, oWerkstuk, **kwargs):
+        """Set related items"""
+
+        oErr = ErrHandle()
+        lstQ = {}
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            value_lst = []
+            if isinstance(value, str) and value[0] != '[':
+                value_lst = value.split(",")
+                for idx, item in enumerate(value_lst):
+                    value_lst[idx] = value_lst[idx].strip()
+
+            # Specific path handling
+            if path == "kunstenaar":
+                # Get the correct Kunstenaar object
+                kunstenaar = Kunstenaar.objects.filter(accessid=value).first()
+                # Set the value
+                if self == None:
+                    lstQ['kunstenaar'] = kunstenaar
+                else:
+                    if self.kunstenaar != kunstenaar:
+                        self.kunstenaar = kunstenaar
+                    else:
+                        lstQ = False
+
+            elif path == "werkstuk":
+                # Get the correct IconClass object
+                werkstuk = Werkstuk.objects.filter(accessid=value).first()
+                # Set the value
+                if self == None:
+                    lstQ['werkstuk'] = werkstuk
+                else:
+                    if self.werkstuk != werkstuk:
+                        self.werkstuk = werkstuk
+                    else:
+                        lstQ = False
+
+            else:
+                # Figure out what to do in this case
+                pass
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Kunstenaarnotatie/custom_set")
+            lstQ = None
+        return lstQ
+
 
 class Literatuurverwijzing(models.Model):
     """Link between literatuur and werkstuk"""
 
+    # [1] Take over the access ID
+    accessid = models.IntegerField("Access ID")
     # [1] THe link to the werkstuk
     werkstuk = models.ForeignKey(Werkstuk, on_delete=models.CASCADE, related_name="werkstuk_literatuur")
     # [1] THe link to the literature
     literatuur = models.ForeignKey(Literatuur, on_delete=models.CASCADE, related_name="werkstuk_literatuur")
     # [0-1] Page reference
-    paginaerwijzing = models.CharField("Page reference", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    paginaverwijzing = models.CharField("Page reference", max_length=MAX_TEXT_LEN, blank=True, null=True)
     # [1] Whether an item of this literature is in possession or not
     exemplaar = models.BooleanField(default=False) 
     # [0-1] ROom for a remark
     opmerking = models.TextField("Opmerking", blank=True, null=True)
+
+    # Scheme for downloading and uploading
+    specification = [
+        # Note: name=Excel file, path=Db field name
+        {'name': 'litobjectID',     'type': 'field',    'path': 'accessid'},
+        {'name': 'literatuurID',    'type': 'func',     'path': 'literatuur'},
+        {'name': 'objectID',        'type': 'func',     'path': 'werkstuk'},
+        {'name': 'paginaverwijzing'},
+        {'name': 'exemplaar'},
+        {'name': 'opmerking'},
+        ]
+
+    def custom_get(self, path, **kwargs):
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            # Specific path handling
+            if path == "literatuur":
+                sBack = self.literatuur.accessid
+            elif path == "werkstuk":
+                sBack = self.werkstuk.accessid
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Literatuurverwijzing/custom_get")
+        return sBack
+
+    def custom_set(self, path, value, oWerkstuk, **kwargs):
+        """Set related items"""
+
+        oErr = ErrHandle()
+        lstQ = {}
+        try:
+            profile = kwargs.get("profile")
+            username = kwargs.get("username")
+            team_group = kwargs.get("team_group")
+
+            value_lst = []
+            if isinstance(value, str) and value[0] != '[':
+                value_lst = value.split(",")
+                for idx, item in enumerate(value_lst):
+                    value_lst[idx] = value_lst[idx].strip()
+
+            # Specific path handling
+            if path == "literatuur":
+                # Get the correct IconClass object
+                literatuur = Literatuur.objects.filter(accessid=value).first()
+                # Set the value
+                if self == None:
+                    lstQ['literatuur'] = literatuur
+                else:
+                    if self.literatuur != literatuur:
+                        self.literatuur = literatuur
+                    else:
+                        lstQ = False
+
+            elif path == "werkstuk":
+                # Get the correct IconClass object
+                werkstuk = Werkstuk.objects.filter(accessid=value).first()
+                # Set the value
+                if self == None:
+                    lstQ['werkstuk'] = werkstuk
+                else:
+                    if self.werkstuk != werkstuk:
+                        self.werkstuk = werkstuk
+                    else:
+                        lstQ = False
+
+            else:
+                # Figure out what to do in this case
+                pass
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Literatuurverwijzing/custom_set")
+            lstQ = None
+        return lstQ
 
 
 

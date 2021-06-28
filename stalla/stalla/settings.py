@@ -30,6 +30,8 @@ if r"\\writable" in WRITABLE_DIR:
 
 print("Database directory: {}".format(WRITABLE_DIR), file=sys.stderr)
 
+MEDIA_DIR = os.path.abspath(os.path.join(WRITABLE_DIR, "../media/"))
+
 APP_PREFIX = ""
 if "d:" in WRITABLE_DIR or "D:" in WRITABLE_DIR or "c:" in WRITABLE_DIR or "C:" in WRITABLE_DIR or bUseTunnel:
     APP_PREFIX = ""

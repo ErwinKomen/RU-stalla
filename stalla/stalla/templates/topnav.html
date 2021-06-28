@@ -37,7 +37,7 @@
                        <ul class="dropdown-menu">
                           <li><a href="" title="Bibliography">Bibliography</a></li> 
                           {% if is_app_editor %}
-                            <li><a href="" title="Synchronization of Zotero and other items">Synchronization...</a></li>
+                            <li><a href="{% url 'sync_stalla' %}" title="Synchronization of Zotero and other items">Synchronization...</a></li>
                             
                           {% endif %}
                         </ul>

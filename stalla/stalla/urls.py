@@ -29,7 +29,11 @@ urlpatterns = [
     path('', stalla.seeker.views.home, name='home'),
     path('contact/', stalla.seeker.views.contact, name='contact'),
     path('about/', stalla.seeker.views.about, name='about'),
+    path('nlogin/', stalla.seeker.views.nlogin, name='nlogin'),
 
+    path('sync/stalla/', stalla.seeker.views.sync_stalla, name='sync_stalla'),
+    path('sync/start/', stalla.seeker.views.sync_start, name='sync_start'),
+    path('sync/progress/', stalla.seeker.views.sync_progress, name='sync_progress'),
 
     # For working with ModelWidgets from the select2 package https://django-select2.readthedocs.io
     path('select2/', include('django_select2.urls')),

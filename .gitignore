@@ -304,7 +304,6 @@ __pycache__/
 *.min.js
 _references.js
 migrations/
-obj/
 .vscode/
 scripts/jquery*
 scripts/respond*
