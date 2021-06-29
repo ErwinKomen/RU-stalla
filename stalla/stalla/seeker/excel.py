@@ -47,7 +47,6 @@ def excel_to_list(filename, wsName = None, lExpected = None, lField = None):
         # Iterate
         iRow = 1
         for row in ws.iter_rows(min_row=1, min_col=1):
-            oErr.Status("Reading row {}".format(iRow))
             iRow += 1
             if bFirst:
                 # Expect header

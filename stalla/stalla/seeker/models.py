@@ -213,7 +213,7 @@ def get_helptext(name):
         sBack = HelpChoice.get_help_markdown(name)
     return sBack
 
-def custom_add(oWerkstuk, cls, idfield, **kwargs):
+def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
     """Add a werkstuk according to the specifications provided"""
 
     oErr = ErrHandle()
@@ -229,10 +229,13 @@ def custom_add(oWerkstuk, cls, idfield, **kwargs):
         team_group = kwargs.get("team_group")
 
         # Obligatory: accessid
-        accessid = oWerkstuk.get(idfield)
+        accessid = oWerkstuk.get(idfield.lower())
 
         # Retrieve or create a new werkstuk with default values
-        obj = cls.objects.filter(accessid=accessid).first()
+        if addonly:
+            obj = None
+        else:
+            obj = cls.objects.filter(accessid=accessid).first()
         if obj == None:
             # Doesn't exist: create it
             # obj = cls.objects.create(accessid=accessid)
@@ -244,6 +247,7 @@ def custom_add(oWerkstuk, cls, idfield, **kwargs):
             field = oField.get("name").lower()
             value = oWerkstuk.get(field)
             readonly = oField.get('readonly', False)
+            optional = (oField.get('optional') == True)
             if value != None and value != "" and not readonly:
                 path = oField.get("path")
                 if path == None: path = field
@@ -253,6 +257,7 @@ def custom_add(oWerkstuk, cls, idfield, **kwargs):
                     # Possibly correct for field type
                     if value in ['True', 'False']:
                         value = True if value == "True" else False
+
                     # Set the correct field's value
                     if obj == None:
                         lstQ[path] = value
@@ -925,7 +930,7 @@ class Werkstuk(models.Model):
     # [1] Location
     locatie = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="locatiewerkstukken")
     # [1] Photographer
-    fotograaf = models.ForeignKey(Photographer, on_delete=models.CASCADE, related_name="fotograafwerkstukken")
+    fotograaf = models.ForeignKey(Photographer, on_delete=models.CASCADE, related_name="fotograafwerkstukken", null=True)
 
     # ============== MANYTOMANY connections ============================================
     # [m] Many-to-many: tags per werkstuk
@@ -960,7 +965,7 @@ class Werkstuk(models.Model):
         {'name': 'filepath',            'type': 'field',    'path': 'filepath'},
         {'name': 'jpg',                 'type': 'field',    'path': 'jpg'},
 
-        {'name': 'fotograaf',           'type': 'func',     'path': 'fotograaf'},
+        {'name': 'fotograaf',           'type': 'func',     'path': 'fotograaf', 'optional': True},
         {'name': 'locatie',             'type': 'func',     'path': 'locatie'},
         {'name': 'soort',               'type': 'func',     'path': 'soort'},
         {'name': 'soort_engels',        'type': 'func',     'path': 'soort'},
@@ -1057,7 +1062,7 @@ class Werkstuk(models.Model):
                         self.aard = abbr
                     else:
                         lstQ = False
-            elif path == "fotograaf":
+            elif path == "fotograaf" and value != "":
                 # Find the photographer
                 obj = Photographer.objects.filter(name=value).first()
                 if obj == None:
@@ -1120,6 +1125,8 @@ class Werkstuk(models.Model):
         oErr = ErrHandle()
         oResult = {}
         count = 0
+        lst_skip = ["object", "iconclass", "Kunstenaar", "literatuur",
+                    "iconclassnotatie", "Kunstenaarnotatie"]
 
         try:
             # Check
@@ -1131,68 +1138,100 @@ class Werkstuk(models.Model):
                 return oResult
 
             # (1) Read the 'object' table with new werkstukken
-            for oRow in excel_generator(fname, wsName="object"):
-                bMayProcess = (int(oRow['objectid']) >= 562)
-                # Show where we are
-                count += 1
-                oStatus.set("reading object {}".format(count))
-                if bMayProcess:
-                    # Process this item into the database
-                    custom_add(oRow, Werkstuk, "objectid")
+            if "object" not in lst_skip:
+                bResult, lRows, msg = excel_to_list(fname, wsName= "object")
+                if bResult:
+                    bMayProcess = True
+                    for idx, oRow in enumerate(lRows):
+                        # for oRow in excel_generator(fname, wsName="object"):
+                        # bMayProcess = (int(oRow['objectid']) >= 8500)
+                        # Show where we are
+                        count += 1
+                        if bMayProcess:
+                            oStatus.set("reading object {}".format(count))
+                            # Process this item into the database
+                            custom_add(oRow, Werkstuk, "objectid")
+                else:
+                    oErr.Status("Werkstuk error reading worksheet [object]: {}".format(msg))
 
             # (2) Read the 'iconclass' objects
-            for oRow in excel_generator(fname, wsName="iconclass"):
-                # Show where we are
-                count += 1
-                oStatus.set("reading iconclass {}".format(count))
-                # Process this item into the database
-                custom_add(oRow, IconClass, "iconclassID")
+            if "iconclass" not in lst_skip:
+                count = 0
+                bAddOnly = (IconClass.objects.count() == 0)
+                for oRow in excel_generator(fname, wsName="iconclass"):
+                    # Show where we are
+                    count += 1
+                    oStatus.set("reading iconclass {}".format(count))
+                    # Process this item into the database
+                    custom_add(oRow, IconClass, "iconclassID")
 
             # (3) Read the 'Kunstenaar' objects
-            for oRow in excel_generator(fname, wsName="Kunstenaar"):
-                # Show where we are
-                count += 1
-                oStatus.set("reading kunstenaar {}".format(count))
-                # Process this item into the database
-                custom_add(oRow, Kunstenaar, "KunstenaarID")
+            if "Kunstenaar" not in lst_skip:
+                count = 0
+                bAddOnly = (Kunstenaar.objects.count() == 0)
+                for oRow in excel_generator(fname, wsName="Kunstenaar"):
+                    # Show where we are
+                    count += 1
+                    oStatus.set("reading kunstenaar {}".format(count))
+                    # Process this item into the database
+                    custom_add(oRow, Kunstenaar, "KunstenaarID")
 
             # (4) Read the 'literatuur' objects
-            for oRow in excel_generator(fname, wsName="literatuur"):
-                # Show where we are
-                count += 1
-                oStatus.set("reading literatuur {}".format(count))
-                # Process this item into the database
-                custom_add(oRow, Literatuur, "literatuurID")
+            if "literatuur" not in lst_skip:
+                count = 0
+                bAddOnly = (Literatuur.objects.count() == 0)
+                for oRow in excel_generator(fname, wsName="literatuur"):
+                    # Show where we are
+                    count += 1
+                    oStatus.set("reading literatuur {}".format(count))
+                    # Process this item into the database
+                    custom_add(oRow, Literatuur, "literatuurID")
 
             # Update many-to-many relations
 
             # (1) Read the 'iconclassnotatie' objects
-            for oRow in excel_generator(fname, wsName="iconclassnotatie"):
-                # Show where we are
-                count += 1
-                oStatus.set("reading Iconclassnotatie {}".format(count))
-                # Process this item into the database
-                custom_add(oRow, Iconclassnotatie, "iconobjID")
+            if "iconclassnotatie" not in lst_skip:
+                count = 0
+                bAddOnly = (Iconclassnotatie.objects.count() == 0)
+                for oRow in excel_generator(fname, wsName="iconclassnotatie"):
+                    # Show where we are
+                    count += 1
+                    if count % 1000 == 0:
+                        oStatus.set("reading Iconclassnotatie {}".format(count))
+                    # Process this item into the database
+                    if oRow['objectid'] != "" and oRow['iconclassid'] != "":
+                        custom_add(oRow, Iconclassnotatie, "iconobjid")
 
             # (1) Read the 'Kunstenaarnotatie' objects
-            for oRow in excel_generator(fname, wsName="Kunstenaarnotatie"):
-                # Show where we are
-                count += 1
-                oStatus.set("reading Kunstenaarnotatie {}".format(count))
-                # Process this item into the database
-                custom_add(oRow, Kunstenaarnotatie, "KunstenaarobjID")
+            if "Kunstenaarnotatie" not in lst_skip:
+                count = 0
+                bAddOnly = (Kunstenaarnotatie.objects.count() == 0)
+                for oRow in excel_generator(fname, wsName="Kunstenaarnotatie"):
+                    # Show where we are
+                    count += 1
+                    if count % 1000 == 0:
+                        oStatus.set("reading Kunstenaarnotatie {}".format(count))
+                    # Process this item into the database
+                    if oRow['objectid'] != "" and oRow['kunstenaarid'] != "":
+                        custom_add(oRow, Kunstenaarnotatie, "kunstenaarobjid")
 
             # (1) Read the 'literatuurverwijzing' objects
-            for oRow in excel_generator(fname, wsName="literatuurverwijzing"):
-                # Show where we are
-                count += 1
-                oStatus.set("reading Literatuurverwijzing {}".format(count))
-                # Process this item into the database
-                custom_add(oRow, Literatuurverwijzing, "litobjectID")
+            if "Literatuurverwijzing" not in lst_skip:
+                count = 0
+                bAddOnly = (Literatuurverwijzing.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in excel_generator(fname, wsName="literatuurverwijzing"):
+                        # Show where we are
+                        count += 1
+                        if count % 1000 == 0:
+                            oStatus.set("reading Literatuurverwijzing {}".format(count))
+                        # Process this item into the database
+                        if oRow['objectid'] != "" and oRow['literatuurid'] != "":
+                            custom_add(oRow, Literatuurverwijzing, "litobjectid", addonly = bAddOnly)
 
             # Now we are ready
             oResult['status'] = "ok"
-            oResult['msg'] = "Read {} werkstuk definitions".format(count)
+            oResult['msg'] = "Read {} items".format(count)
             oResult['count'] = count
         except:
             oResult['status'] = "error"

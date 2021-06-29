@@ -48,7 +48,7 @@ class ErrHandle:
             sMsg = str(arInfo[1])
             if arInfo[2] != None:
                 sMsg += " at line " + str(arInfo[2].tb_lineno)
-            return sMsg
+                return sMsg
         else:
             return ""
 
