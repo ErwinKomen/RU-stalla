@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% if literaturen|length == 0 %}
+  <p>{% trans "(No literature for this object)" %}</p>
+{% else %}
+  <h4>{% trans "Literature" %}</h4>
+  <table>
+    {% for literature in literaturen %}
+      {% for line in literature.lines %}
+        <tr>
+          <td class="details-label">{{line.label}}:&nbsp;</td>
+          <td>{{line.value}}</td>
+        </tr>
+      {% endfor %}
+    {% endfor %}
+  </table>
+{% endif %}

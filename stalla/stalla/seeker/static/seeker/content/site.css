@@ -1662,3 +1662,7 @@ svg .nodes text {
     margin-bottom: 1px;
 }
 
+/* Specific for Stalla */
+.details-label {
+    font-style: italic;
+}

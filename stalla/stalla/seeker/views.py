@@ -36,10 +36,11 @@ import csv, re
 # ======= imports from my own application ======
 from stalla.settings import APP_PREFIX, WRITABLE_DIR, MEDIA_DIR
 from stalla.utils import ErrHandle
-from stalla.seeker.forms import SignUpForm
+from stalla.seeker.forms import SignUpForm, WerkstukForm
 from stalla.seeker.models import get_now_time, get_current_datetime, process_userdata, \
-    User, Group, Information, Visit, NewsItem, Status
-
+    User, Group, Information, Visit, NewsItem, Status, \
+    Werkstuk
+from stalla.seeker.adaptations import listview_adaptations
 
 # ======= from RU-Basic ========================
 from stalla.basic.views import BasicPart, BasicList, BasicDetails, make_search_list, add_rel_item, adapt_search
@@ -576,4 +577,184 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
+
+# ================ BASIC based views ===================================
+
+class WerkstukEdit(BasicDetails):
+    """The details of one werkstuk object"""
+
+    model = Werkstuk
+    mForm = None        # We are not using a form here!
+    prefix = 'wer'
+    new_button = False
+    # no_delete = True
+    permission = "readonly"
+    mainitems = []
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+        try:
+            # Define the main items to show and edit
+            context['mainitems'] = [
+                {'type': 'plain', 'label': "Objectnummer:",     'value': instance.inventarisnummer,    },
+                {'type': 'plain', 'label': "Aard:",             'value': instance.get_aard(self.language),    },
+                {'type': 'plain', 'label': "Beschrijving:",     'value': instance.get_beschrijving(self.language),     },
+                {'type': 'plain', 'label': "Locatie koorstal:", 'value': instance.plaats_koorbank,    },
+                {'type': 'plain', 'label': "Iconclass codes:",  'value': instance.get_iconclasscodes(),    },
+                {'type': 'plain', 'label': "Locatie koorstal:", 'value': instance.plaats_koorbank,    },
+                {'type': 'plain', 'label': "Datuminterval:",    'value': instance.get_daterange(),    },
+                {'type': 'plain', 'label': "Locatie:",          'value': instance.get_locatie(),    },
+                {'type': 'plain', 'label': "Fotograaf:",        'value': instance.get_fotograaf(),    },
+                {'type': 'plain', 'label': "Kunstenaar:",       'value': instance.get_kunstenaren(),    },
+                {'type': 'plain', 'label': "Literaire aanduiding:", 'value': instance.lit_paralel,    },
+                ]
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("WerkstukEdit/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class WerkstukDetails(WerkstukEdit):
+    """Like Werkstuk Edit, but then html output"""
+    rtype = "html"
+
+    literature_def = [
+        {'field': 'auteursvermelding',  'label': 'Auhor(s)',        'label_nl': 'Auteur(s)'},
+        {'field': 'title',              'label': 'Title',           'label_nl': 'Titel'},
+        {'field': 'plaatsvanuitgave',   'label': 'Plaats',          'label_nl': 'City'},
+        {'field': 'jaar',               'label': 'Jaar',            'label_nl': 'Year'},
+        {'field': 'tijdschrift',        'label': 'Tijdschrift',     'label_nl': 'Journal'},
+        {'field': 'pagina',             'label': 'Paginaverwijzing', 'label_nl': 'Pages'},
+        # {'field': '', 'label': '', 'label_nl': ''},
+        ]
+
+    def add_to_context(self, context, instance):
+        response = super(WerkstukDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+            lHtml = []
+            if 'after_details' in context:
+                lHtml.append(context['after_details'])
+            literaturen = []
+            for obj in instance.literaturen.all().order_by('auteursvermelding', 'title'):
+                oLiterature = {}
+                label_field = "label_nl" if self.language == "nl" else "label"
+                lines = []
+                for oField in self.literature_def:
+                    value = getattr(obj, oField['field'])
+                    if value != None:
+                        oLine = dict(label=oField[label_field], value=value)
+                        lines.append(oLine)
+                oLiterature['lines'] = lines
+                literaturen.append(oLiterature)
+            context['literaturen'] = literaturen
+            lHtml.append(render_to_string('seeker/werkstuk_literatuur.html', context, self.request))
+            context['after_details'] = "\n".join(lHtml)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("WerkstukDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+    
+
+class WerkstukListview(BasicList):
+    """Search and list 'werkstuk' objects"""
+
+    model = Werkstuk
+    listform = WerkstukForm
+    prefix = "wer"
+    has_select2 = True
+    order_cols = ['inventarisnummer', 'aard', 'beschrijving_nl']
+    order_default = order_cols
+    order_heads = []
+    filters = []
+    searches = []
+
+    order_heads_nl = [
+        {'name': 'Objectnummer',    'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer', 'linkdetails': True},
+        {'name': 'Aard',            'order': 'o=1', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
+        {'name': 'Beschrijving',    'order': 'o=2', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
+        ]
+    filters_nl = [ 
+        {"name": "Objectnummer",    "id": "filter_inventarisnum",   "enabled": False},
+        {"name": "Aard",            "id": "filter_aardtype",        "enabled": False},
+        {"name": "Beschrijving",    "id": "filter_beschrijving",    "enabled": False}
+        ]
+    searches_nl = [
+        {'section': '', 'filterlist': [
+            {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer'},
+            {'filter': 'aardtype',      'dbfield': 'aard',              'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
+            {'filter': 'beschrijving',  'dbfield': 'beschrijving_nl',   'keyS': 'beschrijving_nl'}
+            ]
+         }
+        ]
+    order_heads_en = [
+        {'name': 'Object number',   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer', 'linkdetails': True},
+        {'name': 'Kind',            'order': 'o=1', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
+        {'name': 'Description',     'order': 'o=2', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
+        ]
+    filters_en = [ 
+        {"name": "Object number",   "id": "filter_inventarisnum",   "enabled": False},
+        {"name": "Kind",            "id": "filter_aardtype",        "enabled": False},
+        {"name": "Description",     "id": "filter_beschrijving",    "enabled": False}
+        ]
+    searches_en = [
+        {'section': '', 'filterlist': [
+            {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer'},
+            {'filter': 'aardtype',      'dbfield': 'aard',              'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
+            {'filter': 'beschrijving',  'dbfield': 'beschrijving_en',   'keyS': 'beschrijving_en'}
+            ]
+         }
+        ]
+
+    def initializations(self):
+        """Perform some initializations"""
+
+        oErr = ErrHandle()
+        try:
+
+            # ======== One-time adaptations ==============
+            listview_adaptations("werkstuk_list")
+
+            # Make sure to set the correct language-dependent matters
+            if self.language == "nl":
+                self.order_heads = self.order_heads_nl
+                self.filters = self.filters_nl
+                self.searches = self.searches_nl
+            else:
+                self.order_heads = self.order_heads_en
+                self.filters = self.filters_en
+                self.searches = self.searches_en
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("WerkstukListview/initializations")
+
+        return None
+
+    def get_field_value(self, instance, custom):
+        sBack = ""
+        sTitle = ""
+        oErr = ErrHandle()
+        try:
+            if custom == "aard":
+                sBack = instance.get_aard(self.language)
+            elif custom == "beschrijving":
+                if self.language == "nl":
+                    sBack = instance.beschrijving_nl
+                else:
+                    sBack = instance.beschrijving_en
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("WerkstukListview/get_field_value")
+        return sBack, sTitle
+
 

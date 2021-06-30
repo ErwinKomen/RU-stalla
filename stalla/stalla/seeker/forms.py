@@ -35,6 +35,32 @@ def user_is_in_team(username, team_group, userplus=None):
             bResult = (owner.user.groups.filter(name=userplus).first() != None)
     return bResult
 
+# ================= WIDGETS =====================================
+
+class AardtypeWidget(ModelSelect2MultipleWidget):
+    model = FieldChoice
+    search_fields = [ 'english_name__icontains', 'dutch_name__icontains']
+    sort_field = "english_name"
+
+    def label_from_instance(self, obj):
+        return obj.english_name
+
+    def get_queryset(self):
+        return FieldChoice.objects.filter(field=AARD_TYPE).order_by(self.sort_field)
+
+
+class AardtypeOneWidget(ModelSelect2Widget):
+    model = FieldChoice
+    search_fields = [ 'english_name__icontains', 'dutch_name__icontains']
+    sort_field = "english_name"
+
+    def label_from_instance(self, obj):
+        return obj.english_name
+
+    def get_queryset(self):
+        return FieldChoice.objects.filter(field=AARD_TYPE).order_by(self.sort_field)
+
+
 # ================= FORMS =======================================
 
 class BootstrapAuthenticationForm(AuthenticationForm):
@@ -58,5 +84,51 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
 
+
+class WerkstukForm(forms.ModelForm):
+    """A form to update and search in Werkstuk objects"""
+
+    #objid = forms.CharField(label=_("Object id"), required=False)
+    aardlist = ModelMultipleChoiceField(queryset=None, required=False, 
+                widget=AardtypeWidget(attrs={'data-placeholder': 'Select multiple users...', 'style': 'width: 100%;', 'class': 'searching'}))
+    aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
+                widget=AardtypeOneWidget(attrs={'data-placeholder': 'Select an aard-type...', 'style': 'width: 30%;', 'class': 'searching'}))
+
+    class Meta:
+        ATTRS_FOR_FORMS = {'class': 'form-control'};
+
+        model = Werkstuk
+        fields = ['accessid', 'inventarisnummer', 'aard', 'beschrijving_nl', 'beschrijving_en']
+        widgets={
+            'accessid':         forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching'}),
+            'inventarisnummer': forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching'}),
+            'aard':             forms.Select(attrs={'style': 'width: 100%;'}),
+            'beschrijving_nl':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching'}),
+            'beschrijving_en':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching'}),
+            }
+
+    def __init__(self, *args, **kwargs):
+        # Start by executing the standard handling
+        super(WerkstukForm, self).__init__(*args, **kwargs)
+        oErr = ErrHandle()
+        try:
+            # Some fields are not required
+            self.fields['accessid'].required = False
+            self.fields['inventarisnummer'].required = False
+            self.fields['aard'].required = False
+            self.fields['beschrijving_nl'].required = False
+            self.fields['beschrijving_en'].required = False
+
+            # Initialize querysets
+            self.fields['aardlist'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by("english_name")
+            self.fields['aardtype'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by("english_name")
+
+            # Get the instance
+            if 'instance' in kwargs:
+                instance = kwargs['instance']
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("WerkstukForm-init")
+        return None
 
 

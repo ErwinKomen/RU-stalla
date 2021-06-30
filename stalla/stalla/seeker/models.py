@@ -1017,18 +1017,6 @@ class Werkstuk(models.Model):
             if path == "aard":
                 sBack = choice_value(AARD_TYPE, self.aard)
 
-            #if path == "dateranges":
-            #    qs = self.werkstuk_dateranges.all().order_by('yearstart')
-            #    dates = []
-            #    for obj in qs:
-            #        dates.append(obj.__str__())
-            #    sBack = json.dumps(dates)
-            #elif path == "origin":
-            #    sBack = self.get_origin()
-            #elif path == "provenances":
-            #    sBack = self.get_provenance_markdown(plain=True)
-            #elif path == "aard":
-            #    sBack = choice_value(AARD_TYPE, self.aard)
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Werkstuk/custom_get")
@@ -1145,6 +1133,73 @@ class Werkstuk(models.Model):
             oErr.DoError("custom_tags")
             bFound = False
         return bFound
+
+    def get_aard(self, language):
+        """Get aard either in Dutch or in English"""
+        sBack = ""
+        obj = FieldChoice.objects.filter(field=AARD_TYPE, abbr=self.aard).first()
+        if obj != None:
+            if language == "nl":
+                # Get dutch
+                sBack = obj.dutch_name
+            else:
+                sBack = obj.english_name
+        return sBack
+
+    def get_beschrijving(self, language):
+        """Get description either in Dutch or in English"""
+        sBack = ""
+        if language == "nl":
+            # Get dutch
+            sBack = self.beschrijving_nl
+        else:
+            sBack = self.beschrijving_en
+        return sBack
+
+    def get_daterange(self):
+        lhtml = []
+        if self.begindatum != None:
+            lhtml.append(self.begindatum)
+        if self.einddatum != None and self.einddatum != self.begindatum:
+            lhtml.append(self.einddatum)
+        sBack = "-".join(lhtml)
+
+    def get_iconclasscodes(self):
+        sBack = ""
+        lhtml = []
+        for obj in self.iconclasses.all().order_by('notatie'):
+            lhtml.append(obj.notatie)
+        sBack = ", ".join(lhtml)
+        return sBack
+
+    def get_fotograaf(self):
+        sBack = ""
+        obj = self.fotograaf
+        if obj == None:
+            sBack = "-"
+        else:
+            sBack = obj.name
+        return sBack
+
+    def get_kunstenaren(self):
+        sBack = "onbekend"
+        lhtml = []
+        for obj in self.kunstenaren.all().order_by('name'):
+            lhtml.append(obj.name)
+        sBack = ", ".join(lhtml)
+        return sBack
+
+    def get_locatie(self):
+        sBack = ""
+        lhtml = []
+        obj = self.locatie
+        if obj != None:
+            land = obj.land
+            if land == None or land == "": land = "onbekend"
+            plaats = obj.plaats
+            if plaats == None or plaats == "": plaats = "onbekend"
+            sBack = "{}, {}: {}".format(land, plaats, obj.name)
+        return sBack
 
     def read_excel(oStatus, fname):
         """Update information from Excel file"""

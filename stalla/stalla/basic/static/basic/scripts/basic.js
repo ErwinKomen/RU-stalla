@@ -1427,6 +1427,8 @@ var ru = (function ($, ru) {
             });
           });
 
+          $('select.django-select2-heavy').attr('data-minimum-input-length', '0')
+
 
           $(".nocloseonclick").each(function (idx, value) {
             var targetid = $(this);

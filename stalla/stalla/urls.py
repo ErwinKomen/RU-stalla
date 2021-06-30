@@ -5,7 +5,7 @@ Definition of urls for stalla.
 from datetime import datetime
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import path, include, reverse_lazy  #, url
+from django.urls import path, re_path, include, reverse_lazy  #, url
 
 import stalla.seeker.views
 import stalla.seeker.forms
@@ -34,6 +34,11 @@ urlpatterns = [
     path('sync/stalla/', stalla.seeker.views.sync_stalla, name='sync_stalla'),
     path('sync/start/', stalla.seeker.views.sync_start, name='sync_start'),
     path('sync/progress/', stalla.seeker.views.sync_progress, name='sync_progress'),
+
+    path('werkstuk/list', WerkstukListview.as_view(), name='werkstuk_list'),
+    path('werkstuk/details/', WerkstukDetails.as_view(), name='werkstuk_details'),
+    path('werkstuk/details/<int:pk>/', WerkstukDetails.as_view(), name='werkstuk_details'),
+    re_path('werkstuk/edit(?:/(?P<pk>\d+))?/$', WerkstukEdit.as_view(), name='werkstuk_edit'),
 
     # For working with ModelWidgets from the select2 package https://django-select2.readthedocs.io
     path('select2/', include('django_select2.urls')),

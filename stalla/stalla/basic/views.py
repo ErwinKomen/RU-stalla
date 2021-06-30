@@ -748,6 +748,7 @@ class BasicList(ListView):
     lst_typeaheads = []
     sort_order = ""
     col_wrap = ""
+    language = ""
     param_list = []
     qs = None
     page_function = "ru.basic.search_paged_start"
@@ -760,8 +761,6 @@ class BasicList(ListView):
         context = super(BasicList, self).get_context_data(**kwargs)
 
         oErr = ErrHandle()
-
-        # self.before_context()
 
         # Get parameters for the search
         if self.initial == None:
@@ -1264,6 +1263,10 @@ class BasicList(ListView):
             # Do not allow to get a good response
             response = redirect(reverse('nlogin'))
         else:
+            # Make sure the language is set correctly
+            language  = self.request.LANGUAGE_CODE
+            self.language = "en" if "en" in language else language
+
             # FIrst do my own initializations
             self.initializations()
 
@@ -1323,6 +1326,7 @@ class BasicDetails(DetailView):
     add = False             # Are we adding a new record or editing an existing one?
     is_basic = True         # Is this a basic details/edit view?
     history_button = False  # Show history button for this view
+    language = ""
     lst_typeahead = []
 
     def get(self, request, pk=None, *args, **kwargs):
@@ -1435,6 +1439,10 @@ class BasicDetails(DetailView):
         # self.previous = get_previous_page(request)
 
         self.lst_typeahead = []
+
+        # Make sure the language is set correctly
+        language  = request.LANGUAGE_CODE
+        self.language = "en" if "en" in language else language
 
         # Copy any pk
         self.pk = pk
@@ -1708,8 +1716,6 @@ class BasicDetails(DetailView):
                         context['admindetails'] = reverse(admindetails, args=[instance.id])
                     except:
                         pass
-                context['modelname'] = self.model._meta.object_name
-                context['titlesg'] = self.titlesg if self.titlesg else self.title if self.title != "" else basic_name.capitalize()
 
                 # Make sure we have a url for editing
                 if instance and instance.id:
@@ -1718,6 +1724,9 @@ class BasicDetails(DetailView):
                     context['detailsview'] = reverse("{}_details".format(basic_name), kwargs={'pk': instance.id})
                 # Make sure we have an url for new
                 context['addview'] = reverse("{}_details".format(basic_name))
+
+            context['modelname'] = self.model._meta.object_name
+            context['titlesg'] = self.titlesg if self.titlesg else self.title if self.title != "" else basic_name.capitalize()
 
             # Determine breadcrumbs and previous page
             if self.is_basic:

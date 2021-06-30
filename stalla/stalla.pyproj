@@ -46,8 +46,14 @@
     <Compile Include="stalla\basic\views.py" />
     <Compile Include="stalla\basic\widgets.py" />
     <Compile Include="stalla\basic\__init__.py" />
+    <Compile Include="stalla\seeker\adaptations.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="stalla\seeker\admin.py" />
     <Compile Include="stalla\seeker\apps.py" />
+    <Compile Include="stalla\seeker\excel.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="stalla\seeker\forms.py">
       <SubType>Code</SubType>
     </Compile>
@@ -158,6 +164,8 @@
     <Content Include="stalla\seeker\static\seeker\scripts\typeahead.bundle.js" />
     <Content Include="stalla\seeker\static\seeker\scripts\xhr2.js" />
     <None Include="stalla\seeker\static\seeker\scripts\_references.js" />
+    <Content Include="stalla\seeker\templates\seeker\syncstalla.html" />
+    <Content Include="stalla\seeker\templates\seeker\werkstuk_literatuur.html" />
     <Content Include="stalla\templates\about.html" />
     <Content Include="stalla\templates\admin\base.html" />
     <Content Include="stalla\templates\breadcrumb_list.html" />

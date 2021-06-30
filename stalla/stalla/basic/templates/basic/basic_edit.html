@@ -14,7 +14,7 @@
   <table style="width: 100%;">
     <tbody>
       <!-- The row with buttons -->
-      {% if is_app_moderator or permission != "readonly" %}
+      {% if is_app_moderator and permission != "readonly" %}
         <tr>
           <td colspan="2"  class="ms editable table">
             <!-- Provide the necessary buttons: edit, cancel and save -->
@@ -93,7 +93,7 @@
         {% elif 'empty' not in mainitem or mainitem.empty == "hidenone" and mainitem.value != "" %}
           <tr class="view-row {% if 'editonly' in mainitem %}edit-mode hidden{% endif %}">
             <!-- Cell with the name of the field-->
-            <td class="tdnowrap" valign="top" {% if mainitem.title %}title="{{mainitem.title}}"{% endif %}>
+            <td class="tdnowrap details-label" valign="top" {% if mainitem.title %}title="{{mainitem.title}}"{% endif %}>
               <span {% if 'editonly' in mainitem %}style="color: gray;"{% if not mainitem.title %}title="This field is edit-only"{% endif %}{% endif %}>{{mainitem.label}}</span>
               {% if mainitem.multiple %}
                 {% if is_app_editor or permission == "write"  %}
