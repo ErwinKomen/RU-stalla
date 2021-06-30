@@ -1119,14 +1119,43 @@ class Werkstuk(models.Model):
             lstQ = None
         return lstQ
 
+    def custom_tags(oWerkstuk, addonly = False, taglist = None):
+        """Get the tags from oWerkstuk and update"""
+
+        oErr = ErrHandle()
+        bFound = True
+        try:
+            if taglist == None:
+                taglist = [{"id": x.id, "name": x.name} for x in Tag.objects.all()]
+            accessid = oWerkstuk['objectid']
+            obj = Werkstuk.objects.filter(accessid=accessid).first()
+            if obj != None:
+                # Walk all tags
+                for oTag in taglist:
+                    if oWerkstuk[oTag['name'].lower()] == "True":
+                        # Add this relation
+                        WerkstukTag.objects.create(werkstuk=obj, tag_id=oTag['id'])
+                    else:
+                        # If the relation exists, it must be removed
+                        wtag = WerkstukTag.objects.filter(werkstuk=obj, tag_id=oTag['id']).first()
+                        if wtag != None:
+                            wtag.delete()
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("custom_tags")
+            bFound = False
+        return bFound
+
     def read_excel(oStatus, fname):
         """Update information from Excel file"""
 
         oErr = ErrHandle()
         oResult = {}
         count = 0
+        lst_all = ["object", "iconclass", "Kunstenaar", "literatuur", "tags",
+                    "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
         lst_skip = ["object", "iconclass", "Kunstenaar", "literatuur",
-                    "iconclassnotatie", "Kunstenaarnotatie"]
+                    "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
 
         try:
             # Check
@@ -1137,22 +1166,18 @@ class Werkstuk(models.Model):
                 oResult['msg'] = "Werkstuk/read_excel: cannot read {}".format(fname)
                 return oResult
 
+            # Pre-load taglist
+            taglist = [{"id": x.id, "name": x.name} for x in Tag.objects.all()]
+
             # (1) Read the 'object' table with new werkstukken
             if "object" not in lst_skip:
-                bResult, lRows, msg = excel_to_list(fname, wsName= "object")
-                if bResult:
-                    bMayProcess = True
-                    for idx, oRow in enumerate(lRows):
-                        # for oRow in excel_generator(fname, wsName="object"):
-                        # bMayProcess = (int(oRow['objectid']) >= 8500)
-                        # Show where we are
-                        count += 1
-                        if bMayProcess:
-                            oStatus.set("reading object {}".format(count))
-                            # Process this item into the database
-                            custom_add(oRow, Werkstuk, "objectid")
-                else:
-                    oErr.Status("Werkstuk error reading worksheet [object]: {}".format(msg))
+                count = 0
+                for oRow in excel_generator(fname, wsName="object"):
+                    # Show where we are
+                    count += 1
+                    oStatus.set("reading object {}".format(count))
+                    # Process this item into the database
+                    custom_add(oRow, Werkstuk, "objectid")
 
             # (2) Read the 'iconclass' objects
             if "iconclass" not in lst_skip:
@@ -1188,8 +1213,20 @@ class Werkstuk(models.Model):
                     custom_add(oRow, Literatuur, "literatuurID")
 
             # Update many-to-many relations
+            if "tags" not in lst_skip:
+                count = 0
+                addonly = (WerkstukTag.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in excel_generator(fname, wsName="object"):
+                        # Show where we are
+                        count += 1
+                        if count % 1000 == 0:
+                            oStatus.set("reading tag {}".format(count))
+                        oErr.Status("reading tag {}".format(count))
+                        # Process this item into the database
+                        Werkstuk.custom_tags(oRow, addonly=addonly, taglist=taglist)
 
-            # (1) Read the 'iconclassnotatie' objects
+            # (2) Read the 'iconclassnotatie' objects
             if "iconclassnotatie" not in lst_skip:
                 count = 0
                 bAddOnly = (Iconclassnotatie.objects.count() == 0)
@@ -1202,7 +1239,7 @@ class Werkstuk(models.Model):
                     if oRow['objectid'] != "" and oRow['iconclassid'] != "":
                         custom_add(oRow, Iconclassnotatie, "iconobjid")
 
-            # (1) Read the 'Kunstenaarnotatie' objects
+            # (3) Read the 'Kunstenaarnotatie' objects
             if "Kunstenaarnotatie" not in lst_skip:
                 count = 0
                 bAddOnly = (Kunstenaarnotatie.objects.count() == 0)
@@ -1215,7 +1252,7 @@ class Werkstuk(models.Model):
                     if oRow['objectid'] != "" and oRow['kunstenaarid'] != "":
                         custom_add(oRow, Kunstenaarnotatie, "kunstenaarobjid")
 
-            # (1) Read the 'literatuurverwijzing' objects
+            # (4) Read the 'literatuurverwijzing' objects
             if "Literatuurverwijzing" not in lst_skip:
                 count = 0
                 bAddOnly = (Literatuurverwijzing.objects.count() == 0)
