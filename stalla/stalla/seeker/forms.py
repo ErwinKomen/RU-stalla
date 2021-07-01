@@ -61,6 +61,48 @@ class AardtypeOneWidget(ModelSelect2Widget):
         return FieldChoice.objects.filter(field=AARD_TYPE).order_by(self.sort_field)
 
 
+class LandOneWidget(ModelSelect2Widget):
+    model = Country
+    search_fields = [ 'name__icontains']
+    dependent_fields = {'plaats': 'countrycities'}
+    # Note: k = form field, v = model field
+
+    def label_from_instance(self, obj):
+        return obj.name
+
+    def get_queryset(self):
+        qs = Country.objects.all().order_by('name').distinct()
+        return qs
+
+
+class PlaatsOneWidget(ModelSelect2Widget):
+    model = City
+    search_fields = [ 'name__icontains']
+    dependent_fields = {}
+    # Note: k = form field, v = model field
+
+    def label_from_instance(self, obj):
+        return "{} ({})".format(obj.name, obj.country.name)
+
+    def get_queryset(self):
+        qs = City.objects.all().order_by('name').distinct()
+        return qs
+
+
+class LocatieOneWidget(ModelSelect2Widget):
+    model = Location
+    search_fields = [ 'name__icontains']
+    dependent_fields = {}
+    # Note: k = form field, v = model field
+
+    def label_from_instance(self, obj):
+        return "{} ({}, {})".format(obj.name, obj.city.name, obj.country.name)
+
+    def get_queryset(self):
+        qs = Location.objects.exclude(name="").order_by('name').distinct()
+        return qs
+
+
 # ================= FORMS =======================================
 
 class BootstrapAuthenticationForm(AuthenticationForm):
@@ -93,18 +135,26 @@ class WerkstukForm(forms.ModelForm):
                 widget=AardtypeWidget(attrs={'data-placeholder': 'Select multiple users...', 'style': 'width: 100%;', 'class': 'searching'}))
     aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=AardtypeOneWidget(attrs={'data-placeholder': 'Select an aard-type...', 'style': 'width: 30%;', 'class': 'searching'}))
+    land    = forms.ModelChoiceField(queryset=None, required=False, 
+                widget=LandOneWidget(attrs={'data-placeholder': 'Select a country...', 'style': 'width: 50%;', 'class': 'searching'}))
+    plaats  = forms.ModelChoiceField(queryset=None, required=False, 
+                widget=PlaatsOneWidget(attrs={'data-placeholder': 'Select a city...', 'style': 'width: 50%;', 'class': 'searching'}))
+    #locatie = forms.ModelChoiceField(queryset=None, required=False, 
+    #            widget=LocatieOneWidget(attrs={'data-placeholder': 'Select a location...', 'style': 'width: 50%;', 'class': 'searching'}))
 
     class Meta:
         ATTRS_FOR_FORMS = {'class': 'form-control'};
 
         model = Werkstuk
-        fields = ['accessid', 'inventarisnummer', 'aard', 'beschrijving_nl', 'beschrijving_en']
+        fields = ['accessid', 'inventarisnummer', 'aard', 'beschrijving_nl', 'beschrijving_en',
+                  'locatie']
         widgets={
             'accessid':         forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching'}),
             'inventarisnummer': forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching'}),
             'aard':             forms.Select(attrs={'style': 'width: 100%;'}),
             'beschrijving_nl':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching'}),
             'beschrijving_en':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching'}),
+            'locatie':          LocatieOneWidget(attrs={'data-placeholder': 'Select a location...', 'style': 'width: 50%;', 'class': 'searching'}),
             }
 
     def __init__(self, *args, **kwargs):
@@ -118,10 +168,22 @@ class WerkstukForm(forms.ModelForm):
             self.fields['aard'].required = False
             self.fields['beschrijving_nl'].required = False
             self.fields['beschrijving_en'].required = False
+            self.fields['locatie'].required = False
+
+            # Set the dependent fields for [city]
+            if self.prefix != "":
+                self.fields['plaats'].widget.dependent_fields = {
+                    '{}-land'.format(self.prefix): 'country'}
+                self.fields['locatie'].widget.dependent_fields = {
+                    '{}-land'.format(self.prefix): 'country',
+                    '{}-plaats'.format(self.prefix): 'city'}
 
             # Initialize querysets
             self.fields['aardlist'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by("english_name")
             self.fields['aardtype'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by("english_name")
+            self.fields['land'].queryset = Country.objects.order_by('name').distinct()
+            self.fields['plaats'].queryset = City.objects.order_by('name').distinct()
+            self.fields['locatie'].queryset = Location.objects.exclude(name="").order_by('name').distinct()
 
             # Get the instance
             if 'instance' in kwargs:

@@ -19,6 +19,7 @@ from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.base import RedirectView
 from django.views.generic import ListView, View
+from django.utils.translation import activate
 
 import json
 import fnmatch
@@ -325,6 +326,14 @@ def make_search_list(filters, oFields, search_list, qd, lstExclude):
                         external = get_value(search_item, "external")
                         if has_string_value(external, oFields):
                             qd[external] = getattr(val, "name")
+                    elif fkfield != None and has_obj_value(keyS, oFields):
+                        val = oFields[keyS]
+                        enable_filter(filter_type, head_id)
+                        s_q = Q(**{fkfield: val})
+                        external = get_value(search_item, "external")
+                        if has_string_value(external, oFields):
+                            qd[external] = getattr(val, "name")
+
                 elif dbfield:
                     # We are dealing with a plain direct field for the model
                     # OR: it is also possible we are dealing with a m2m field -- that gets the same treatment
@@ -1266,6 +1275,7 @@ class BasicList(ListView):
             # Make sure the language is set correctly
             language  = self.request.LANGUAGE_CODE
             self.language = "en" if "en" in language else language
+            activate(self.language)
 
             # FIrst do my own initializations
             self.initializations()
@@ -1443,6 +1453,7 @@ class BasicDetails(DetailView):
         # Make sure the language is set correctly
         language  = request.LANGUAGE_CODE
         self.language = "en" if "en" in language else language
+        activate(self.language)
 
         # Copy any pk
         self.pk = pk

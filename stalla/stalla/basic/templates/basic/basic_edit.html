@@ -1,4 +1,4 @@
-{% load i18n %}
+﻿{% load i18n %}
 
 {% block scripts %}
   {% if has_select2 %}{{basic_form.media.css}}{% endif %}
@@ -94,7 +94,7 @@
           <tr class="view-row {% if 'editonly' in mainitem %}edit-mode hidden{% endif %}">
             <!-- Cell with the name of the field-->
             <td class="tdnowrap details-label" valign="top" {% if mainitem.title %}title="{{mainitem.title}}"{% endif %}>
-              <span {% if 'editonly' in mainitem %}style="color: gray;"{% if not mainitem.title %}title="This field is edit-only"{% endif %}{% endif %}>{{mainitem.label}}</span>
+              <span {% if 'editonly' in mainitem %}style="color: gray;"{% if not mainitem.title %}title="This field is edit-only"{% endif %}{% endif %}>{{mainitem.label}}:&nbsp;</span>
               {% if mainitem.multiple %}
                 {% if is_app_editor or permission == "write"  %}
                   <!-- Multiple value field, i.e. select2 -->

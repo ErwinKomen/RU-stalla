@@ -18,6 +18,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonRes
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.loader import render_to_string
 from django.template import Context
+from django.utils import translation
 from django.utils.translation import gettext as _
 from django.views.generic.detail import DetailView
 from django.views.generic.base import RedirectView
@@ -590,26 +591,40 @@ class WerkstukEdit(BasicDetails):
     # no_delete = True
     permission = "readonly"
     mainitems = []
+    literature_def = []
 
     def add_to_context(self, context, instance):
         """Add to the existing context"""
 
+        def add_literature(field, label):
+            self.literature_def.append(dict(field=field, label=label))
+
         oErr = ErrHandle()
+        
         try:
             # Define the main items to show and edit
             context['mainitems'] = [
-                {'type': 'plain', 'label': "Objectnummer:",     'value': instance.inventarisnummer,    },
-                {'type': 'plain', 'label': "Aard:",             'value': instance.get_aard(self.language),    },
-                {'type': 'plain', 'label': "Beschrijving:",     'value': instance.get_beschrijving(self.language),     },
-                {'type': 'plain', 'label': "Locatie koorstal:", 'value': instance.plaats_koorbank,    },
-                {'type': 'plain', 'label': "Iconclass codes:",  'value': instance.get_iconclasscodes(),    },
-                {'type': 'plain', 'label': "Locatie koorstal:", 'value': instance.plaats_koorbank,    },
-                {'type': 'plain', 'label': "Datuminterval:",    'value': instance.get_daterange(),    },
-                {'type': 'plain', 'label': "Locatie:",          'value': instance.get_locatie(),    },
-                {'type': 'plain', 'label': "Fotograaf:",        'value': instance.get_fotograaf(),    },
-                {'type': 'plain', 'label': "Kunstenaar:",       'value': instance.get_kunstenaren(),    },
-                {'type': 'plain', 'label': "Literaire aanduiding:", 'value': instance.lit_paralel,    },
+                {'type': 'plain', 'label': _("Object number"),         'value': instance.inventarisnummer,    },
+                {'type': 'plain', 'label': _("Kind"),                  'value': instance.get_aard(self.language),    },
+                {'type': 'plain', 'label': _("Description"),           'value': instance.get_beschrijving(self.language),     },
+                {'type': 'plain', 'label': _("Location choir stall"),  'value': instance.plaats_koorbank,    },
+                {'type': 'plain', 'label': _("Iconclass codes"),       'value': instance.get_iconclasscodes(),    },
+                {'type': 'plain', 'label': _("Date range"),            'value': instance.get_daterange(),    },
+                {'type': 'plain', 'label': _("Location"),              'value': instance.get_locatie(),    },
+                {'type': 'plain', 'label': _("Photographer"),          'value': instance.get_fotograaf(),    },
+                {'type': 'plain', 'label': _("Artist"),                'value': instance.get_kunstenaren(),    },
+                {'type': 'plain', 'label': _("Literature notes"),      'value': instance.lit_paralel,    },
+                {'type': 'safe',  'label': _("Labels"),                'value': instance.get_tags_html(),    },
                 ]
+
+            # Add the localized literature specification
+            self.literature_def = []
+            add_literature('auteursvermelding', _('Author(s)'))
+            add_literature('title', _('Title'))
+            add_literature('plaatsvanuitgave', _('City'))
+            add_literature('jaar', _('Year'))
+            add_literature('tijdschrift', _('Journal'))
+            add_literature('pagina', _('Pages'))
 
         except:
             msg = oErr.get_error_message()
@@ -623,15 +638,15 @@ class WerkstukDetails(WerkstukEdit):
     """Like Werkstuk Edit, but then html output"""
     rtype = "html"
 
-    literature_def = [
-        {'field': 'auteursvermelding',  'label': 'Auhor(s)',        'label_nl': 'Auteur(s)'},
-        {'field': 'title',              'label': 'Title',           'label_nl': 'Titel'},
-        {'field': 'plaatsvanuitgave',   'label': 'Plaats',          'label_nl': 'City'},
-        {'field': 'jaar',               'label': 'Jaar',            'label_nl': 'Year'},
-        {'field': 'tijdschrift',        'label': 'Tijdschrift',     'label_nl': 'Journal'},
-        {'field': 'pagina',             'label': 'Paginaverwijzing', 'label_nl': 'Pages'},
-        # {'field': '', 'label': '', 'label_nl': ''},
-        ]
+    #literature_def = [
+    #    {'field': 'auteursvermelding',  'label': 'Auhor(s)',        'label_nl': 'Auteur(s)'},
+    #    {'field': 'title',              'label': 'Title',           'label_nl': 'Titel'},
+    #    {'field': 'plaatsvanuitgave',   'label': 'Plaats',          'label_nl': 'City'},
+    #    {'field': 'jaar',               'label': 'Jaar',            'label_nl': 'Year'},
+    #    {'field': 'tijdschrift',        'label': 'Tijdschrift',     'label_nl': 'Journal'},
+    #    {'field': 'pagina',             'label': 'Paginaverwijzing', 'label_nl': 'Pages'},
+    #    # {'field': '', 'label': '', 'label_nl': ''},
+    #    ]
 
     def add_to_context(self, context, instance):
         response = super(WerkstukDetails, self).add_to_context(context, instance)
@@ -644,7 +659,8 @@ class WerkstukDetails(WerkstukEdit):
             literaturen = []
             for obj in instance.literaturen.all().order_by('auteursvermelding', 'title'):
                 oLiterature = {}
-                label_field = "label_nl" if self.language == "nl" else "label"
+                # label_field = "label_nl" if self.language == "nl" else "label"
+                label_field = "label"
                 lines = []
                 for oField in self.literature_def:
                     value = getattr(obj, oField['field'])
@@ -678,61 +694,48 @@ class WerkstukListview(BasicList):
     filters = []
     searches = []
 
-    order_heads_nl = [
-        {'name': 'Objectnummer',    'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer', 'linkdetails': True},
-        {'name': 'Aard',            'order': 'o=1', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
-        {'name': 'Beschrijving',    'order': 'o=2', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
-        ]
-    filters_nl = [ 
-        {"name": "Objectnummer",    "id": "filter_inventarisnum",   "enabled": False},
-        {"name": "Aard",            "id": "filter_aardtype",        "enabled": False},
-        {"name": "Beschrijving",    "id": "filter_beschrijving",    "enabled": False}
-        ]
-    searches_nl = [
-        {'section': '', 'filterlist': [
-            {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer'},
-            {'filter': 'aardtype',      'dbfield': 'aard',              'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
-            {'filter': 'beschrijving',  'dbfield': 'beschrijving_nl',   'keyS': 'beschrijving_nl'}
-            ]
-         }
-        ]
-    order_heads_en = [
-        {'name': 'Object number',   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer', 'linkdetails': True},
-        {'name': 'Kind',            'order': 'o=1', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
-        {'name': 'Description',     'order': 'o=2', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
-        ]
-    filters_en = [ 
-        {"name": "Object number",   "id": "filter_inventarisnum",   "enabled": False},
-        {"name": "Kind",            "id": "filter_aardtype",        "enabled": False},
-        {"name": "Description",     "id": "filter_beschrijving",    "enabled": False}
-        ]
-    searches_en = [
-        {'section': '', 'filterlist': [
-            {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer'},
-            {'filter': 'aardtype',      'dbfield': 'aard',              'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
-            {'filter': 'beschrijving',  'dbfield': 'beschrijving_en',   'keyS': 'beschrijving_en'}
-            ]
-         }
-        ]
-
     def initializations(self):
         """Perform some initializations"""
 
+        order_heads = [
+            {'name': _('Object number'),   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer', 'linkdetails': True},
+            {'name': _('Kind'),            'order': 'o=2', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
+            {'name': _('Description'),     'order': 'o=3', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
+            ]
+        filters = [ 
+            # Free text fields
+            {"name": _('Object number'),   "id": "filter_inventarisnum",    "enabled": False},
+            {"name": _("Description"),     "id": "filter_beschrijving",     "enabled": False},
+            # Limited choice fields
+            {"name": _("Land"),            "id": "filter_land",             "enabled": False},
+            {"name": _("City"),            "id": "filter_plaats",           "enabled": False},
+            {"name": _("Location"),        "id": "filter_locatie",          "enabled": False},
+            {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False},
+            ]
+        searches = [
+            {'section': '', 'filterlist': [
+                # Free text searches
+                {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer'},
+                {'filter': 'beschrijving',  'dbfield': _('beschrijving_en'),'keyS': _('beschrijving_en')},
+                # Limited choice searches
+                {'filter': 'land',          'fkfield': 'locatie__city__country',    'keyFk': 'name',    'keyS': 'land'},              # 
+                {'filter': 'plaats',        'fkfield': 'locatie__city',             'keyFk': 'name',    'keyS': 'plaats'},                         # 
+                {'filter': 'locatie',       'fkfield': 'locatie',                   'keyFk': 'name',    'keyS': 'locatie'},                                # 
+                {'filter': 'aardtype',      'dbfield': 'aard',              'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
+                ]
+             }
+            ]
         oErr = ErrHandle()
+
         try:
+            # Make sure the searches and stuff appear with the correct translation
+            self.order_heads = order_heads
+            self.filters = filters
+            self.searches = searches
 
             # ======== One-time adaptations ==============
             listview_adaptations("werkstuk_list")
 
-            # Make sure to set the correct language-dependent matters
-            if self.language == "nl":
-                self.order_heads = self.order_heads_nl
-                self.filters = self.filters_nl
-                self.searches = self.searches_nl
-            else:
-                self.order_heads = self.order_heads_en
-                self.filters = self.filters_en
-                self.searches = self.searches_en
         except:
             msg = oErr.get_error_message()
             oErr.DoError("WerkstukListview/initializations")

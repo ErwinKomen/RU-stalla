@@ -12,6 +12,8 @@ from django.utils.html import mark_safe
 from django.utils import timezone
 from django.forms.models import model_to_dict
 import pytz
+from multiprocessing import Process
+from multiprocessing import Pipe
 from django.urls import reverse
 from datetime import datetime
 import sys, os, io, re
@@ -712,15 +714,37 @@ class Tag(models.Model):
         return self.name
 
 
+class Country(models.Model):
+    """Location where a choir bank has been found"""
+
+    # [1] Name of this location
+    name = models.CharField("Name", max_length=MAX_TEXT_LEN)
+
+    def __str__(self):
+        return self.name
+
+
+class City(models.Model):
+    """Location where a choir bank has been found"""
+
+    # [1] Name of this location
+    name = models.CharField("Name", max_length=MAX_TEXT_LEN)
+    # [1] Every city belongs to a country
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="countrycities")
+
+    def __str__(self):
+        return self.name
+
+
 class Location(models.Model):
     """Location where a choir bank has been found"""
 
     # [1] Name of this location
     name = models.CharField("Location", max_length=MAX_TEXT_LEN)
-    # [0-1] Country
-    land = models.CharField("Country", max_length=MAX_TEXT_LEN, blank=True, null=True)
     # [0-1] City
-    plaats = models.CharField("City", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    city = models.ForeignKey(City, blank=True, null=True, on_delete=models.CASCADE, related_name="citylocations")
+    # [0-1] Country
+    country = models.ForeignKey(Country, blank=True, null=True, on_delete=models.CASCADE, related_name="countrylocations")
     # [1] Location
     x_coordinaat = models.CharField("X coordinate", max_length=MAX_TEXT_LEN)
     # [1] Location
@@ -1120,9 +1144,13 @@ class Werkstuk(models.Model):
             if obj != None:
                 # Walk all tags
                 for oTag in taglist:
-                    if oWerkstuk[oTag['name'].lower()] == "True":
-                        # Add this relation
-                        WerkstukTag.objects.create(werkstuk=obj, tag_id=oTag['id'])
+                    tagvalue = oWerkstuk[oTag['name'].lower()]
+                    if tagvalue == "True" or tagvalue == "1":
+                        # see if it is there
+                        wtag = WerkstukTag.objects.filter(werkstuk=obj, tag_id=oTag['id']).first()
+                        if wtag == None:
+                            # Add this relation
+                            WerkstukTag.objects.create(werkstuk=obj, tag_id=oTag['id'])
                     else:
                         # If the relation exists, it must be removed
                         wtag = WerkstukTag.objects.filter(werkstuk=obj, tag_id=oTag['id']).first()
@@ -1194,11 +1222,28 @@ class Werkstuk(models.Model):
         lhtml = []
         obj = self.locatie
         if obj != None:
-            land = obj.land
-            if land == None or land == "": land = "onbekend"
-            plaats = obj.plaats
-            if plaats == None or plaats == "": plaats = "onbekend"
+            # Get the city
+            city = obj.city
+            if city == None:
+                plaats = "onbekend"
+                land = "onbekend"
+            else:
+                plaats = city.name
+                # Get the country
+                country = city.country
+                if country == None:
+                    land = "onbekend"
+                else:
+                    land = country.name
             sBack = "{}, {}: {}".format(land, plaats, obj.name)
+        return sBack
+
+    def get_tags_html(self):
+        lhtml = []
+        for obj in self.tags.all().order_by('name'):
+            sTag = "<span class='badge signature gr'>{}</span>".format(obj.name)
+            lhtml.append(sTag)
+        sBack = " ".join(lhtml)
         return sBack
 
     def read_excel(oStatus, fname):

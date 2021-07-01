@@ -69,3 +69,5 @@ admin.site.register(HelpChoice, HelpChoiceAdmin)
 admin.site.register(NewsItem, NewsItemAdmin)
 admin.site.register(Information, InformationAdmin)
 
+# Models of this application
+admin.site.register(Tag)

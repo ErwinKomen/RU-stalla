@@ -1,4 +1,4 @@
-{% load i18n %}
+﻿{% load i18n %}
 
 {% if literaturen|length == 0 %}
   <p>{% trans "(No literature for this object)" %}</p>
@@ -12,6 +12,10 @@
           <td>{{line.value}}</td>
         </tr>
       {% endfor %}
+      <!-- One row with just a line -->
+      <tr>
+        <td colspan="2" style="border-top: 1px solid gray;">&nbsp;</td>
+      </tr>
     {% endfor %}
   </table>
 {% endif %}

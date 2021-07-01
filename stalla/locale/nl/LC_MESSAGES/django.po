@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-24 10:53+0200\n"
+"POT-Creation-Date: 2021-07-01 16:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,9 +18,96 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\stalla\seeker\forms.py:46
+#: .\stalla\seeker\forms.py:114
 msgid "Password"
 msgstr "Wachtwoord"
+
+#: .\stalla\seeker\templates\seeker\werkstuk_literatuur.html:4
+msgid "(No literature for this object)"
+msgstr "(Voor dit voorwerp is er geen literatuur)"
+
+#: .\stalla\seeker\templates\seeker\werkstuk_literatuur.html:6
+msgid "Literature"
+msgstr "Literatuur"
+
+#: .\stalla\seeker\views.py:607 .\stalla\seeker\views.py:701
+#: .\stalla\seeker\views.py:707
+msgid "Object number"
+msgstr "Objectnummer"
+
+#: .\stalla\seeker\views.py:608 .\stalla\seeker\views.py:702
+#: .\stalla\seeker\views.py:713
+msgid "Kind"
+msgstr "Aard"
+
+#: .\stalla\seeker\views.py:609 .\stalla\seeker\views.py:703
+#: .\stalla\seeker\views.py:708
+msgid "Description"
+msgstr "Beschrijving"
+
+#: .\stalla\seeker\views.py:610
+msgid "Location choir stall"
+msgstr "Plaats koorstal"
+
+#: .\stalla\seeker\views.py:611
+msgid "Iconclass codes"
+msgstr "Icoonklassecodes"
+
+#: .\stalla\seeker\views.py:612
+msgid "Date range"
+msgstr "Datuminterval"
+
+#: .\stalla\seeker\views.py:613 .\stalla\seeker\views.py:712
+msgid "Location"
+msgstr "Locatie"
+
+#: .\stalla\seeker\views.py:614
+msgid "Photographer"
+msgstr "Fotograaf"
+
+#: .\stalla\seeker\views.py:615
+msgid "Artist"
+msgstr "Kunstenaar"
+
+#: .\stalla\seeker\views.py:616
+msgid "Literature notes"
+msgstr "Aantekeningen"
+
+#: .\stalla\seeker\views.py:617
+msgid "Labels"
+msgstr "Labels"
+
+#: .\stalla\seeker\views.py:622
+msgid "Author(s)"
+msgstr "Auteur(s)"
+
+#: .\stalla\seeker\views.py:623
+msgid "Title"
+msgstr "Titel"
+
+#: .\stalla\seeker\views.py:624 .\stalla\seeker\views.py:711
+msgid "City"
+msgstr "Plaats"
+
+#: .\stalla\seeker\views.py:625
+msgid "Year"
+msgstr "Jaar"
+
+#: .\stalla\seeker\views.py:626
+msgid "Journal"
+msgstr "Tijdschrift"
+
+#: .\stalla\seeker\views.py:627
+msgid "Pages"
+msgstr "Pagina's"
+
+#: .\stalla\seeker\views.py:710
+msgid "Land"
+msgstr ""
+
+#: .\stalla\seeker\views.py:719
+msgid "beschrijving_en"
+msgstr "beschrijving_nl"
 
 #: .\stalla\templates\admin\base.html:41
 msgid "Welcome,"
@@ -57,8 +144,6 @@ msgstr ""
 "is, dan kun je je als medewerker registreren (via "
 
 #: .\stalla\templates\index.html:71
-#, fuzzy
-#| msgid "Sign up"
 msgid "sign up"
 msgstr "Registreren"
 
@@ -84,6 +169,10 @@ msgstr "Definities"
 msgid "Search"
 msgstr "Zoeken"
 
+#: .\stalla\templates\topnav.html:28
+msgid "Werkstuk"
+msgstr "Object"
+
 #: .\stalla\templates\topnav.html:35
 msgid "Tools"
 msgstr "Speciaal"
@@ -97,8 +186,6 @@ msgid "Log off"
 msgstr "Afmelden"
 
 #: .\stalla\templates\topnav.html:75
-#, fuzzy
-#| msgid "Log out"
 msgid "Log in"
 msgstr "Aanmelden"
 
