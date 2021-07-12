@@ -159,14 +159,14 @@
                               <tr class="form-row">
                                 <td style="min-width: 130px;" valign="top">
                                   {{filter.name}}
-                                  {% if filter.help != "" and filter.helptext != "" %}
+                                  {% if filter.help and filter.help != "" and filter.helptext != "" %}
                                     <a role="button" data-toggle="collapse" data-target="#basic_h_{{filter.help}}">
                                       <span class="glyphicon glyphicon-question-sign" style="color: blue;"></span>
                                     </a>
                                   {% endif %}
                                 </td>
                                 <td style="width: 100%;">
-                                  {% if filter.help != "" and filter.helptext != "" %}
+                                  {% if filter.help and filter.help != "" and filter.helptext != "" %}
                                     <div id="basic_h_{{filter.help}}" class="collapse">
                                       {{filter.helptext|safe}}
                                     </div>

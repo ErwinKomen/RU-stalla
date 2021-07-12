@@ -377,16 +377,23 @@ def make_search_list(filters, oFields, search_list, qd, lstExclude):
                             s_q = Q(**{dbfield: val})
                         else:
                             val = oFields[keyS]
-                            enable_filter(filter_type, head_id)
-                            if isinstance(val, int):
+                            if isinstance(val, bool):
+                                # Only add boolean filters if the value is set to TRUE
+                                if val == True:
+                                    s_q = Q(**{"{}".format(dbfield): val})
+                            elif isinstance(val, int):
                                 s_q = Q(**{"{}".format(dbfield): val})
+                                enable_filter(filter_type, head_id)
                             elif "*" in val or "#" in val:
                                 val = adapt_search(val, regex_function)
                                 s_q = Q(**{"{}__iregex".format(dbfield): val})
+                                enable_filter(filter_type, head_id)
                             elif "$" in dbfield:
                                 val = adapt_search(val, regex_function)
+                                enable_filter(filter_type, head_id)
                             else:
                                 s_q = Q(**{"{}__iexact".format(dbfield): val})
+                                enable_filter(filter_type, head_id)
                     elif has_Q_value(keyS, oFields):
                         if not "$" in dbfield:
                             s_q = oFields[keyS]
@@ -411,6 +418,18 @@ def make_search_list(filters, oFields, search_list, qd, lstExclude):
                                     s_q_lst = Q(**{"{}__{}__in".format(fkfield, infield): code_list})
                                 else:
                                     s_q_lst |= Q(**{"{}__{}__in".format(fkfield, infield): code_list})
+                        elif keyType == "and":
+                            # Should be a logical 'AND'
+                            s_q_lst = ""
+                            for code in code_list:
+                                s_q_item = Q(**{"{}__{}__in".format(fkfield, infield): [ code ]})
+                                if s_q_lst == "":
+                                    s_q_lst = s_q_item
+                                else:
+                                    # Add this one to the list
+                                    lstQ.append(s_q_item)
+                                    # Don't change s_q_lst
+                                    # s_q_lst = s_q_lst & s_q_item
                         else:
                             # Just one foreign key
                             s_q_lst = Q(**{"{}__{}__in".format(fkfield, infield): code_list})
@@ -783,7 +802,7 @@ class BasicList(ListView):
             if self.use_team_group:
                 frm = self.listform(initial, prefix=self.prefix, username=self.request.user.username, team_group=app_editor, userplus=app_userplus)
             else:
-                frm = self.listform(initial, prefix=self.prefix)
+                frm = self.listform(initial, prefix=self.prefix, language=self.language)
             if frm.is_valid():
                 context['{}Form'.format(self.prefix)] = frm
                 # Get any possible typeahead parameters
@@ -918,7 +937,8 @@ class BasicList(ListView):
                                 if fitem['keyS'].value(): 
                                     bHasValue = True ; bHasItemValue = True
                             if 'keyList' in item and item['keyList'] in frm.cleaned_data: 
-                                if frm.fields[item['keyList']].initial or frm.cleaned_data[item['keyList']].count() > 0: 
+                                # if frm.fields[item['keyList']].initial or frm.cleaned_data[item['keyList']].count() > 0: 
+                                if frm.fields[item['keyList']].initial or len(frm.cleaned_data[item['keyList']]) > 0: 
                                     bHasValue = True ; bHasItemValue = True
                                 fitem['keyList'] = frm[item['keyList']]
                                 fitem['has_keylist'] = True
@@ -1150,7 +1170,7 @@ class BasicList(ListView):
             if self.use_team_group:
                 thisForm = self.listform(self.qd, prefix=prefix, username=username, team_group=team_group)
             else:
-                thisForm = self.listform(self.qd, prefix=prefix)
+                thisForm = self.listform(self.qd, prefix=prefix, language=self.language)
 
             if thisForm.is_valid():
                 # Process the criteria for this form
@@ -1176,7 +1196,7 @@ class BasicList(ListView):
                 oFields, lstExclude, qAlternative = self.adapt_search(oFields)
 
                 self.filters, lstQ, self.initial, lstExclude = make_search_list(self.filters, oFields, self.searches, self.qd, lstExclude)
-                # qs = self.model.objects.filter(manuitems__itemsermons__goldsermons__goldsignatures__code__in = "AN Mt h 42")
+                combine_method = "stacking"
 
                 # Calculate the final qs
                 if len(lstQ) == 0 and not self.none_on_empty:
@@ -1197,9 +1217,15 @@ class BasicList(ListView):
                     # Check if excluding is needed
                     if lstExclude:
                         qs = self.model.objects.filter(filter).exclude(*lstExclude).distinct()
+                    elif combine_method == "stacking":
+                        # Take the first one
+                        qs = self.model.objects.filter(lstQ[0])
+                        for item in lstQ[1:]:
+                            qs = qs.filter(item)
                     else:
                         qs = self.model.objects.filter(filter).distinct()
 
+                        # qs = self.model.objects.filter(Q(tags__abbr__in=['mense'])).filter(Q(tags__abbr__in=['spree'])).count()
                     # Only set the [bFilter] value if there is an overt specified filter
                     for filter in self.filters:
                         if filter['enabled'] and ('head_id' not in filter or filter['head_id'] != 'filter_other'):

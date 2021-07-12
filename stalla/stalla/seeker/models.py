@@ -708,7 +708,11 @@ class Tag(models.Model):
     """Each object can be described by zero or more tags"""
 
     # [1] Name
-    name = models.CharField("Name",  max_length=MAX_TEXT_LEN)
+    abbr = models.CharField("Abbreviation",  max_length=MAX_TEXT_LEN, blank=True)
+    # [1] Name
+    name = models.CharField("Name (nld)",  max_length=MAX_TEXT_LEN)
+    # [1] Name
+    eng = models.CharField("Name (eng)",  max_length=MAX_TEXT_LEN, blank=True)
 
     def __str__(self):
         return self.name
@@ -861,9 +865,9 @@ class Werkstuk(models.Model):
     # [1] Nietopnet
     nietopnet = models.BooleanField("Nietopnet", default=False)
     # [0-1] Starting date
-    begindatum = models.CharField("Start date", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    begindatum = models.IntegerField("Start date", blank=True, null=True)   # max_length=MAX_TEXT_LEN, 
     # [0-1] End date
-    einddatum = models.CharField("End date", max_length=MAX_TEXT_LEN, blank=True, null=True)
+    einddatum = models.IntegerField("End date", blank=True, null=True)      # max_length=MAX_TEXT_LEN, 
     # [0-1] Measures
     afmetingen = models.CharField("Measures", max_length=MAX_TEXT_LEN, blank=True, null=True)
     # [1] Material
@@ -1186,11 +1190,19 @@ class Werkstuk(models.Model):
 
     def get_daterange(self):
         lhtml = []
+        sBack = ""
         if self.begindatum != None:
-            lhtml.append(self.begindatum)
-        if self.einddatum != None and self.einddatum != self.begindatum:
-            lhtml.append(self.einddatum)
-        sBack = "-".join(lhtml)
+            # There is a start date, but what about the ending date?
+            if self.einddatum != None and self.einddatum != self.begindatum:
+                # Both a start and end date
+                sBack = "{}-{}".format(self.begindatum, self.einddatum)
+            else:
+                # Only start date
+                sBack = "{}".format(self.begindatum)
+        elif self.einddatum != None:
+            # Only finishing date
+            sBack = "{}".format(self.einddatum)
+        return sBack
 
     def get_iconclasscodes(self):
         sBack = ""

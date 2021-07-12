@@ -40,7 +40,7 @@ from stalla.utils import ErrHandle
 from stalla.seeker.forms import SignUpForm, WerkstukForm
 from stalla.seeker.models import get_now_time, get_current_datetime, process_userdata, \
     User, Group, Information, Visit, NewsItem, Status, \
-    Werkstuk
+    Werkstuk, Tag, WerkstukTag
 from stalla.seeker.adaptations import listview_adaptations
 
 # ======= from RU-Basic ========================
@@ -693,6 +693,7 @@ class WerkstukListview(BasicList):
     order_heads = []
     filters = []
     searches = []
+    bTags = False
 
     def initializations(self):
         """Perform some initializations"""
@@ -710,7 +711,9 @@ class WerkstukListview(BasicList):
             {"name": _("Land"),            "id": "filter_land",             "enabled": False},
             {"name": _("City"),            "id": "filter_plaats",           "enabled": False},
             {"name": _("Location"),        "id": "filter_locatie",          "enabled": False},
+            {"name": _("Year"),            "id": "filter_daterange",        "enabled": False},
             {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False},
+            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False},
             ]
         searches = [
             {'section': '', 'filterlist': [
@@ -721,13 +724,27 @@ class WerkstukListview(BasicList):
                 {'filter': 'land',          'fkfield': 'locatie__city__country',    'keyFk': 'name',    'keyS': 'land'},              # 
                 {'filter': 'plaats',        'fkfield': 'locatie__city',             'keyFk': 'name',    'keyS': 'plaats'},                         # 
                 {'filter': 'locatie',       'fkfield': 'locatie',                   'keyFk': 'name',    'keyS': 'locatie'},                                # 
-                {'filter': 'aardtype',      'dbfield': 'aard',              'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
+                {'filter': 'daterange',     'dbfield': 'begindatum__gte',           'keyS': 'date_from'},
+                {'filter': 'daterange',     'dbfield': 'einddatum__lte',            'keyS': 'date_until'},
+                {'filter': 'aardtype',      'dbfield': 'aard', 'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
+                {'filter': 'tags',          'fkfield': 'tags', 'keyType': 'and',    'keyFk': 'abbr', 'keyList': 'taglist', 'infield': 'abbr'},
                 ]
              }
             ]
         oErr = ErrHandle()
 
         try:
+            ## Make sure the filters are filled correctly
+            #if not self.bTags:
+            #    for tagobj in Tag.objects.all().order_by('abbr'):
+            #        name = tagobj.name if self.language == "nl" else tagobj.eng
+            #        abbr = tagobj.abbr
+            #        tag = "tag_{}".format(abbr)
+            #        id = "filter_tag{}".format(abbr)
+            #        filters.append(dict(name=name, id=id, enabled=False))
+            #        searches[0]['filterlist'].append( dict(filter=tag, dbfield="$dummy", keyS=tag))
+            #    self.bTags = True
+
             # Make sure the searches and stuff appear with the correct translation
             self.order_heads = order_heads
             self.filters = filters
@@ -759,5 +776,40 @@ class WerkstukListview(BasicList):
             msg = oErr.get_error_message()
             oErr.DoError("WerkstukListview/get_field_value")
         return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Adapt the tag fields
+            #taglist = []
+            #tag_field = ""
+            #for tagobj in Tag.objects.all().order_by('abbr').values('abbr'):
+            #    abbr = tagobj['abbr']
+            #    tag = "tag_{}".format(abbr)
+            #    tag_value = fields.get(tag, "")
+            #    if tag_value != None:
+            #        if tag_field == "":
+            #            tag_field = tag
+            #        for obj in WerkstukTag.objects.filter(tag__abbr=abbr).values('werkstuk__id'):
+            #            taglist.append(obj['werkstuk__'])
+            #if tag_field != "":
+            #    fields[tag_field]= Q(id__in=taglist)
+            tags = fields.get("tags")
+            if tags != None and len(tags) > 0:
+                id_list = [x['werkstuk__id'] for x in WerkstukTag.objects.filter(tag__abbr=tags).values('werkstuk__id')]
+                fields['tags'] = Q(id__in=id_list)
+
+            # Double check the length of the exclude list
+            if len(lstExclude) == 0:
+                lstExclude = None
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SermonListView/adapt_search")
+
+        return fields, lstExclude, qAlternative
 
 

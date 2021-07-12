@@ -130,17 +130,38 @@ class SignUpForm(UserCreationForm):
 class WerkstukForm(forms.ModelForm):
     """A form to update and search in Werkstuk objects"""
 
-    #objid = forms.CharField(label=_("Object id"), required=False)
     aardlist = ModelMultipleChoiceField(queryset=None, required=False, 
-                widget=AardtypeWidget(attrs={'data-placeholder': 'Select multiple users...', 'style': 'width: 100%;', 'class': 'searching'}))
+                widget=AardtypeWidget(attrs={'data-placeholder': _('Select multiple users...'), 'style': 'width: 100%;', 'class': 'searching'}))
     aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=AardtypeOneWidget(attrs={'data-placeholder': 'Select an aard-type...', 'style': 'width: 30%;', 'class': 'searching'}))
+                widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select an aard-type...'), 'style': 'width: 30%;', 'class': 'searching'}))
     land    = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=LandOneWidget(attrs={'data-placeholder': 'Select a country...', 'style': 'width: 50%;', 'class': 'searching'}))
+                widget=LandOneWidget(attrs={'data-placeholder': _('Select a country...'), 'style': 'width: 50%;', 'class': 'searching'}))
     plaats  = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=PlaatsOneWidget(attrs={'data-placeholder': 'Select a city...', 'style': 'width: 50%;', 'class': 'searching'}))
-    #locatie = forms.ModelChoiceField(queryset=None, required=False, 
-    #            widget=LocatieOneWidget(attrs={'data-placeholder': 'Select a location...', 'style': 'width: 50%;', 'class': 'searching'}))
+    date_from   = forms.IntegerField(label=_("Date start"), required = False,
+                widget=forms.TextInput(attrs={'placeholder': _('Starting from...'),  'style': 'width: 30%;', 'class': 'searching'}))
+    date_until  = forms.IntegerField(label=_("Date until"), required = False,
+                widget=forms.TextInput(attrs={'placeholder': _('Until (including)...'),  'style': 'width: 30%;', 'class': 'searching'}))
+    taglist     = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=forms.CheckboxSelectMultiple)
+    #tag_astro = forms.BooleanField(required=False, widget=forms.CheckboxInput)
+    #tag_bloem = forms.BooleanField(required=False)
+    #tag_dagel = forms.BooleanField(required=False)
+    #tag_dier = forms.BooleanField(required=False)
+    #tag_diera = forms.BooleanField(required=False)
+    #tag_fanta = forms.BooleanField(required=False)
+    #tag_hoofd = forms.BooleanField(required=False)
+    #tag_hoofb = forms.BooleanField(required=False)
+    #tag_liter = forms.BooleanField(required=False)
+    #tag_mense = forms.BooleanField(required=False)
+    #tag_muzie = forms.BooleanField(required=False)
+    #tag_omgek = forms.BooleanField(required=False)
+    #tag_ondui = forms.BooleanField(required=False)
+    #tag_overi = forms.BooleanField(required=False)
+    #tag_overz = forms.BooleanField(required=False)
+    #tag_relig = forms.BooleanField(required=False)
+    #tag_spree = forms.BooleanField(required=False)
+    #tag_voorw = forms.BooleanField(required=False)
+    #tag_zinne = forms.BooleanField(required=False)
 
     class Meta:
         ATTRS_FOR_FORMS = {'class': 'form-control'};
@@ -158,6 +179,10 @@ class WerkstukForm(forms.ModelForm):
             }
 
     def __init__(self, *args, **kwargs):
+        # Possibly handle language
+        language = "en"
+        if 'language' in kwargs:
+            language = kwargs.pop('language')
         # Start by executing the standard handling
         super(WerkstukForm, self).__init__(*args, **kwargs)
         oErr = ErrHandle()
@@ -184,6 +209,16 @@ class WerkstukForm(forms.ModelForm):
             self.fields['land'].queryset = Country.objects.order_by('name').distinct()
             self.fields['plaats'].queryset = City.objects.order_by('name').distinct()
             self.fields['locatie'].queryset = Location.objects.exclude(name="").order_by('name').distinct()
+
+            ## Set the checkbox choices for the correct language
+            #tag_choices = []
+            #for tagobj in Tag.objects.all().order_by('abbr').values('abbr', 'name', 'eng'):
+            #    abbr = tagobj['abbr']
+            #    name = tagobj['name'] if language == "nl" else tagobj['eng']
+            #    tag_choices.append( (abbr, name) )
+            #self.fields['taglist'].choices = tag_choices
+
+            self.fields['taglist'].queryset = Tag.objects.all().order_by('name')
 
             # Get the instance
             if 'instance' in kwargs:
