@@ -10,7 +10,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a href="{% url 'home' %}" class="navbar-brand">stalla
-                [{% if user.is_authenticated %} {{user.username}} {% else %} ({% trans "not logged in" %}) {% endif %}]                
+                {% if user.is_authenticated %}[ {{user.username}} ]{% endif %}             
                 </a>
             </div>
             <div class="navbar-collapse collapse">

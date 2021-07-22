@@ -76,11 +76,11 @@ table tbody tr td.clickable:hover, table tbody tr.clickable td:hover, table tbod
 }
 
 th div a.clickable.ordered {
-  color: darkgoldenrod;
+  color: darkred;
 }
 
 th div a.clickable.ordered:hover {
-  color: darkgoldenrod;
+  color: darkred;
   background-color: lightgoldenrodyellow;
 }
 
@@ -143,8 +143,8 @@ div.inline-group a.add-related {
 
 /* navbar */
 .navbar-custom {
-    background-color: goldenrod;
-    border-top-color: darkgoldenrod;
+    background-color: #e3000b;
+    border-top-color: darkred;
 }
 /* title */
 .navbar-custom .navbar-brand {
@@ -160,14 +160,14 @@ div.inline-group a.add-related {
 }
 .navbar-custom .navbar-nav > li > a:hover,
 .navbar-custom .navbar-nav > li > a:focus {
-    color: lightgoldenrodyellow;
-    background-color: darkgoldenrod;
+    color: lightgray;
+    background-color: darkred;
 }
 .navbar-custom .navbar-nav > .active > a, 
 .navbar-custom .navbar-nav > .active > a:hover, 
 .navbar-custom .navbar-nav > .active > a:focus {
-    color: lightgoldenrodyellow;
-    background-color: darkgoldenrod;
+    color: lightgray;
+    background-color: darkred;
 }
 .navbar-custom .navbar-nav > .open > a, 
 .navbar-custom .navbar-nav > .open > a:hover, 
@@ -175,6 +175,15 @@ div.inline-group a.add-related {
     color: #ffe6d1;
     background-color: #D5D5D5;
 }
+
+.navbar-custom .dropdown-menu, 
+.navbar-custom .dropdown-menu > ul, 
+.navbar-custom .dropdown-menu > ul > li,
+.navbar-custom .dropdown-menu > li > a {
+    background-color: black;
+    color: white;
+}
+
 /* caret */
 .navbar-custom .navbar-nav > .dropdown > a .caret {
     border-top-color: #ecf0f1;
@@ -215,7 +224,12 @@ div.inline-group a.add-related {
 
 #header  .navbar-custom  .open .dropdown-menu li  a:link,
 #header  .navbar-custom  .open .dropdown-menu li  a:visited {
-  color: black !important;
+  color: white !important;
+}
+
+div.breadcrumbs {
+    background-color: black;
+    color: lightgray;
 }
 
 /* BASE.css */
@@ -232,6 +246,7 @@ p {
 .pagination-xsm > li > span {
   padding: 2px 4px;     /* Note: this is vertical, horizontal... */
   font-size: 12px;
+  z-index: 0 !important;
 }
 .pagination-xsm > li > a:hover {
   cursor: pointer; 
@@ -741,7 +756,7 @@ table td.kwic-fol {
 body > div > footer {
   height: 18px;
   padding-top: 4px;
-  background: darkgoldenrod;
+  background: black;
   color: white;
   font-size: x-small;
   position: fixed;
@@ -750,7 +765,7 @@ body > div > footer {
   text-align: center;
 }
 body > div > footer a {
-  color: #355e3b;
+  color: lightgray;
   position: relative;
   z-index: 1000;
 }
@@ -1219,7 +1234,7 @@ table.compact-table td:hover {
 }
 .project:hover {
     color: lightgoldenrodyellow;
-    background-color: darkgoldenrod;
+    background-color: darkred;
     cursor: pointer;
 }
 
@@ -1304,7 +1319,7 @@ span.badge.prt-link {
   background-color: lightgreen;
 }
 span.badge.neq-link {
-  background-color: darkgoldenrod;
+  background-color: darkred;
 }
 span.badge.sim-link {
   background-color: darkgreen;
@@ -1347,7 +1362,7 @@ span.badge.loctype-country {
   background-color: darkgreen;
 }
 span.badge.loctype-region_high {
-  background-color: darkgoldenrod;
+  background-color: darkred;
 }
 
 a.nostyle:link, a.nostyle:visited {
@@ -1666,3 +1681,34 @@ svg .nodes text {
 .details-label {
     font-style: italic;
 }
+
+
+.generic-search {
+    background-color: black;
+    color: white;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-top: -5px;
+    margin-left: -10px;
+    margin-right: -5px;
+    border-radius: 0px;
+    border: 0px;
+}
+
+.generic-search  input {
+    left: 80px;
+    position: relative;
+    width: 40%;
+    padding: 10px;
+    border-radius: 20px;
+    color: black;
+    font-size: larger;
+}
+
+.generic-search-button {
+    right: 0px;
+    top: 5px;
+    left: initial;
+    color: #ccc;
+}
+

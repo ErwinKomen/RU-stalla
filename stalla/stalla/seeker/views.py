@@ -688,6 +688,7 @@ class WerkstukListview(BasicList):
     listform = WerkstukForm
     prefix = "wer"
     has_select2 = True
+    template_name = "seeker/stalla_list.html"
     order_cols = ['inventarisnummer', 'aard', 'beschrijving_nl']
     order_default = order_cols
     order_heads = []
