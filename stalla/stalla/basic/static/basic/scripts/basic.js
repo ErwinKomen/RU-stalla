@@ -99,7 +99,7 @@ var ru = (function ($, ru) {
             $(elConfirm).html("Copied!");
             setTimeout(function () {
               $(elConfirm).fadeOut().empty();
-            }, 4000);
+            }, 2000);
           } catch (e) {
             succeed = false;
             console.log("Could not copy");
@@ -2497,37 +2497,60 @@ var ru = (function ($, ru) {
        *    No real searching, just reset the criteria
        *
        */
-      search_clear: function (elStart) {
+      search_clear: function (elStart, bHide) {
         var frm = null,
             idx = 0,
+            elFiltercount = null,
             lFormRow = [];
 
-        try {
-          // Clear filters
-          $(".badge.filter").each(function (idx, elThis) {
-            var target;
+          try {
+              if (bHide === undefined) bHide = true;
+              // At least hide the clipboard copy
+              $(".clipboard-copy").addClass("hidden");
+              // Clear filters
+              $(".badge.filter").each(function (idx, elThis) {
+                var target;
 
-            target = $(elThis).attr("targetid");
-            if (target !== undefined && target !== null && target !== "") {
-              target = $("#" + target);
-              // Action depends on checking or not
-              if ($(elThis).hasClass("on")) {
-                // it is on, switch it off
-                $(elThis).removeClass("on");
-                $(elThis).removeClass("jumbo-3");
-                $(elThis).addClass("jumbo-1");
-                // Must hide it and reset target
-                $(target).addClass("hidden");
-                $(target).find("input").each(function (idx, elThis) {
-                  $(elThis).val("");
-                });
-                // Also reset all select 2 items
-                $(target).find("select").each(function (idx, elThis) {
-                  $(elThis).val("").trigger("change");
-                });
-              }
-            }
-          });
+                target = $(elThis).attr("targetid");
+                if (target !== undefined && target !== null && target !== "") {
+                  target = $("#" + target);
+                  // Action depends on checking or not
+                    if ($(elThis).hasClass("on")) {
+                        // it is on, switch it off
+                        $(elThis).removeClass("on");
+                        $(elThis).removeClass("jumbo-3");
+                        $(elThis).addClass("jumbo-1");
+                        // Must hide it and reset target
+                        if (bHide) { $(target).addClass("hidden"); }
+                        $(target).find("input").each(function (idx, elThis) {
+                            $(elThis).val("");
+                            $(elThis).removeAttr("checked");
+                        });
+                        // Also reset all select 2 items
+                        $(target).find("select").each(function (idx, elThis) {
+                            $(elThis).val("").trigger("change");
+                        });
+                    } else {
+                        // TO be done at any rate...
+                        $(target).find("input").each(function (idx, elThis) {
+                            $(elThis).val("");
+                            $(elThis).removeAttr("checked");
+                        });
+                        // TO be done at any rate...
+                        $(target).find("textarea").each(function (idx, elThis) {
+                            $(elThis).val("");
+                        });
+                        // Also reset all select 2 items
+                        $(target).find("select").each(function (idx, elThis) {
+                            $(elThis).val("").trigger("change");
+                        });
+                    }
+                    elFiltercount = $("#filtercount");
+                    if ($(elFiltercount).length > 0) {
+                        $(elFiltercount).html("0");
+                    }
+                }
+              });
 
         } catch (ex) {
           private_methods.errMsg("search_clear", ex);

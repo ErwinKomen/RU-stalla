@@ -277,6 +277,7 @@ def make_search_list(filters, oFields, search_list, qd, lstExclude):
                 filter_type = get_value(search_item, "filter")
                 code_function = get_value(search_item, "code")
                 regex_function = get_value(search_item, "regex")
+                contains = get_value(search_item, "contains")
                 s_q = ""
                 arFkField = []
                 if fkfield != None:
@@ -390,6 +391,9 @@ def make_search_list(filters, oFields, search_list, qd, lstExclude):
                                 enable_filter(filter_type, head_id)
                             elif "$" in dbfield:
                                 val = adapt_search(val, regex_function)
+                                enable_filter(filter_type, head_id)
+                            elif contains == "yes":
+                                s_q = Q(**{"{}__icontains".format(dbfield): val})
                                 enable_filter(filter_type, head_id)
                             else:
                                 s_q = Q(**{"{}__iexact".format(dbfield): val})

@@ -16,7 +16,7 @@ String.prototype.format = function () {
   $(function () {
     $(document).ready(function () {
       // Initialize event listeners
-      //ru.stalla.seeker.init_charts();
+      ru.stalla.seeker.init_events();
     });
   });
 })(django.jQuery);
@@ -34,6 +34,10 @@ var ru = (function ($, ru) {
         loc_goldlink = {},      // Store one or more goldlinks
         loc_divErr = "stalla_err",
         loc_sWaiting = " <span class=\"glyphicon glyphicon-refresh glyphicon-refresh-animate\"></span>",
+        KEYS = {
+          BACKSPACE: 8, TAB: 9, ENTER: 13, SHIFT: 16, CTRL: 17, ALT: 18, ESC: 27, SPACE: 32, PAGE_UP: 33, PAGE_DOWN: 34,
+          END: 35, HOME: 36, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, DELETE: 46
+        },
         lAddTableRow = [
           { "table": "manu_search", "prefix": "manu", "counter": false, "events": ru.stalla.init_typeahead },
           { "table": "gedi_formset", "prefix": "gedi", "counter": false, "events": ru.stalla.init_typeahead,
@@ -218,6 +222,34 @@ var ru = (function ($, ru) {
             sHtml = "";
 
         try {
+          // 
+          // Allow "Search on ENTER" from typeahead fields
+          $(".alt-form-row .searching").on("keypress",
+            function (evt) {
+              var key = evt.which,  // Get the KEY information
+                start = null,
+                button = null;
+
+              // Look for ENTER
+              if (key === KEYS.ENTER) {
+                targetid = $(evt.target).attr("data-target");
+                if (targetid !== undefined && targetid !== "") {
+                  // Copy the value to there
+                  $(targetid).val($(evt.target).val());
+                }
+                // Find the 'Search' button
+                // button = $(this).closest("form").find("a[role=button]").last();
+                button = $(".search-button").first();
+                // Check for the inner text
+                if ($(button)[0].innerText === "Search") {
+                  // Found it
+                  $(button).click();
+                  evt.preventDefault();
+                }
+              }
+            });
+
+
           // See if there are any post-loads to do
           $(".post-load").each(function (idx, value) {
             var targetid = $(this);

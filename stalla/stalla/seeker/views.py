@@ -687,6 +687,7 @@ class WerkstukListview(BasicList):
     model = Werkstuk
     listform = WerkstukForm
     prefix = "wer"
+    new_button = False
     has_select2 = True
     template_name = "seeker/stalla_list.html"
     order_cols = ['inventarisnummer', 'aard', 'beschrijving_nl']
@@ -704,29 +705,36 @@ class WerkstukListview(BasicList):
             {'name': _('Kind'),            'order': 'o=2', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
             {'name': _('Description'),     'order': 'o=3', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
             ]
+        filter_sections = [
+            {"id": "main",      "section": ""},
+            {"id": "location",  "section": _("Location")},
+            {"id": "dating",    "section": _("Dating")},
+            {"id": "typing",    "section": _("Object type")},
+            ]
         filters = [ 
             # Free text fields
-            {"name": _('Object number'),   "id": "filter_inventarisnum",    "enabled": False},
-            {"name": _("Description"),     "id": "filter_beschrijving",     "enabled": False},
+            {"name": _('Object number'),   "id": "filter_inventarisnum",    "enabled": False, "section": "main",    "show": "none"},
+            {"name": _("Description"),     "id": "filter_beschrijving",     "enabled": False, "section": "main",    "show": "none"},
+            {"name": _("Land"),            "id": "filter_land",             "enabled": False, "section": "location", "show": "none"},
+            {"name": _("City"),            "id": "filter_plaats",           "enabled": False, "section": "location", "show": "none"},
+            {"name": _("Location"),        "id": "filter_locatie",          "enabled": False, "section": "location", "show": "none"},
+            {"name": _("From (year)"),     "id": "filter_datestart",        "enabled": False, "section": "dating",  "show": "label"},
+            {"name": _("Until (year)"),    "id": "filter_dateuntil",        "enabled": False, "section": "dating",  "show": "label"},
             # Limited choice fields
-            {"name": _("Land"),            "id": "filter_land",             "enabled": False},
-            {"name": _("City"),            "id": "filter_plaats",           "enabled": False},
-            {"name": _("Location"),        "id": "filter_locatie",          "enabled": False},
-            {"name": _("Year"),            "id": "filter_daterange",        "enabled": False},
-            {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False},
-            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False},
+            {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False, "section": "typing",  "show": "none"},
+            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False, "section": "typing",  "show": "none"},
             ]
         searches = [
             {'section': '', 'filterlist': [
                 # Free text searches
-                {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer'},
-                {'filter': 'beschrijving',  'dbfield': _('beschrijving_en'),'keyS': _('beschrijving_en')},
+                {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer',     'contains': 'yes'},
+                {'filter': 'beschrijving',  'dbfield': _('beschrijving_en'),'keyS': _('beschrijving_en'),   'contains': 'yes'},
                 # Limited choice searches
                 {'filter': 'land',          'fkfield': 'locatie__city__country',    'keyFk': 'name',    'keyS': 'land'},              # 
                 {'filter': 'plaats',        'fkfield': 'locatie__city',             'keyFk': 'name',    'keyS': 'plaats'},                         # 
                 {'filter': 'locatie',       'fkfield': 'locatie',                   'keyFk': 'name',    'keyS': 'locatie'},                                # 
-                {'filter': 'daterange',     'dbfield': 'begindatum__gte',           'keyS': 'date_from'},
-                {'filter': 'daterange',     'dbfield': 'einddatum__lte',            'keyS': 'date_until'},
+                {'filter': 'datestart',     'dbfield': 'begindatum__gte',           'keyS': 'date_from'},
+                {'filter': 'dateuntil',     'dbfield': 'einddatum__lte',            'keyS': 'date_until'},
                 {'filter': 'aardtype',      'dbfield': 'aard', 'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
                 {'filter': 'tags',          'fkfield': 'tags', 'keyType': 'and',    'keyFk': 'abbr', 'keyList': 'taglist', 'infield': 'abbr'},
                 ]
@@ -735,21 +743,11 @@ class WerkstukListview(BasicList):
         oErr = ErrHandle()
 
         try:
-            ## Make sure the filters are filled correctly
-            #if not self.bTags:
-            #    for tagobj in Tag.objects.all().order_by('abbr'):
-            #        name = tagobj.name if self.language == "nl" else tagobj.eng
-            #        abbr = tagobj.abbr
-            #        tag = "tag_{}".format(abbr)
-            #        id = "filter_tag{}".format(abbr)
-            #        filters.append(dict(name=name, id=id, enabled=False))
-            #        searches[0]['filterlist'].append( dict(filter=tag, dbfield="$dummy", keyS=tag))
-            #    self.bTags = True
-
             # Make sure the searches and stuff appear with the correct translation
             self.order_heads = order_heads
             self.filters = filters
             self.searches = searches
+            self.filter_sections = filter_sections
 
             # ======== One-time adaptations ==============
             listview_adaptations("werkstuk_list")
@@ -759,6 +757,22 @@ class WerkstukListview(BasicList):
             oErr.DoError("WerkstukListview/initializations")
 
         return None
+
+    def add_to_context(self, context, initial):
+        filtercount = 0
+        for oItem in self.filters:
+            if oItem['enabled']:
+                filtercount += 1
+        context['filtercount'] = filtercount
+        for section in self.filter_sections:
+            section['enabled'] = False
+            # See if this needs enabling
+            for oItem in self.filters:
+                if oItem['section'] == section['id'] and oItem['enabled']:
+                    section['enabled'] = True
+                    break
+        context['filter_sections'] = self.filter_sections
+        return context
 
     def get_field_value(self, instance, custom):
         sBack = ""
@@ -786,23 +800,21 @@ class WerkstukListview(BasicList):
 
         try:
             # Adapt the tag fields
-            #taglist = []
-            #tag_field = ""
-            #for tagobj in Tag.objects.all().order_by('abbr').values('abbr'):
-            #    abbr = tagobj['abbr']
-            #    tag = "tag_{}".format(abbr)
-            #    tag_value = fields.get(tag, "")
-            #    if tag_value != None:
-            #        if tag_field == "":
-            #            tag_field = tag
-            #        for obj in WerkstukTag.objects.filter(tag__abbr=abbr).values('werkstuk__id'):
-            #            taglist.append(obj['werkstuk__'])
-            #if tag_field != "":
-            #    fields[tag_field]= Q(id__in=taglist)
             tags = fields.get("tags")
             if tags != None and len(tags) > 0:
                 id_list = [x['werkstuk__id'] for x in WerkstukTag.objects.filter(tag__abbr=tags).values('werkstuk__id')]
                 fields['tags'] = Q(id__in=id_list)
+
+            # Look for a generic search
+            generic_search = self.qd.get("generic_search")
+            if generic_search != None and generic_search != "":
+                # The user is using the generic text filter search facility
+                f_combi = Q(inventarisnummer__icontains=generic_search)
+                if self.language == "nl":
+                    f_combi = f_combi | Q(beschrijving_nl__icontains=generic_search)
+                else:
+                    f_combi = f_combi | Q(beschrijving_en__icontains=generic_search)
+                fields['inventarisnummer'] = f_combi
 
             # Double check the length of the exclude list
             if len(lstExclude) == 0:

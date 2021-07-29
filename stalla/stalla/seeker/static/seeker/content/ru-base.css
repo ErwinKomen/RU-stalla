@@ -261,5 +261,5 @@ thead th {
 
 /* Select 2 tweaks */
 .select2-container input {
-    width: 400px !important;
+    /*width: 400px !important; */
 }

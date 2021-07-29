@@ -97,10 +97,14 @@
 
         <!-- stalla: generic search -->
         <div class="panel panel-none generic-search">
-          <div class="row">
-            <div class="col-md-12">
-              <input class="" type="text" placeholder="Zoek in beschrijving, opschrift of op objectnummer" />
+          <div class="row alt-form-row">
+            <div class="col-md-10">
+              <input class="searching" type="text" data-target="#generic_search"
+                     placeholder="{% trans 'Search in description or object number' %}" />
               <span class="glyphicon glyphicon-search generic-search-button"></span> 
+            </div>
+            <div class="col-md-2 ">
+              <h4>{{entrycount}} {% trans "results" %}</h4>
             </div>
           </div>
         </div>
@@ -121,6 +125,7 @@
                 <div class="hidden search_ordered_start">
                   <input name="o" type="text" value="{{sortOrder}}" />
                   <input name="w" type="text" value="{{colWrap}}" />
+                  <input name="generic_search" id="generic_search" type="text" />
                 </div>
 
                 {% if downloads %}
@@ -141,7 +146,7 @@
                   <div class="" id="tab_filter">
                     <div class="panel panel-default">
                       <!-- Filter interface -->
-                      <div class="row" id="filter_badges">
+                      <div class="row hidden" id="filter_badges">
                         <div class="col-md-2">
                           <h4>Selected filters</h4>
                         </div>
@@ -160,63 +165,102 @@
                       </div>
               
                       <div class="row" id="basiclist_filter_specs">
-                        <!-- The column with the different filter sections -->
-                        <div class="col-md-10">
-                          <div class="panel panel-default ">
+                        <!-- Intro -->
+                        <div><h5><b id="filtercount">{{filtercount}}</b> {% trans "filters active" %}</h5></div>
 
-                            <!-- Intro -->
-                            <div><h5>{{titlesg}} filters: </h5></div>
+                        <!-- Show the different filters in the list -->
+                        {% for filter_section in filter_sections %}
+                          {% if not forloop.first %}
+                          <div class="filter-section" data-toggle="collapse" href="#fs_{{filter_section.id}}">
+                            <span class="glyphicon glyphicon-menu-up"></span>
+                            <span>{{filter_section.section}}</span>
+                          </div>
+                          {% endif %}
 
-                            <!-- Show the different filters in the list -->
+                          <!-- Start a section-->
+                          <section class="collapse {% if forloop.first or filter_section.enabled %}in{% endif %}" id="fs_{{filter_section.id}}">
+
+                            <!-- Walk the filters in this section -->
                             {% for filter in filters %}
-                              {% if not filter.head_id  %}
-                                <div id="{{filter.id}}" class="{% if not filter.hasvalue %}hidden{% endif %}">
-                                  <table style="width: 100%;">
-                                    <tr class="form-row">
-                                      <td style="min-width: 130px;" valign="top">
-                                        {{filter.name}}
-                                        {% if filter.help and filter.help != "" and filter.helptext != "" %}
-                                          <a role="button" data-toggle="collapse" data-target="#basic_h_{{filter.help}}">
-                                            <span class="glyphicon glyphicon-question-sign" style="color: blue;"></span>
-                                          </a>
+                              {% if filter.section == filter_section.id %}
+                                <div class="filter-heading">
+                                  {% if filter.show == "heading" %}{{filter.name}}{% endif %}
+                                </div>
+                                {% if filter.help and filter.help != "" and filter.helptext != "" %}
+                                  <a role="button" data-toggle="collapse" data-target="#basic_h_{{filter.help}}">
+                                    <span class="glyphicon glyphicon-question-sign" style="color: blue;"></span>
+                                  </a>
+                                  <div id="basic_h_{{filter.help}}" class="collapse">
+                                    {{filter.helptext|safe}}
+                                  </div>
+                                {% endif %}
+
+                                <!-- show this filter in the section-->
+                                {% if not filter.head_id  %}
+                                  <div id="{{filter.id}}" class="stalla-filter">
+                                    <table style="width: 100%;">
+                                      <tr class="form-row">
+                                        {% if filter.show == "label" %}
+                                          <td style="min-width: 100px;">
+                                            {{filter.name}}
+                                          </td>
                                         {% endif %}
-                                      </td>
-                                      <td style="width: 100%;">
-                                        {% if filter.help and filter.help != "" and filter.helptext != "" %}
-                                          <div id="basic_h_{{filter.help}}" class="collapse">
-                                            {{filter.helptext|safe}}
-                                          </div>
-                                        {% endif %}
-                                        <div>
-                                          {% for fitem in filter.fitems %}
-                                            {% if fitem.dbfield %}<span class="keyword-key hidden filter-dbfield">{{fitem.dbfield}}</span>{% endif %}
-                                            {% if fitem.keyS %}
-                                              <span class="filter-keys">{{fitem.keyS}}</span>
-                                              {% if fitem.has_keylist %}
-                                                <span> or select: </span>
+                                        <td style="width: 100%;">
+                                          <div class="">
+                                            {% for fitem in filter.fitems %}
+                                              {% if fitem.dbfield %}<span class="keyword-key hidden filter-dbfield">{{fitem.dbfield}}</span>{% endif %}
+                                              {% if fitem.keyS %}
+                                                <span class="filter-keys">{{fitem.keyS}}</span>
+                                                {% if fitem.has_keylist %}
+                                                  <span> or select: </span>
+                                                  <span class="filter-keylist">{{fitem.keyList}}</span>
+                                                {% endif %}
+                                              {% elif fitem.has_keylist %}
                                                 <span class="filter-keylist">{{fitem.keyList}}</span>
                                               {% endif %}
-                                            {% elif fitem.has_keylist %}
-                                                <span class="filter-keylist">{{fitem.keyList}}</span>
-                                            {% endif %}
-                                          {% endfor %}
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  </table>
-                                </div>
+                                            {% endfor %}
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </div>
+                                {% endif %}
                               {% endif %}
                             {% endfor %}
+                          </section>
 
+                          {% if forloop.first %}
+                            <!-- Row with buttons-->
+                            <div class="row ">
+                              <div class="col-md-4">
+                                {% if usersearch != "" %}
+                                <span class="clipboard-confirm" style="color:red;"></span>
+                                <a role="button" class="btn btn-sm jumbo-1 clipboard-copy"
+                                   title="Copy the search URL to the clipboard">Search URL</a>
+                                <textarea id="search_copy" class="hiddenaway">{{usersearch}}</textarea>
+                                {% endif %}
+                              </div>
+                              <div class="col-md-8" align="right">
+                                <!-- Room to reset the search criteria -->
+                                <span>
+                                  <a role="button" class="btn btn-sm jumbo-1 clear-button" title="Clear search criteria" onclick="ru.basic.search_clear(this, false);">Clear</a>
+                                </span>
+                                <!-- Submit the search form -->
+                                <span>
+                                  <a role="button" class="btn btn-sm jumbo-3 search-button" title="Start searching..." onclick="ru.basic.search_start(this);">Search</a>
+                                </span>
+                              </div>
+                            </div>
+                          {% endif %}
 
-                          </div>
-                        </div>
+                        {% endfor %}
+
 
                         <!-- Basket operation buttons -->
                         {% if entrycount > 0 and basket_update %}
-                          <div class="col-md-2 text-right">
-                            {% include 'seeker/basket_buttons.html' %}
-                          </div>
+                        <div class="col-md-2 text-right">
+                          {% include 'seeker/basket_buttons.html' %}
+                        </div>
                         {% endif %}
 
                       </div>
@@ -286,27 +330,6 @@
                         {% endif %}
                       {% endfor %}
 
-                      <!-- Row with buttons-->
-                      <div class="row">
-                        <div class="col-md-2 col-md-offset-8 text-right">
-                          {% if usersearch != "" %}
-                            <span class="clipboard-confirm" style="color:red;"></span>
-                            <a role="button" class="btn btn-sm jumbo-1 clipboard-copy" 
-                               title="Copy the search URL to the clipboard">Search URL</a>
-                            <textarea id="search_copy" class="hiddenaway">{{usersearch}}</textarea>
-                          {% endif %}
-                        </div>
-                        <div class="col-md-2 text-right">
-                          <!-- Room to reset the search criteria -->
-                          <span>
-                            <a role="button" class="btn btn-sm jumbo-1 clear-button" title="Clear search criteria" onclick="ru.basic.search_clear(this);" >Clear</a>
-                          </span>
-                          <!-- Submit the search form -->
-                          <span>
-                            <a role="button" class="btn btn-sm jumbo-3 search-button" title="Start searching..." onclick="ru.basic.search_start(this);">Search</a>
-                          </span>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 {% endif %}

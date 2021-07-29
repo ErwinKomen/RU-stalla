@@ -1030,6 +1030,10 @@ class Werkstuk(models.Model):
         {'name': 'opmerking_datering_afb',      'type': 'field', 'path': 'opmerkingen_datering_afb'},
         ]
 
+    class Meta:
+        verbose_name = "object"
+        verbose_name_plural = "objecten"
+
     def __str__(self):
         return self.inventarisnummer
 

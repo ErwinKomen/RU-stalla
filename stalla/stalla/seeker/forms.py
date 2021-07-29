@@ -131,37 +131,18 @@ class WerkstukForm(forms.ModelForm):
     """A form to update and search in Werkstuk objects"""
 
     aardlist = ModelMultipleChoiceField(queryset=None, required=False, 
-                widget=AardtypeWidget(attrs={'data-placeholder': _('Select multiple users...'), 'style': 'width: 100%;', 'class': 'searching'}))
+                widget=AardtypeWidget(attrs={'data-placeholder': _('Select one or more kind-types...'), 'style': 'width: 100%;', 'class': 'searching'}))
     aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select an aard-type...'), 'style': 'width: 30%;', 'class': 'searching'}))
     land    = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=LandOneWidget(attrs={'data-placeholder': _('Select a country...'), 'style': 'width: 50%;', 'class': 'searching'}))
+                widget=LandOneWidget(attrs={'data-placeholder': _('Select a country...'), 'style': 'width: 100%;', 'class': 'searching'}))
     plaats  = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=PlaatsOneWidget(attrs={'data-placeholder': 'Select a city...', 'style': 'width: 50%;', 'class': 'searching'}))
+                widget=PlaatsOneWidget(attrs={'data-placeholder': 'Select a city...', 'style': 'width: 100%;', 'class': 'searching'}))
     date_from   = forms.IntegerField(label=_("Date start"), required = False,
-                widget=forms.TextInput(attrs={'placeholder': _('Starting from...'),  'style': 'width: 30%;', 'class': 'searching'}))
+                widget=forms.TextInput(attrs={'placeholder': _('Starting from...'),  'style': 'width: 100%;', 'class': 'searching'}))
     date_until  = forms.IntegerField(label=_("Date until"), required = False,
-                widget=forms.TextInput(attrs={'placeholder': _('Until (including)...'),  'style': 'width: 30%;', 'class': 'searching'}))
+                widget=forms.TextInput(attrs={'placeholder': _('Until (including)...'),  'style': 'width: 100%;', 'class': 'searching'}))
     taglist     = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=forms.CheckboxSelectMultiple)
-    #tag_astro = forms.BooleanField(required=False, widget=forms.CheckboxInput)
-    #tag_bloem = forms.BooleanField(required=False)
-    #tag_dagel = forms.BooleanField(required=False)
-    #tag_dier = forms.BooleanField(required=False)
-    #tag_diera = forms.BooleanField(required=False)
-    #tag_fanta = forms.BooleanField(required=False)
-    #tag_hoofd = forms.BooleanField(required=False)
-    #tag_hoofb = forms.BooleanField(required=False)
-    #tag_liter = forms.BooleanField(required=False)
-    #tag_mense = forms.BooleanField(required=False)
-    #tag_muzie = forms.BooleanField(required=False)
-    #tag_omgek = forms.BooleanField(required=False)
-    #tag_ondui = forms.BooleanField(required=False)
-    #tag_overi = forms.BooleanField(required=False)
-    #tag_overz = forms.BooleanField(required=False)
-    #tag_relig = forms.BooleanField(required=False)
-    #tag_spree = forms.BooleanField(required=False)
-    #tag_voorw = forms.BooleanField(required=False)
-    #tag_zinne = forms.BooleanField(required=False)
 
     class Meta:
         ATTRS_FOR_FORMS = {'class': 'form-control'};
@@ -171,11 +152,14 @@ class WerkstukForm(forms.ModelForm):
                   'locatie']
         widgets={
             'accessid':         forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching'}),
-            'inventarisnummer': forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching'}),
+            'inventarisnummer': forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching', 
+                                                       'placeholder': _('object number')}),
             'aard':             forms.Select(attrs={'style': 'width: 100%;'}),
-            'beschrijving_nl':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching'}),
-            'beschrijving_en':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching'}),
-            'locatie':          LocatieOneWidget(attrs={'data-placeholder': 'Select a location...', 'style': 'width: 50%;', 'class': 'searching'}),
+            'beschrijving_nl':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching', 
+                                                      'placeholder': 'Beschrijving...'}),
+            'beschrijving_en':  forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 'class': 'searching', 
+                                                      'placeholder': 'Description...'}),
+            'locatie':          LocatieOneWidget(attrs={'data-placeholder': _('Select a location...'), 'style': 'width: 100%;', 'class': 'searching'}),
             }
 
     def __init__(self, *args, **kwargs):
