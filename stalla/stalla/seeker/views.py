@@ -371,7 +371,7 @@ def contact(request):
     """Renders the contact page."""
     assert isinstance(request, HttpRequest)
     context =  {'title':'Contact',
-                'message':'Shari Boodts',
+                'message':'Willy Piron',
                 'year':get_current_datetime().year,
                 'pfx': APP_PREFIX,
                 'site_url': admin.site.site_url}
