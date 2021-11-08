@@ -690,7 +690,7 @@ class WerkstukListview(BasicList):
     new_button = False
     has_select2 = True
     template_name = "seeker/stalla_list.html"
-    order_cols = ['inventarisnummer', 'aard', 'beschrijving_nl']
+    order_cols = ['inventarisnummer', '', 'aard', 'beschrijving_nl']
     order_default = order_cols
     order_heads = []
     filters = []
@@ -702,8 +702,9 @@ class WerkstukListview(BasicList):
 
         order_heads = [
             {'name': _('Object number'),   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer', 'linkdetails': True},
-            {'name': _('Kind'),            'order': 'o=2', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
-            {'name': _('Description'),     'order': 'o=3', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
+            {'name': _('Image'),           'order': 'o=2', 'type': 'str', 'custom': 'image', 'linkdetails': True},
+            {'name': _('Kind'),            'order': 'o=3', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
+            {'name': _('Description'),     'order': 'o=4', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
             ]
         filter_sections = [
             {"id": "main",      "section": ""},
@@ -781,6 +782,19 @@ class WerkstukListview(BasicList):
         try:
             if custom == "aard":
                 sBack = instance.get_aard(self.language)
+            elif custom == "image":
+                # Get the numbr on image
+                sImageName = instance.nummer1
+                # Determine the directory
+                arDir = ["static", "seeker", "images"]
+                if sImageName != "GA":
+                    arDir.append(sImageName[0:2])
+                arDir.append(sImageName)
+                # Combine into static image location
+                image = "/{}.jpg".format( "/".join(arDir) )
+                # Create what we should return
+                descr = instance.beschrijving_nl if self.language == "nl" else instance.beschrijving_en
+                sBack = "<img src='{}' alt='{}'>".format(image, descr)
             elif custom == "beschrijving":
                 if self.language == "nl":
                     sBack = instance.beschrijving_nl
