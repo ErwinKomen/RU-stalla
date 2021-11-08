@@ -783,18 +783,7 @@ class WerkstukListview(BasicList):
             if custom == "aard":
                 sBack = instance.get_aard(self.language)
             elif custom == "image":
-                # Get the numbr on image
-                sImageName = instance.nummer1
-                # Determine the directory
-                arDir = ["static", "seeker", "images"]
-                if sImageName != "GA":
-                    arDir.append(sImageName[0:2])
-                arDir.append(sImageName)
-                # Combine into static image location
-                image = "/{}.jpg".format( "/".join(arDir) )
-                # Create what we should return
-                descr = instance.beschrijving_nl if self.language == "nl" else instance.beschrijving_en
-                sBack = "<img src='{}' alt='{}'>".format(image, descr)
+                sBack, sTitle = instance.get_image_html()
             elif custom == "beschrijving":
                 if self.language == "nl":
                     sBack = instance.beschrijving_nl

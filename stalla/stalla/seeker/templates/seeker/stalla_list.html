@@ -444,7 +444,7 @@
                                     {% if field.align %}align="{{field.align}}"{% endif %}>
                                   {% if field.linkdetails %}
                                     <a href="{% url basic_details result.id %}{% if params %}?params={{params}}{% endif %}" 
-                                       class="nostyle" title="Show details of this {{titlesg}}">
+                                       class="nostyle" title="{% if field.title %}{{field.title}}{% else %}Show details of this {{titlesg}}{% endif %}">
                                       {% if field.value %}{{field.value|safe}}{% else %}&nbsp;&nbsp;{% endif %}
                                     </a>
                                   {% else %}

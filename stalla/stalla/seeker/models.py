@@ -1216,6 +1216,37 @@ class Werkstuk(models.Model):
         sBack = ", ".join(lhtml)
         return sBack
 
+    def get_image_html(self, img_number=1):
+        """Get the HTML <img> code for this one"""
+
+        oErr = ErrHandle()
+        sBack = ""
+        sTitle = ""
+        try:
+            # Get the number on image
+            field_nummer = "nummer{}".format(img_number)
+            sImageName = getattr(self, field_nummer)    # self.nummer1
+            # Determine the directory
+            arDir = ["static", "seeker", "images"]
+            if sImageName != "GA":
+                arDir.append(sImageName[0:2])
+            arDir.append(sImageName)
+            # Combine into static image location
+            image = "/{}.jpg".format( "/".join(arDir) 
+                                     )
+            # Create what we should return
+            field_bijschrift = "vis_bijschrift{}".format(img_number)
+            sTitle =  getattr(self, field_bijschrift)    # self.vis_bijschrift1
+
+            if sTitle == None:
+                sTitle = self.beschrijving_nl if self.language == "nl" else self.beschrijving_en
+            descr = "object {}".format(self.inventarisnummer)
+            sBack = "<img src='{}' alt='{}'>".format(image, descr)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Werkstuk/get_image_html")
+        return sBack, sTitle
+
     def get_fotograaf(self):
         sBack = ""
         obj = self.fotograaf
