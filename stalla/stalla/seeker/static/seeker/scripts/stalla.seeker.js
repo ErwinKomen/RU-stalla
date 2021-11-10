@@ -133,6 +133,28 @@ var ru = (function ($, ru) {
         }
       },
 
+      /** 
+       *  werkstuk_showtooltip_init - Initialize tooltip processing
+       */
+      werkstuk_showtooltip_init: function () {
+        try {
+          // initialize tooltipping: hover-type
+          $('.dict-entry td[data-toggle="tooltip"][data-tooltip="werkstuk-hover"], .dict-entry img[data-toggle="tooltip"][data-tooltip="werkstuk-hover"]').tooltip({
+            html: true,
+            container: 'body',
+            placement: 'bottom auto',
+            animation: true,
+            trigger: "hover focus",
+            template: '<div class="tooltip werkstuk" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+          });
+
+          // What to do when a tooltip has been shown
+
+        } catch (ex) {
+          private_methods.errMsg("werkstuk_showtooltip_init", ex);
+        }
+      },
+
       errMsg: function (sMsg, ex, bNoCode) {
         var sHtml = "",
             bCode = true;
@@ -222,6 +244,9 @@ var ru = (function ($, ru) {
             sHtml = "";
 
         try {
+
+          // Activate tooltips
+          private_methods.werkstuk_showtooltip_init();
           // 
           // Allow "Search on ENTER" from typeahead fields
           $(".alt-form-row .searching").on("keypress",

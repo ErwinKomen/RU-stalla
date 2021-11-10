@@ -450,6 +450,7 @@
                                   {% else %}
                                     {{field.value|safe}}
                                   {% endif %}
+                                  {% if field.tooltip %}{{field.tooltip|safe}}{% endif %}
                                   {% if field.main %}
                                     <!-- Provide a standard possibility to do delete confirmation *without* a popup form -->
                                     {% if delete_line and is_app_editor %}

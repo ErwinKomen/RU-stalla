@@ -1216,7 +1216,7 @@ class Werkstuk(models.Model):
         sBack = ", ".join(lhtml)
         return sBack
 
-    def get_image_html(self, img_number=1):
+    def get_image_html(self, img_number=1, options=None, tooltip=None):
         """Get the HTML <img> code for this one"""
 
         oErr = ErrHandle()
@@ -1241,7 +1241,13 @@ class Werkstuk(models.Model):
             if sTitle == None:
                 sTitle = self.beschrijving_nl if self.language == "nl" else self.beschrijving_en
             descr = "object {}".format(self.inventarisnummer)
-            sBack = "<img src='{}' alt='{}'>".format(image, descr)
+
+            if tooltip == None:
+                sBack = "<img src='{}' alt='{}'>".format(image, descr)
+            else:
+                sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}'>".format(
+                    image, descr, tooltip)
+
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Werkstuk/get_image_html")
@@ -1264,9 +1270,10 @@ class Werkstuk(models.Model):
         sBack = ", ".join(lhtml)
         return sBack
 
-    def get_locatie(self):
+    def get_locatie(self, as_object = False):
         sBack = ""
         lhtml = []
+        oItem = dict(country="", city="", location="")
         obj = self.locatie
         if obj != None:
             # Get the city
@@ -1282,7 +1289,21 @@ class Werkstuk(models.Model):
                     land = "onbekend"
                 else:
                     land = country.name
-            sBack = "{}, {}: {}".format(land, plaats, obj.name)
+            if as_object:
+                oItem['country'] = land
+                oItem['city'] = plaats
+                oItem['location'] = obj.name
+                sBack = json.dumps(oItem)
+            else:
+                sBack = "{}, {}: {}".format(land, plaats, obj.name)
+        return sBack
+
+    def get_soort(self, language):
+        sBack = ""
+        if language == "nl":
+            sBack = self.soort.naam
+        else:
+            sBack = self.soort.eng
         return sBack
 
     def get_tags_html(self):

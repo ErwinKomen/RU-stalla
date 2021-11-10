@@ -701,10 +701,10 @@ class WerkstukListview(BasicList):
         """Perform some initializations"""
 
         order_heads = [
-            {'name': _('Object number'),   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer', 'linkdetails': True},
-            {'name': _('Image'),           'order': 'o=2', 'type': 'str', 'custom': 'image', 'linkdetails': True},
-            {'name': _('Kind'),            'order': 'o=3', 'type': 'str', 'custom': 'aard', 'linkdetails': True},
-            {'name': _('Description'),     'order': 'o=4', 'type': 'str', 'custom': 'beschrijving', 'main': True, 'linkdetails': True},
+            {'name': _('Object number'),   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer',              'linkdetails': True},
+            {'name': _('Image'),           'order': 'o=2', 'type': 'str', 'custom': 'image',                        'linkdetails': True},
+            {'name': _('Kind'),            'order': 'o=3', 'type': 'str', 'custom': 'aard',                         'linkdetails': True},
+            {'name': _('Description'),     'order': 'o=4', 'type': 'str', 'custom': 'beschrijving', 'main': True,   'linkdetails': True},
             ]
         filter_sections = [
             {"id": "main",      "section": ""},
@@ -783,7 +783,9 @@ class WerkstukListview(BasicList):
             if custom == "aard":
                 sBack = instance.get_aard(self.language)
             elif custom == "image":
-                sBack, sTitle = instance.get_image_html()
+                # First get a tooltip
+                tooltip_html = self.get_field_tooltip(instance, custom)
+                sBack, sTitle = instance.get_image_html(tooltip = tooltip_html)
             elif custom == "beschrijving":
                 if self.language == "nl":
                     sBack = instance.beschrijving_nl
@@ -794,6 +796,27 @@ class WerkstukListview(BasicList):
             msg = oErr.get_error_message()
             oErr.DoError("WerkstukListview/get_field_value")
         return sBack, sTitle
+
+    def get_field_tooltip(self, instance, tooltip):
+        """Provide the HTML for the tooltip"""
+
+        oErr = ErrHandle()
+        sBack = ""
+        try:
+            if tooltip == "image":
+                context = dict(type=instance.get_soort(self.language))
+                sLocation = instance.get_locatie(True)
+                if sLocation != None and sLocation != "":
+                    oLocation = json.loads(sLocation)
+                    context['country'] = oLocation['country']
+                    context['city'] = oLocation['city']
+                    context['location'] = oLocation['location']
+                #sBack = render_to_string("seeker/list_tooltip.html", context, self.request)
+                sBack = render_to_string("seeker/werkstuk_tooltip.html", context, self.request).replace("\n", "")
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("WerkstukListview/get_field_tooltip")
+        return sBack
 
     def adapt_search(self, fields):
         # Adapt the search to the keywords that *may* be shown

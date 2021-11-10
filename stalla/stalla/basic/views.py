@@ -1044,6 +1044,10 @@ class BasicList(ListView):
                     if ftitle != None:
                         fobj['title'] = ftitle
                     fname = head['custom']
+                if 'tooltip' in head: 
+                    ftooltip = self.get_field_tooltip(obj, head['tooltip'])
+                    if not ftooltip is None:
+                        fobj['tooltip'] = ftooltip
                 classes = []
                 if fname != None: classes.append("{}-{}".format(self.basic_name, fname))
                 if 'linkdetails' in head and head['linkdetails']: fobj['linkdetails'] = True
@@ -1099,6 +1103,9 @@ class BasicList(ListView):
     def get_template_names(self):
         names = [ self.template_name ]
         return names
+
+    def get_field_tooltip(self, instance, tooltip):
+        return ""
 
     def get_field_value(self, instance, custom):
         return "", ""

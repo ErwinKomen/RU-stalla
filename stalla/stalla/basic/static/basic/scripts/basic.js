@@ -14,6 +14,9 @@ var $ = jQuery;
       // Initialize Bootstrap popover
       // Note: this is used when hovering over the question mark button
       $('[data-toggle="popover"]').popover();
+
+      // Initialize bootstrap tooltip
+      $('[data-toggle="tooltip"]').tooltip();
     });
   });
 })(django.jQuery);
