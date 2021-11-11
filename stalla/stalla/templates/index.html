@@ -9,6 +9,7 @@
       <h1>
         <span>STALLA</span>
         <span class="pull-right">
+          <a href="{% url 'werkstuk_list' %}" class="btn btn-success btn-large">{% trans "To the database" %}</a>
           {% if not user.is_authenticated %}
             <a class="btn btn-default" href="{% url 'login' %}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>Log in</a>
             <a class="btn btn-default" href="{% url 'signup' %}">Sign up</a>

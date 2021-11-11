@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'django_select2',
     'stalla.basic',
     'stalla.seeker',
+    'stalla.mapview'
 ]
 
 # Middleware framework

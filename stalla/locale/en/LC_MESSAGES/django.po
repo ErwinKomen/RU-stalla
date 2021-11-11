@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-11 10:06+0100\n"
+"POT-Creation-Date: 2021-11-11 15:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,6 +74,7 @@ msgstr ""
 msgid "(No literature for this object)"
 msgstr ""
 
+#: .\stalla\seeker\templates\seeker\werkstuk_addition.html:7
 #: .\stalla\seeker\templates\seeker\werkstuk_addition.html:9
 msgid "Literature"
 msgstr ""
@@ -82,6 +83,7 @@ msgstr ""
 msgid "(No additional pictures for this object)"
 msgstr ""
 
+#: .\stalla\seeker\templates\seeker\werkstuk_addition.html:14
 #: .\stalla\seeker\templates\seeker\werkstuk_addition.html:16
 msgid "More pictures"
 msgstr ""
@@ -90,6 +92,7 @@ msgstr ""
 msgid "(No parallels for this object)"
 msgstr ""
 
+#: .\stalla\seeker\templates\seeker\werkstuk_addition.html:21
 #: .\stalla\seeker\templates\seeker\werkstuk_addition.html:23
 msgid "Parallels"
 msgstr ""
@@ -98,7 +101,7 @@ msgstr ""
 msgid "Aanvullende afbeeldingen"
 msgstr ""
 
-#: .\stalla\seeker\templates\seeker\werkstuk_addition.html:62
+#: .\stalla\seeker\templates\seeker\werkstuk_addition.html:63
 msgid "Parallellen"
 msgstr ""
 
@@ -218,7 +221,7 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
-#: .\stalla\templates\admin\base.html:55 .\stalla\templates\topnav.html:73
+#: .\stalla\templates\admin\base.html:55 .\stalla\templates\topnav.html:74
 msgid "Change password"
 msgstr ""
 
@@ -230,24 +233,28 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: .\stalla\templates\index.html:68
+#: .\stalla\templates\index.html:12
+msgid "To the database"
+msgstr ""
+
+#: .\stalla\templates\index.html:69
 msgid ""
 "The stalla application has been designed by the Technical Service Group of "
 "the Humanities Lab at the Radboud University Nijmegen.\n"
 "          Any researcher is invited to register (via "
 msgstr ""
 
-#: .\stalla\templates\index.html:71
+#: .\stalla\templates\index.html:72
 msgid "sign up"
 msgstr ""
 
-#: .\stalla\templates\index.html:73
+#: .\stalla\templates\index.html:74
 msgid ""
 "Regular researchers are able to read and search through the information that "
 "is provided."
 msgstr ""
 
-#: .\stalla\templates\index.html:78
+#: .\stalla\templates\index.html:79
 msgid "(See the <b>Extra</b> menu for logout and other options)"
 msgstr ""
 
@@ -260,25 +267,25 @@ msgid "Search"
 msgstr ""
 
 #: .\stalla\templates\topnav.html:28
-msgid "Werkstuk"
+msgid "Object"
 msgstr ""
 
 #: .\stalla\templates\topnav.html:35
 msgid "Tools"
 msgstr ""
 
-#: .\stalla\templates\topnav.html:66
+#: .\stalla\templates\topnav.html:67
 msgid "About"
 msgstr ""
 
-#: .\stalla\templates\topnav.html:72
+#: .\stalla\templates\topnav.html:73
 msgid "Log off"
 msgstr ""
 
-#: .\stalla\templates\topnav.html:75
+#: .\stalla\templates\topnav.html:76
 msgid "Log in"
 msgstr ""
 
-#: .\stalla\templates\topnav.html:76
+#: .\stalla\templates\topnav.html:77
 msgid "Sign up"
 msgstr ""
