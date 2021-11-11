@@ -351,3 +351,4 @@ healthchecksdb
 /stalla/static/admin
 /stalla/static/django_select2
 /stalla/static/images
+/stalla/stalla/mapview/static/mapview/webfonts

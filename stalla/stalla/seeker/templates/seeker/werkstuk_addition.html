@@ -1,4 +1,4 @@
-﻿{% load i18n %}
+{% load i18n %}
 
 <!-- List of buttons to show details -->
 <div class="detail-button">
@@ -50,7 +50,8 @@
   <div id="morepicts_table" class="collapse stalla-more">
     <h3>{% trans "Aanvullende afbeeldingen" %}</h3>
     {% for oPict in morepicts %}
-      <div title="{{oPict.title}}">
+      <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+           onclick="ru.stalla.seeker.show_picture(this);">
         {{oPict.img|safe}}
       </div>
     {% endfor %}
@@ -61,9 +62,37 @@
   <div id="parallels_table" class="collapse stalla-para">
     <h3>{% trans "Parallellen" %}</h3>
     {% for oPict in parallels %}
-      <div title="{{oPict.title}}">
+      <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+           onclick="ru.stalla.seeker.show_picture(this);">
         {{oPict.img|safe}}
       </div>
     {% endfor %}
   </div>
 {% endif %}
+
+<!-- Modal showing of picture with information -->
+<div id="werkstuk_modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content -->
+    <div class="modal-content">
+
+      <!-- Header with close X -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- This is where the image comes-->
+        <div class="modal-image"></div>
+
+        <!-- This is where the information comes -->
+        <div class="modal-info"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer"></div>
+
+    </div>
+  </div>
+</div>

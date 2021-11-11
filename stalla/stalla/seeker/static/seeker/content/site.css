@@ -1296,15 +1296,18 @@ div > span.twitter-typeahead {
 
 /* Adapt the standard modal to my own */
 .modal-dialog {
-    width: 80%;
+    width: 700px; /* 80%; */
     margin: 30px auto;
-  }
+}
 .modal-comment {
     width: 50%;
     margin: 20px auto;
   }
 .modal-header {
   cursor: move;
+}
+.modal-body {
+    text-align: center;
 }
 
 td.hightlighted {
@@ -1756,7 +1759,8 @@ div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
 }
 
 .stalla-more img {
-    max-width: 500px;
+    max-height: 200px;
+    max-width: 200px;
 }
 
 .stalla-para img {
@@ -1770,4 +1774,10 @@ div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
 
 .detail-button {
     padding-top: 20px;
+}
+
+.modal-image img {
+    width: 650px;
+    height: 450px;
+    object-fit: contain;
 }

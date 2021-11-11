@@ -667,14 +667,14 @@ class WerkstukDetails(WerkstukEdit):
             morepicts = []
             for field in instance.get_available('dubnummer'  ):
                 img_html, sTitle = instance.get_image_html(self.language, field=field)
-                morepicts.append(dict(img=img_html, title=sTitle))
+                morepicts.append(dict(img=img_html, title=sTitle, info=sTitle))
             context['morepicts'] = morepicts
 
             # Third addition: parallels
             parallels = []
             for field in instance.get_available('nummer'):
                 img_html, sTitle = instance.get_image_html(self.language, field=field)
-                parallels.append(dict(img=img_html, title=sTitle))
+                parallels.append(dict(img=img_html, title=sTitle, info=sTitle))
             context['parallels'] = parallels
 
             # COmbine and show the additions

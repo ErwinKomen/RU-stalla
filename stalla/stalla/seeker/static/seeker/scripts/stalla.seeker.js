@@ -247,7 +247,10 @@ var ru = (function ($, ru) {
 
           // Activate tooltips
           private_methods.werkstuk_showtooltip_init();
-          // 
+
+          // Bind clicking events on images
+          targetid = targetid;
+          
           // Allow "Search on ENTER" from typeahead fields
           $(".alt-form-row .searching").on("keypress",
             function (evt) {
@@ -1075,7 +1078,29 @@ var ru = (function ($, ru) {
         return false;
       },
 
+      /**
+       * show_picture
+       *   Make sure that the modal shows the correct picture and additional information
+       *
+       */
+      show_picture: function (elStart) {
+        var elImage = null,
+          elInfo = null;
 
+        try {
+          // Determine the locations
+          elImage = $(".modal-image").first();
+          elInfo = $(".modal-info").first();
+
+          // copy the image
+          $(elImage).html($(elStart).find("img").first().parent().html());
+
+          // Copy the information
+          $(elInfo).html($(elStart).attr("info"));
+        } catch (ex) {
+          private_methods.errMsg("show_picture", ex);
+        }
+      },
  
       /**
        * formset_setdel

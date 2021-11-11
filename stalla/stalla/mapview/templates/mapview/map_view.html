@@ -1,0 +1,43 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'mapview/content/fontawesome-5-all.css' %}" />
+<link rel="stylesheet" href="{% static 'mapview/content/leaflet.css' %}" type="text/css" />
+<link rel="stylesheet" href="{% static 'mapview/content/ru.mapview.css' %}" type="text/css" />
+<script src="{% static 'mapview/scripts/leaflet-src.js' %}"></script>
+<script src="{% static 'mapview/scripts/oms.min.js' %}"></script>
+<script src="{% static 'mapview/scripts/ru.mapview.js' %}"></script>
+
+<!-- Modal form showing a dialect map -->
+<div id="map_view" class="modal fade" role="dialog">
+  <div class="modal-dialog" style="width: 1000px;">
+    <!-- The content-->
+    <div class="modal-content">
+
+      <!-- THe header-->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 id="map_view_title_host" class="modal-title">
+          <span id="map_view_title">Hier LEMMA</span>
+          <span class="pull-right">
+            <a class="btn btn-xs" role="button" title="(un)select all" onclick="ru.mapview.legend_click(this);">
+              <span class="glyphicon glyphicon-minus"></span>
+            </a>
+          </span>
+        </h4>
+      </div>
+
+      <!-- The body: leaflet -->
+      <div class="modal-body">
+        <div id="map_lemma" style="height: 400px; ">
+          <!-- THis is where the waiting symbol or the actual map will appear-->
+        </div>
+
+      </div>
+
+      <!-- The footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+</div>
