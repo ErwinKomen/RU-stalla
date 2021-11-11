@@ -164,9 +164,11 @@
     <Content Include="stalla\seeker\static\seeker\scripts\typeahead.bundle.js" />
     <Content Include="stalla\seeker\static\seeker\scripts\xhr2.js" />
     <None Include="stalla\seeker\static\seeker\scripts\_references.js" />
+    <Content Include="stalla\seeker\templates\seeker\werkstuk_tooltip.html" />
+    <Content Include="stalla\seeker\templates\seeker\list_tooltip.html" />
     <Content Include="stalla\seeker\templates\seeker\stalla_list.html" />
     <Content Include="stalla\seeker\templates\seeker\syncstalla.html" />
-    <Content Include="stalla\seeker\templates\seeker\werkstuk_literatuur.html" />
+    <Content Include="stalla\seeker\templates\seeker\werkstuk_addition.html" />
     <Content Include="stalla\templates\about.html" />
     <Content Include="stalla\templates\admin\base.html" />
     <Content Include="stalla\templates\breadcrumb_list.html" />

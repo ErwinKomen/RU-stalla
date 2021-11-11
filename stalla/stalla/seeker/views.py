@@ -638,16 +638,6 @@ class WerkstukDetails(WerkstukEdit):
     """Like Werkstuk Edit, but then html output"""
     rtype = "html"
 
-    #literature_def = [
-    #    {'field': 'auteursvermelding',  'label': 'Auhor(s)',        'label_nl': 'Auteur(s)'},
-    #    {'field': 'title',              'label': 'Title',           'label_nl': 'Titel'},
-    #    {'field': 'plaatsvanuitgave',   'label': 'Plaats',          'label_nl': 'City'},
-    #    {'field': 'jaar',               'label': 'Jaar',            'label_nl': 'Year'},
-    #    {'field': 'tijdschrift',        'label': 'Tijdschrift',     'label_nl': 'Journal'},
-    #    {'field': 'pagina',             'label': 'Paginaverwijzing', 'label_nl': 'Pages'},
-    #    # {'field': '', 'label': '', 'label_nl': ''},
-    #    ]
-
     def add_to_context(self, context, instance):
         response = super(WerkstukDetails, self).add_to_context(context, instance)
 
@@ -656,6 +646,8 @@ class WerkstukDetails(WerkstukEdit):
             lHtml = []
             if 'after_details' in context:
                 lHtml.append(context['after_details'])
+
+            # First addition: literature
             literaturen = []
             for obj in instance.literaturen.all().order_by('auteursvermelding', 'title'):
                 oLiterature = {}
@@ -670,7 +662,23 @@ class WerkstukDetails(WerkstukEdit):
                 oLiterature['lines'] = lines
                 literaturen.append(oLiterature)
             context['literaturen'] = literaturen
-            lHtml.append(render_to_string('seeker/werkstuk_literatuur.html', context, self.request))
+
+            # Second addition: more pictures
+            morepicts = []
+            for field in instance.get_available('dubnummer'  ):
+                img_html, sTitle = instance.get_image_html(self.language, field=field)
+                morepicts.append(dict(img=img_html, title=sTitle))
+            context['morepicts'] = morepicts
+
+            # Third addition: parallels
+            parallels = []
+            for field in instance.get_available('nummer'):
+                img_html, sTitle = instance.get_image_html(self.language, field=field)
+                parallels.append(dict(img=img_html, title=sTitle))
+            context['parallels'] = parallels
+
+            # COmbine and show the additions
+            lHtml.append(render_to_string('seeker/werkstuk_addition.html', context, self.request))
             context['after_details'] = "\n".join(lHtml)
 
         except:
@@ -785,7 +793,7 @@ class WerkstukListview(BasicList):
             elif custom == "image":
                 # First get a tooltip
                 tooltip_html = self.get_field_tooltip(instance, custom)
-                sBack, sTitle = instance.get_image_html(tooltip = tooltip_html)
+                sBack, sTitle = instance.get_image_html(self.language, tooltip = tooltip_html)
             elif custom == "beschrijving":
                 if self.language == "nl":
                     sBack = instance.beschrijving_nl

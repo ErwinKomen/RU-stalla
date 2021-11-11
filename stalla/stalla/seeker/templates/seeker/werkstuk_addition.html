@@ -1,0 +1,69 @@
+﻿{% load i18n %}
+
+<!-- List of buttons to show details -->
+<div class="detail-button">
+  <!-- Literature -->
+  {% if literaturen|length == 0 %}
+    <button title="{% trans '(No literature for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Literature" %}</button>
+  {% else %}
+    <button data-toggle="collapse" data-target="#literature_table" class="btn btn-sm jumbo-3">{% trans "Literature" %}</button>
+  {% endif %}
+
+  <!-- Additional images -->
+  {% if morepicts|length == 0 %}
+    <button title="{% trans '(No additional pictures for this object)' %}" class="btn btn-sm jumbo-1">{% trans "More pictures" %}</button>
+  {% else %}
+    <button data-toggle="collapse" data-target="#morepicts_table" class="btn btn-sm jumbo-3">{% trans "More pictures" %}</button>
+  {% endif %}
+
+  <!-- Parallels -->
+  {% if parallels|length == 0 %}
+    <button title="{% trans '(No parallels for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Parallels" %}</button>
+  {% else %}
+    <button data-toggle="collapse" data-target="#parallels_table" class="btn btn-sm jumbo-3">{% trans "Parallels" %}</button>
+  {% endif %}
+
+</div>
+
+{% if literaturen|length > 0 %}
+  <!-- Only if there is any literature -->
+  <div id="literature_table" class="collapse">
+    <table>
+      {% for literature in literaturen %}
+        {% for line in literature.lines %}
+          <tr>
+            <td class="details-label">{{line.label}}:&nbsp;</td>
+            <td>{{line.value}}</td>
+          </tr>
+        {% endfor %}
+        <!-- One row with just a line -->
+        <tr>
+          <td colspan="2" style="border-top: 1px solid gray;">&nbsp;</td>
+        </tr>
+      {% endfor %}
+    </table>
+
+  </div>
+{% endif %}
+
+{% if morepicts|length > 0 %}
+  <div id="morepicts_table" class="collapse stalla-more">
+    <h3>{% trans "Aanvullende afbeeldingen" %}</h3>
+    {% for oPict in morepicts %}
+      <div title="{{oPict.title}}">
+        {{oPict.img|safe}}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if parallels|length > 0 %}
+  <div id="parallels_table" class="collapse stalla-para">
+    <h3>{% trans "Parallellen" %}</h3>
+    {% for oPict in parallels %}
+      <div title="{{oPict.title}}">
+        {{oPict.img|safe}}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

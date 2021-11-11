@@ -1029,6 +1029,12 @@ class Werkstuk(models.Model):
         {'name': 'opmerking_paralel',           'type': 'field', 'path': 'opmerkingen_paralel'},
         {'name': 'opmerking_datering_afb',      'type': 'field', 'path': 'opmerkingen_datering_afb'},
         ]
+    afbeeldingen = {
+        "nummer1": "vis_bijschrift1", "nummer2": "vis_bijschrift2", 
+        "nummer3": "vis_bijschrift3", "nummer4": "vis_bijschrift4", "nummer5": "vis_bijschrift5",
+        "dubnummer1": "dubble_afb_tekst1", "dubnummer2": "dubble_afb_tekst2", "dubnummer3": "dubble_afb_tekst3", 
+        "dubnummer4": "dubble_afb_tekst4", "dubnummer5": "dubble_afb_tekst5"}
+
 
     class Meta:
         verbose_name = "object"
@@ -1216,16 +1222,16 @@ class Werkstuk(models.Model):
         sBack = ", ".join(lhtml)
         return sBack
 
-    def get_image_html(self, img_number=1, options=None, tooltip=None):
+    def get_image_html(self, language, field="inventarisnummer", tooltip=None):
         """Get the HTML <img> code for this one"""
 
         oErr = ErrHandle()
         sBack = ""
         sTitle = ""
+
         try:
-            # Get the number on image
-            field_nummer = "nummer{}".format(img_number)
-            sImageName = getattr(self, field_nummer)    # self.nummer1
+            # Get the number of the image, depending on the options
+            sImageName = "{}".format(getattr(self, field)) 
             # Determine the directory
             arDir = ["static", "seeker", "images"]
             if sImageName != "GA":
@@ -1235,11 +1241,15 @@ class Werkstuk(models.Model):
             image = "/{}.jpg".format( "/".join(arDir) 
                                      )
             # Create what we should return
-            field_bijschrift = "vis_bijschrift{}".format(img_number)
-            sTitle =  getattr(self, field_bijschrift)    # self.vis_bijschrift1
+            field_bijschrift =""
+            sTitle = ""
+            if field in self.afbeeldingen:
+                field_bijschrift = self.afbeeldingen[field]
+            if field_bijschrift != "":
+                sTitle =  getattr(self, field_bijschrift)    # self.vis_bijschrift1
 
             if sTitle == None:
-                sTitle = self.beschrijving_nl if self.language == "nl" else self.beschrijving_en
+                sTitle = self.beschrijving_nl if language == "nl" else self.beschrijving_en
             descr = "object {}".format(self.inventarisnummer)
 
             if tooltip == None:
@@ -1252,6 +1262,32 @@ class Werkstuk(models.Model):
             msg = oErr.get_error_message()
             oErr.DoError("Werkstuk/get_image_html")
         return sBack, sTitle
+
+    def get_available(self, base_name = None):
+        """Make a list of images available for this item"""
+
+        oErr = ErrHandle()
+        lBack = []
+        try:
+            if base_name == None:
+                for field, v in self.afbeeldingen.items():
+                    sImageName = "{}".format(getattr(self, field)) 
+                    if sImageName != "GA":
+                        # This must be a picture
+                        lBack.append(field)
+            else:
+                # Build 5 on basename
+                for number in range(1,5):
+                    field = "{}{}".format(base_name, number)
+                    sImageName = "{}".format(getattr(self, field)) 
+                    if sImageName != "GA":
+                        # This must be a picture
+                        lBack.append(field)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Werkstuk/get_available")
+        return lBack
 
     def get_fotograaf(self):
         sBack = ""
