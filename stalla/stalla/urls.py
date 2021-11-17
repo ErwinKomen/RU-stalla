@@ -6,6 +6,7 @@ from datetime import datetime
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path, re_path, include, reverse_lazy  #, url
+from django.views.decorators.csrf import csrf_exempt
 
 import stalla.seeker.views
 import stalla.seeker.forms
@@ -39,6 +40,7 @@ urlpatterns = [
     path('werkstuk/details/', WerkstukDetails.as_view(), name='werkstuk_details'),
     path('werkstuk/details/<int:pk>/', WerkstukDetails.as_view(), name='werkstuk_details'),
     re_path('werkstuk/edit(?:/(?P<pk>\d+))?/$', WerkstukEdit.as_view(), name='werkstuk_edit'),
+    path('werkstuk/map/', csrf_exempt(WerkstukMapView.as_view()), name='werkstukmap'),
 
     # For working with ModelWidgets from the select2 package https://django-select2.readthedocs.io
     path('select2/', include('django_select2.urls')),

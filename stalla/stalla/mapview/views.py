@@ -93,7 +93,9 @@ class MapView(DetailView):
     order_by = ""
     labelfield = ""
     use_object = True
+    filterQ = None
     label = ""
+    prefix = ""
 
     def get(self, request, *args, **kwargs):
         # No errors, just return to the homepage
@@ -103,8 +105,8 @@ class MapView(DetailView):
         # This is where the user may himself call [add_entry] to fill the [entry_list]
         self.entry_list = []
 
-    def add_entry(self, key, type="str", query="", form=""):
-        self.entry_list.append(dict(key=key, form=form, type=type, query=query))
+    def add_entry(self, key, type="str", query="", form="", fkfield=""):
+        self.entry_list.append(dict(key=key, form=form, type=type, query=query, fkfield=fkfield))
 
     def get_object(self, queryset = None):
         if self.use_object:
@@ -120,7 +122,7 @@ class MapView(DetailView):
         # Formulate a response
         data = {'status': 'error', 'msg': 'unknown'}
 
-        def query_add(lstQ, val, path, type):
+        def query_add(lstQ, val, path, type, fkfield = None):
             if type == "str" and val != "" and val != None:
                 comparison = "iexact"
                 if '*' in val or '[' in val or '?' in val or '#' in val:
@@ -132,6 +134,9 @@ class MapView(DetailView):
                     iVal = int(val)
                     if iVal>0:
                         lstQ.append(Q(**{"{}".format(path): iVal}))
+            elif type == "fk" and val != "" and val != None and fkfield != None:
+                val = getattr(val, fkfield)
+                lstQ.append(Q(**{"{}__{}".format(path, fkfield): val}))
 
         oErr = ErrHandle()
         try:
@@ -142,7 +147,10 @@ class MapView(DetailView):
             obj = self.get_object()
 
             # Get the search parameters, if any
-            search_form = self.frmSearch(request.POST)
+            if self.prefix == "":
+                search_form = self.frmSearch(request.POST)
+            else:
+                search_form = self.frmSearch(request.POST, prefix=self.prefix)
             # It should always be valid, but this gives [cleaned_data]
             if search_form.is_valid():
                 # Get the data
@@ -150,6 +158,11 @@ class MapView(DetailView):
 
                 # Build a filter to get all entries, based on the cleaned data
                 lstQ = []
+
+                # Possibly add one filter
+                if self.filterQ != None:
+                    lstQ.append(self.filterQ)
+
                 # Start with the main object's id
                 if self.use_object:
                     lstQ.append(Q(**{"{}__id".format(self.model._meta.model_name.lower()): obj.id}))
@@ -160,7 +173,10 @@ class MapView(DetailView):
                     if oItem['form'] != "":
                         form_value = cleaned_data.get(oItem['form'], "")
                         # Add to the query
-                        query_add(lstQ, form_value, oItem['query'], oItem['type'])
+                        if 'fkfield' in oItem:
+                            query_add(lstQ, form_value, oItem['query'], oItem['type'], fkfield=oItem['fkfield'])
+                        else:
+                            query_add(lstQ, form_value, oItem['query'], oItem['type'])
                     # ALl items: get their values into [value_list]
                     value_list.append(oItem['query'])
 
@@ -175,6 +191,9 @@ class MapView(DetailView):
                     oEntry = {}
                     for oItem in self.entry_list:
                         oEntry[oItem['key']] = item[oItem['query']]
+                    # Combine point_x, point_y if needed
+                    if not "point" in oEntry and "point_x" in oEntry and "point_y" in oEntry:
+                        oEntry['point'] = "{}, {}".format(oEntry['point_x'], oEntry['point_y'])
                     oEntry['pop_up'] = self.get_popup(oEntry)
                     lst_back.append(oEntry)
 

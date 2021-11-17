@@ -42,6 +42,7 @@ from stalla.seeker.models import get_now_time, get_current_datetime, process_use
     User, Group, Information, Visit, NewsItem, Status, \
     Werkstuk, Tag, WerkstukTag
 from stalla.seeker.adaptations import listview_adaptations
+from stalla.mapview.views import MapView
 
 # ======= from RU-Basic ========================
 from stalla.basic.views import BasicPart, BasicList, BasicDetails, make_search_list, add_rel_item, adapt_search
@@ -781,6 +782,11 @@ class WerkstukListview(BasicList):
                     section['enabled'] = True
                     break
         context['filter_sections'] = self.filter_sections
+
+        # Add a user_button definition
+        context['mode'] = "list"
+        context['user_button'] = render_to_string("seeker/map_list_switch.html", context, self.request)
+
         return context
 
     def get_field_value(self, instance, custom):
@@ -859,4 +865,51 @@ class WerkstukListview(BasicList):
 
         return fields, lstExclude, qAlternative
 
+
+class WerkstukMapView(MapView):
+    model = Werkstuk
+    modEntry = Werkstuk
+    frmSearch = WerkstukForm
+    order_by = []
+    use_object = False
+    label = ""
+    language = ""
+    prefix = "wer"
+    filterQ = None
+
+    def initialize(self):
+        super(WerkstukMapView, self).initialize()
+
+        language  = self.request.LANGUAGE_CODE
+        self.language = "en" if "en" in language else language
+
+        # Entries with a 'form' value
+        self.add_entry('inventarisnummer',  'str', 'inventarisnummer',  'inventarisnummer')
+        self.add_entry('locatie',           'fk',  'locatie',           'locatie', fkfield= 'name')
+        self.add_entry('country',           'fk',  'locatie__country',  'land', fkfield= 'name')
+        self.add_entry('city',              'fk',  'locatie__city',     'stad', fkfield= 'name')
+
+        # Add a Q-filter: exclude those where location is 'onbekend'
+        self.filterQ = ~Q(locatie__x_coordinaat="onbekend")
+
+        # Entries without a 'form' value
+        # This determines the *categories* (or groups) into which items are divided
+        if self.language == "en":
+            self.add_entry('trefwoord', 'str', 'soort__eng')
+        else:
+            self.add_entry('trefwoord', 'str', 'soort__naam')
+
+        # This determines the location on the map
+        self.add_entry('point_x',   'str', 'locatie__x_coordinaat')
+        self.add_entry('point_y',   'str', 'locatie__y_coordinaat')
+        self.add_entry('soort',     'fk', 'soort', fkfield = "naam" if self.language=="nl" else "eng")
+
+    def get_popup(self, dialect):
+        """Create a popup from the 'key' values defined in [initialize()]"""
+
+        pop_up = '<p class="h6">{}</p>'.format(dialect['inventarisnummer'])
+        pop_up += '<hr style="border: 1px solid green" />'
+        pop_up += '<p style="font-size: smaller;"><span style="color: purple;">{}</span> {}</p>'.format(
+            dialect['soort'], dialect['city'])
+        return pop_up
 
