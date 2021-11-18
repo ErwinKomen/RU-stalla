@@ -170,15 +170,21 @@ class MapView(DetailView):
                 # Derive the variables from the cleaned_data according to entry_list
                 value_list = []
                 for oItem in self.entry_list:
+                    sValue = oItem['query']
                     if oItem['form'] != "":
                         form_value = cleaned_data.get(oItem['form'], "")
                         # Add to the query
-                        if 'fkfield' in oItem:
+                        if 'fkfield' in oItem and oItem['fkfield'] != "":
                             query_add(lstQ, form_value, oItem['query'], oItem['type'], fkfield=oItem['fkfield'])
+                            sValue = "{}__{}".format(oItem['query'], oItem['fkfield'])
                         else:
                             query_add(lstQ, form_value, oItem['query'], oItem['type'])
+                    else:
+                        if 'fkfield' in oItem and oItem['fkfield'] != "":
+                            sValue = "{}__{}".format(oItem['query'], oItem['fkfield'])
+                    oItem['value_key'] = sValue
                     # ALl items: get their values into [value_list]
-                    value_list.append(oItem['query'])
+                    value_list.append(sValue)
 
                 # Get features of all the ENtry elements satisfying the condition
                 total = self.modEntry.objects.filter(*lstQ).count()
@@ -190,12 +196,15 @@ class MapView(DetailView):
                 for item in lst_entry:
                     oEntry = {}
                     for oItem in self.entry_list:
-                        oEntry[oItem['key']] = item[oItem['query']]
+                        oEntry[oItem['key']] = item[oItem['value_key']]
                     # Combine point_x, point_y if needed
                     if not "point" in oEntry and "point_x" in oEntry and "point_y" in oEntry:
                         oEntry['point'] = "{}, {}".format(oEntry['point_x'], oEntry['point_y'])
                     oEntry['pop_up'] = self.get_popup(oEntry)
                     lst_back.append(oEntry)
+
+                # Possibly perform grouping
+                lst_back = self.group_entries(lst_back)
 
                 # Add the data
                 data['entries'] = lst_back
@@ -213,4 +222,8 @@ class MapView(DetailView):
 
         return JsonResponse(data)
 
+    def group_entries(self, lst_this):
+        """Allow changing the list of entries"""
+
+        return lst_this
 

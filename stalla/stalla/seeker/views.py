@@ -906,6 +906,7 @@ class WerkstukMapView(MapView):
         # This determines the location on the map
         self.add_entry('point_x',   'str', 'locatie__x_coordinaat')
         self.add_entry('point_y',   'str', 'locatie__y_coordinaat')
+        self.add_entry('locatie_id','str', 'locatie__id')
         self.add_entry('soort',     'fk', 'soort', fkfield = "naam" if self.language=="nl" else "eng")
 
     def get_popup(self, dialect):
@@ -916,4 +917,61 @@ class WerkstukMapView(MapView):
         pop_up += '<p style="font-size: smaller;"><span style="color: purple;">{}</span> {}</p>'.format(
             dialect['soort'], dialect['city'])
         return pop_up
+
+    def get_group_popup(self, oPoint):
+        """Create a popup from the 'key' values defined in [initialize()]"""
+
+        # Figure out what the link would be to this list of items
+        url = "{}?{}-locatie={}".format(reverse('werkstuk_list'), self.prefix, oPoint['locid'])
+        # Create the popup
+        pop_up = '<p class="h6">{}</p>'.format(oPoint['city'])
+        pop_up += '<hr style="border: 1px solid green" />'
+        pop_up += '<p style="font-size: smaller;"><a href="{}" title="Show objects"><span style="color: purple;">{}</span> in: {}</a></p>'.format(
+            url, oPoint['count'], oPoint['locatie'])
+        return pop_up
+
+    def group_entries(self, lst_this):
+        """Allow changing the list of entries"""
+
+        oErr = ErrHandle()
+        exclude_fields = ['point', 'point_x', 'point_y', 'pop_up', 'locatie', 'country', 'city']
+        try:
+            # We need to create a new list, based on the 'point' parameter
+            set_point = {}
+            for oEntry in lst_this:
+                point = oEntry['point']
+                if not point in set_point:
+                    # Create a new entry
+                    set_point[point] = dict(count=0, items=[], point=point, 
+                                            trefwoord=oEntry['country'],
+                                            locatie=oEntry['locatie'],
+                                            locid=oEntry['locatie_id'],
+                                            country=oEntry['country'],
+                                            city=oEntry['city'])
+                # Retrieve the item from the set
+                oPoint = set_point[point]
+                # Add this entry
+                oPoint['count'] += 1
+                oItem = {}
+                for k,v in oEntry.items():
+                    if not k in exclude_fields:
+                        oItem[k] = v
+                oPoint['items'].append(oItem)
+
+            # Review them again
+            lst_back = []
+            for point, oEntry in set_point.items():
+                # Create the popup
+                oEntry['pop_up'] = self.get_group_popup(oEntry)
+                # Add it to the list we return
+                lst_back.append(oEntry)
+
+            total_count = len(lst_back)
+            # Return the new list
+            lst_this = copy.copy(lst_back)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("group_entries")
+
+        return lst_this
 
