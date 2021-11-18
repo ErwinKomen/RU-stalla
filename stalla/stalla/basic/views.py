@@ -12,6 +12,7 @@ from django.db.models.functions import Lower
 from django.db.models.query import QuerySet 
 from django.forms.models import model_to_dict
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
+from django.http.request import QueryDict, MultiValueDict
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -188,6 +189,10 @@ def isempty(value):
         if isinstance(value, str):
             response = (value == "")
         elif isinstance(value, int):
+            response = False
+        elif isinstance(value, object):
+            response = False
+        elif isinstance(value, list):
             response = False
         else:
             response = (len(value) == 0)
@@ -1194,9 +1199,12 @@ class BasicList(ListView):
                 # Set the param_list variable
                 self.param_list = []
                 lookfor = "{}-".format(prefix)
-                for k,v in self.qd.items():
-                    if lookfor in k and not isempty(v):
-                        self.param_list.append("{}={}".format(k,v))
+                oParameters = dict(self.qd.lists())
+                for k,v in oParameters.items():
+                    if lookfor in k and len(v) > 0:
+                        for v_item in v:
+                            if v_item != "":
+                                self.param_list.append("{}={}".format(k,v_item))
 
                 # Store the paramlist - but only if this is not a repetition
                 if "usersearch" in self.qd:

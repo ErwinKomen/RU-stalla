@@ -878,6 +878,7 @@ class WerkstukMapView(MapView):
     use_object = False
     label = ""
     language = ""
+    param_list = ""
     prefix = "wer"
     filterQ = None
 
@@ -914,6 +915,9 @@ class WerkstukMapView(MapView):
         lv.initializations()
         qs = lv.get_queryset(self.request)
         self.qs = qs.exclude(Q(locatie__x_coordinaat="onbekend"))
+        # Also get the parameters
+        self.param_list = lv.param_list
+        # usersearch_id = lv.usersearch_id
 
     def get_popup(self, dialect):
         """Create a popup from the 'key' values defined in [initialize()]"""
@@ -928,7 +932,10 @@ class WerkstukMapView(MapView):
         """Create a popup from the 'key' values defined in [initialize()]"""
 
         # Figure out what the link would be to this list of items
-        url = "{}?{}-locatie={}".format(reverse('werkstuk_list'), self.prefix, oPoint['locid'])
+        params = ""
+        if self.param_list != None:
+            params = "&{}".format( "&".join(self.param_list))
+        url = "{}?{}-locatie={}{}".format(reverse('werkstuk_list'), self.prefix, oPoint['locid'], params)
         # Create the popup
         pop_up = '<p class="h6">{}</p>'.format(oPoint['city'])
         pop_up += '<hr style="border: 1px solid green" />'
