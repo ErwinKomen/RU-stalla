@@ -783,6 +783,10 @@ class WerkstukListview(BasicList):
                     break
         context['filter_sections'] = self.filter_sections
 
+        # Calculate how many items will be shown on the map
+        qs_mapview = self.qs.exclude(locatie__x_coordinaat="onbekend")
+        context['mapcount'] = qs_mapview.count()
+
         # Add a user_button definition
         context['mode'] = "list"
         context['user_button'] = render_to_string("seeker/map_list_switch.html", context, self.request)

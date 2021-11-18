@@ -1844,9 +1844,21 @@ div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
 
 .werkstuk-map {
     z-index: 5;
-    top: -45px;
+    top: 55px; /* -45px; */
+    position: absolute;
+}
+
+.inner-map {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    position: absolute;
+    right: 0px;
+    margin-top: 10px;
 }
 
 .leaflet-top {
-    top: 50px;
+    margin-top: 50px;
+    margin-right: 15px;
 }

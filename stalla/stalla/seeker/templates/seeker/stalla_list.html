@@ -19,6 +19,9 @@
 {% block content %}
 
   <div>
+        <!-- Make sure the mapview is loaded -->
+        {% include 'mapview/map_view_full.html' %}
+
 
     {% if authenticated and permission %}
       <!-- Upper part of the basic list interface -->
@@ -567,27 +570,17 @@
       </div>
 
       <div id="basicmap" class="container-small hidden">
-        <div class="panel panel-default">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="pull-right">
-                {% include 'seeker/map_list_switch.html' with mode='map' %}
-              </div>
-            </div>
-          </div>
-          <div id="werkstuk_map" class="werkstuk-map"  >
-            <div class="col-md-12">
-              <div class="waiting">
-                <div class="">
-                  <span>Fetching data...</span>
-                  <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Make sure the mapview is loaded -->
-          {% include 'mapview/map_view_full.html' %}
+
+        <div id="werkstuk_map" class="werkstuk-map"  >
+          <!-- This is where the map comes -->
         </div>
+
+        <div class="inner-map">
+          <div class="pull-right">
+            {% include 'seeker/map_list_switch.html' with mode='map' %}
+          </div>
+        </div>
+
       </div>
 
     {% elif authenticated and not permission %}

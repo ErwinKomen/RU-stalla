@@ -1085,6 +1085,7 @@ var ru = (function ($, ru) {
        */
       goto_view: function (elStart, sView) {
         var height = 0,
+            width = 0,  
             id_mapview = "#basicmap",
             id_listview = "#basiclist_top";
         try {
@@ -1095,8 +1096,10 @@ var ru = (function ($, ru) {
               $(".map-list-switch").addClass("map-active");
 
               // Calculate and set the height
-              height = $("footer").position().top - $(".werkstuk-map").position().top - 30;
+              height = $("footer").position().top - $(".werkstuk-map").position().top - 10;
+              width = $(id_mapview).width();
               $(".werkstuk-map").css("height", height + "px");
+              $(".werkstuk-map").css("width", width + "px");
 
               // Initiate showing a map
               ru.mapview.stalla_map(elStart);

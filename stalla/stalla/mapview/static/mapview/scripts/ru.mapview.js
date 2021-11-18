@@ -18,13 +18,13 @@ var ru = (function ($, ru) {
 
   ru.mapview = (function ($, config) {
     // Local variables for ru.mapview
-    const tileUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        stalla_tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
+    const tileUrl_1 = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution_1 = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
         ' contributors &copy; <a href="https://carto.com/attribution">CARTO</a>',
-        stalla_attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" title="Open Street Map">OSM</a>',
-        tiles = L.tileLayer(tileUrl, { attribution }),
-        stalla_tiles = L.tileLayer(stalla_tileUrl, { stalla_attribution }),
+        attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" title="Open Street Map">OSM</a>',
+        // tiles = L.tileLayer(tileUrl, { attribution_1 }),
+        stalla_tiles = L.tileLayer(tileUrl, { attribution }),
         // Trial: for fontawesome *4*
         fontAwesomeIcon = L.divIcon({
           html: '<i class="fa fa-map-marker fa-alt" style="color: darkred;"></i>',
