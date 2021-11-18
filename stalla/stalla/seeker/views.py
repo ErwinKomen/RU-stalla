@@ -909,6 +909,12 @@ class WerkstukMapView(MapView):
         self.add_entry('locatie_id','str', 'locatie__id')
         self.add_entry('soort',     'fk', 'soort', fkfield = "naam" if self.language=="nl" else "eng")
 
+        # Get a version of the current listview
+        lv = WerkstukListview()
+        lv.initializations()
+        qs = lv.get_queryset(self.request)
+        self.qs = qs.exclude(Q(locatie__x_coordinaat="onbekend"))
+
     def get_popup(self, dialect):
         """Create a popup from the 'key' values defined in [initialize()]"""
 

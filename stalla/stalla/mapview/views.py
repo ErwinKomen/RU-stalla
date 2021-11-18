@@ -95,6 +95,7 @@ class MapView(DetailView):
     use_object = True
     filterQ = None
     label = ""
+    qs = None
     prefix = ""
 
     def get(self, request, *args, **kwargs):
@@ -165,6 +166,7 @@ class MapView(DetailView):
 
                 # Start with the main object's id
                 if self.use_object:
+                    # Note: this is for detail views probably
                     lstQ.append(Q(**{"{}__id".format(self.model._meta.model_name.lower()): obj.id}))
 
                 # Derive the variables from the cleaned_data according to entry_list
@@ -186,10 +188,17 @@ class MapView(DetailView):
                     # ALl items: get their values into [value_list]
                     value_list.append(sValue)
 
-                # Get features of all the ENtry elements satisfying the condition
-                total = self.modEntry.objects.filter(*lstQ).count()
-                # Retrieve all the necessary entries
-                lst_entry = self.modEntry.objects.filter(*lstQ).order_by(*self.order_by).values(*value_list)
+                # Action depends on where the query comes from
+                if self.qs == None:
+                    # Get features of all the ENtry elements satisfying the condition
+                    total = self.modEntry.objects.filter(*lstQ).count()
+                    # Retrieve all the necessary entries
+                    lst_entry = self.modEntry.objects.filter(*lstQ).order_by(*self.order_by).values(*value_list)
+                else:
+                    # We already have a query...
+                    total = self.qs.count()
+                    # Retrieve all the necessary entries
+                    lst_entry = self.qs.order_by(*self.order_by).values(*value_list)
 
                 # Create a new list that uses the 'key's from entry_list
                 lst_back = []

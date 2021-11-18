@@ -782,6 +782,7 @@ class BasicList(ListView):
     col_wrap = ""
     language = ""
     param_list = []
+    request = None
     qs = None
     page_function = "ru.basic.search_paged_start"
 
@@ -1125,12 +1126,15 @@ class BasicList(ListView):
 
     def get_queryset(self, request = None):
 
-        if request == None: request = self.request
-        ## Get the parameters passed on with the GET or the POST request
-        #get = request.GET if request.method == "GET" else request.POST
-        #get = get.copy()
-        ## Possibly get 
-        #self.qd = get
+        if request == None: 
+            request = self.request
+        # Get the parameters passed on with the GET or the POST request
+        if self.qd == None:
+            # Get the parameters passed on with the GET or the POST request
+            get = request.GET if request.method == "GET" else request.POST
+            get = get.copy()
+            self.qd = get
+        # Now make use of these
         get = self.qd
 
         # Immediately take care of the rangeslider stuff
@@ -1305,12 +1309,14 @@ class BasicList(ListView):
         return None
 
     def get(self, request, *args, **kwargs):
+        if self.request == None:
+            self.request = request
         if not request.user.is_authenticated:
             # Do not allow to get a good response
             response = redirect(reverse('nlogin'))
         else:
             # Make sure the language is set correctly
-            language  = self.request.LANGUAGE_CODE
+            language  = request.LANGUAGE_CODE
             self.language = "en" if "en" in language else language
             activate(self.language)
 

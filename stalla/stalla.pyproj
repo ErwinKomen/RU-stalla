@@ -168,6 +168,7 @@
     <Content Include="stalla\mapview\static\mapview\webfonts\fa-solid-900.ttf" />
     <Content Include="stalla\mapview\static\mapview\webfonts\fa-solid-900.woff" />
     <Content Include="stalla\mapview\static\mapview\webfonts\fa-solid-900.woff2" />
+    <Content Include="stalla\mapview\templates\mapview\map_view_full.html" />
     <Content Include="stalla\mapview\templates\mapview\map_view.html" />
     <Content Include="stalla\mapview\__pycache__\admin.cpython-35.pyc" />
     <Content Include="stalla\mapview\__pycache__\models.cpython-35.pyc" />
@@ -209,6 +210,7 @@
     <Content Include="stalla\seeker\static\seeker\scripts\typeahead.bundle.js" />
     <Content Include="stalla\seeker\static\seeker\scripts\xhr2.js" />
     <None Include="stalla\seeker\static\seeker\scripts\_references.js" />
+    <Content Include="stalla\seeker\templates\seeker\map_list_switch.html" />
     <Content Include="stalla\seeker\templates\seeker\werkstuk_tooltip.html" />
     <Content Include="stalla\seeker\templates\seeker\list_tooltip.html" />
     <Content Include="stalla\seeker\templates\seeker\stalla_list.html" />
