@@ -648,7 +648,11 @@ class WerkstukDetails(WerkstukEdit):
             if 'after_details' in context:
                 lHtml.append(context['after_details'])
 
-            # First addition: literature
+            # (1) context for my own picture
+            img_html, sTitle = instance.get_image_html(self.language)
+            context['default']= dict(img=img_html, title=sTitle, info=sTitle)
+
+            # (2) addition: literature
             literaturen = []
             for obj in instance.literaturen.all().order_by('auteursvermelding', 'title'):
                 oLiterature = {}
@@ -664,14 +668,14 @@ class WerkstukDetails(WerkstukEdit):
                 literaturen.append(oLiterature)
             context['literaturen'] = literaturen
 
-            # Second addition: more pictures
+            # (3) addition: more pictures
             morepicts = []
             for field in instance.get_available('dubnummer'  ):
                 img_html, sTitle = instance.get_image_html(self.language, field=field)
                 morepicts.append(dict(img=img_html, title=sTitle, info=sTitle))
             context['morepicts'] = morepicts
 
-            # Third addition: parallels
+            # (4) addition: parallels
             parallels = []
             for field in instance.get_available('nummer'):
                 img_html, sTitle = instance.get_image_html(self.language, field=field)

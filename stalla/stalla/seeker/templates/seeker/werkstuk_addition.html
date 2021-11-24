@@ -1,74 +1,93 @@
 {% load i18n %}
 
-<!-- List of buttons to show details -->
-<div class="detail-button">
-  <!-- Literature -->
-  {% if literaturen|length == 0 %}
-    <button title="{% trans '(No literature for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Literature" %}</button>
-  {% else %}
-    <button data-toggle="collapse" data-target="#literature_table" class="btn btn-sm jumbo-3">{% trans "Literature" %}</button>
-  {% endif %}
+<div class="row">
+  <!-- Left pane -->
+  <div class="col-md-3">
+    <!-- To be shown always: my own picture -->
+    <div id="default_table" class="stalla-default">
+      <h3>{% trans "Object picture" %}</h3>
+      <div title="{{default.title}}" info="{{default.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+            onclick="ru.stalla.seeker.show_picture(this);">
+        {{default.img|safe}}
+      </div>
+    </div>
+  </div>
 
-  <!-- Additional images -->
-  {% if morepicts|length == 0 %}
-    <button title="{% trans '(No additional pictures for this object)' %}" class="btn btn-sm jumbo-1">{% trans "More pictures" %}</button>
-  {% else %}
-    <button data-toggle="collapse" data-target="#morepicts_table" class="btn btn-sm jumbo-3">{% trans "More pictures" %}</button>
-  {% endif %}
+  <!-- Right pane -->
+  <div class="col-md-9">
+    <!-- List of buttons to show details -->
+    <div class="detail-button">
+      <!-- Literature -->
+      {% if literaturen|length == 0 %}
+        <button title="{% trans '(No literature for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Literature" %}</button>
+      {% else %}
+        <button data-toggle="collapse" data-target="#literature_table" class="btn btn-sm jumbo-3">{% trans "Literature" %}</button>
+      {% endif %}
 
-  <!-- Parallels -->
-  {% if parallels|length == 0 %}
-    <button title="{% trans '(No parallels for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Parallels" %}</button>
-  {% else %}
-    <button data-toggle="collapse" data-target="#parallels_table" class="btn btn-sm jumbo-3">{% trans "Parallels" %}</button>
-  {% endif %}
+      <!-- Additional images -->
+      {% if morepicts|length == 0 %}
+        <button title="{% trans '(No additional pictures for this object)' %}" class="btn btn-sm jumbo-1">{% trans "More pictures" %}</button>
+      {% else %}
+        <button data-toggle="collapse" data-target="#morepicts_table" class="btn btn-sm jumbo-3">{% trans "More pictures" %}</button>
+      {% endif %}
 
-</div>
+      <!-- Parallels -->
+      {% if parallels|length == 0 %}
+        <button title="{% trans '(No parallels for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Parallels" %}</button>
+      {% else %}
+        <button data-toggle="collapse" data-target="#parallels_table" class="btn btn-sm jumbo-3">{% trans "Parallels" %}</button>
+      {% endif %}
 
-{% if literaturen|length > 0 %}
-  <!-- Only if there is any literature -->
-  <div id="literature_table" class="collapse">
-    <table>
-      {% for literature in literaturen %}
-        {% for line in literature.lines %}
-          <tr>
-            <td class="details-label">{{line.label}}:&nbsp;</td>
-            <td>{{line.value}}</td>
-          </tr>
+    </div>
+
+    {% if literaturen|length > 0 %}
+      <!-- Only if there is any literature -->
+      <div id="literature_table" class="collapse">
+        <table>
+          {% for literature in literaturen %}
+            {% for line in literature.lines %}
+              <tr>
+                <td class="details-label">{{line.label}}:&nbsp;</td>
+                <td>{{line.value}}</td>
+              </tr>
+            {% endfor %}
+            <!-- One row with just a line -->
+            <tr>
+              <td colspan="2" style="border-top: 1px solid gray;">&nbsp;</td>
+            </tr>
+          {% endfor %}
+        </table>
+
+      </div>
+    {% endif %}
+
+    {% if morepicts|length > 0 %}
+      <div id="morepicts_table" class="collapse stalla-more">
+        <h3>{% trans "More pictures" %}</h3>
+        {% for oPict in morepicts %}
+          <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+               onclick="ru.stalla.seeker.show_picture(this);">
+            {{oPict.img|safe}}
+          </div>
         {% endfor %}
-        <!-- One row with just a line -->
-        <tr>
-          <td colspan="2" style="border-top: 1px solid gray;">&nbsp;</td>
-        </tr>
-      {% endfor %}
-    </table>
-
-  </div>
-{% endif %}
-
-{% if morepicts|length > 0 %}
-  <div id="morepicts_table" class="collapse stalla-more">
-    <h3>{% trans "Aanvullende afbeeldingen" %}</h3>
-    {% for oPict in morepicts %}
-      <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
-           onclick="ru.stalla.seeker.show_picture(this);">
-        {{oPict.img|safe}}
       </div>
-    {% endfor %}
-  </div>
-{% endif %}
+    {% endif %}
 
-{% if parallels|length > 0 %}
-  <div id="parallels_table" class="collapse stalla-para">
-    <h3>{% trans "Parallellen" %}</h3>
-    {% for oPict in parallels %}
-      <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
-           onclick="ru.stalla.seeker.show_picture(this);">
-        {{oPict.img|safe}}
+    {% if parallels|length > 0 %}
+      <div id="parallels_table" class="collapse stalla-para">
+        <h3>{% trans "Parallels" %}</h3>
+        {% for oPict in parallels %}
+          <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+               onclick="ru.stalla.seeker.show_picture(this);">
+            {{oPict.img|safe}}
+          </div>
+        {% endfor %}
       </div>
-    {% endfor %}
+    {% endif %}
+
+
   </div>
-{% endif %}
+</div>
 
 <!-- Modal showing of picture with information -->
 <div id="werkstuk_modal" class="modal fade" role="dialog">

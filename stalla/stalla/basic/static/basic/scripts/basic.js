@@ -2529,6 +2529,11 @@ var ru = (function ($, ru) {
                             $(elThis).val("");
                             $(elThis).removeAttr("checked");
                         });
+                        // TO be done at any rate...
+                        $(target).find("textarea").each(function (idx, elThis) {
+                          $(elThis).val("");
+                          $(elThis).html("");
+                        });
                         // Also reset all select 2 items
                         $(target).find("select").each(function (idx, elThis) {
                             $(elThis).val("").trigger("change");
@@ -2541,7 +2546,8 @@ var ru = (function ($, ru) {
                         });
                         // TO be done at any rate...
                         $(target).find("textarea").each(function (idx, elThis) {
-                            $(elThis).val("");
+                          $(elThis).val("");
+                          $(elThis).html("");
                         });
                         // Also reset all select 2 items
                         $(target).find("select").each(function (idx, elThis) {
