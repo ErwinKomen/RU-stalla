@@ -1256,9 +1256,9 @@ class Werkstuk(models.Model):
             descr = "object {}: {}".format(self.inventarisnummer, sImageName)
 
             if tooltip == None:
-                sBack = "<img src='{}' alt='{}'>".format(image, descr)
+                sBack = "<img src='{}' alt='{}' class='col-md-12'>".format(image, descr)
             else:
-                sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}'>".format(
+                sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}' class='col-md-12'>".format(
                     image, descr, tooltip)
 
         except:

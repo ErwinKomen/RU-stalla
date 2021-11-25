@@ -1123,7 +1123,8 @@ var ru = (function ($, ru) {
        */
       show_picture: function (elStart) {
         var elImage = null,
-          elInfo = null;
+            sImgText = "",
+            elInfo = null;
 
         try {
           // Determine the locations
@@ -1132,6 +1133,8 @@ var ru = (function ($, ru) {
 
           // copy the image
           $(elImage).html($(elStart).find("img").first().parent().html());
+          // Make sure the col-md-12 class is removed here
+          $(elImage).find(".col-md-12").removeClass("col-md-12");
 
           // Copy the information
           $(elInfo).html($(elStart).attr("info"));
