@@ -1232,6 +1232,9 @@ class Werkstuk(models.Model):
         try:
             # Get the number of the image, depending on the options
             sImageName = "{}".format(getattr(self, field)) 
+            # Correct for case sensitivity
+            if sImageName.lower() == "ga":
+                sImageName = "GA"
             # Determine the directory
             arDir = ["static", "seeker", "images"]
             if sImageName != "GA":
@@ -1250,7 +1253,7 @@ class Werkstuk(models.Model):
 
             if sTitle == None:
                 sTitle = self.beschrijving_nl if language == "nl" else self.beschrijving_en
-            descr = "object {}".format(self.inventarisnummer)
+            descr = "object {}: {}".format(self.inventarisnummer, sImageName)
 
             if tooltip == None:
                 sBack = "<img src='{}' alt='{}'>".format(image, descr)
