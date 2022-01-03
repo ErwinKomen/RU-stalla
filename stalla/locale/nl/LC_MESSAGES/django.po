@@ -23,11 +23,11 @@ msgid "Password"
 msgstr "Wachtwoord"
 
 #: .\stalla\seeker\forms.py:134
-msgid "Select one or more kind-types..."
-msgstr "Kies één of meer aard-types..."
+msgid "Select one or more kind types..."
+msgstr "Kies één of meer aard types..."
 
 #: .\stalla\seeker\forms.py:136
-msgid "Select an aard-type..."
+msgid "Select an aard type..."
 msgstr "Kies een aard..."
 
 #: .\stalla\seeker\forms.py:138

@@ -1,6 +1,7 @@
-﻿body {
+body {
     padding-top: 50px;
     padding-bottom: 20px;
+    font-size: medium;      /* Stalla-specific */
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -149,6 +150,7 @@ div.inline-group a.add-related {
 /* title */
 .navbar-custom .navbar-brand {
     color: lightgoldenrodyellow;
+    font-size: 22px;
 }
 .navbar-custom .navbar-brand:hover,
 .navbar-custom .navbar-brand:focus {
@@ -157,6 +159,7 @@ div.inline-group a.add-related {
 /* link */
 .navbar-custom .navbar-nav > li > a {
     color: white;
+    font-size: large;
 }
 .navbar-custom .navbar-nav > li > a:hover,
 .navbar-custom .navbar-nav > li > a:focus {
@@ -182,6 +185,7 @@ div.inline-group a.add-related {
 .navbar-custom .dropdown-menu > li > a {
     background-color: black;
     color: white;
+    font-size: larger;
 }
 
 /* caret */
@@ -236,6 +240,7 @@ div.breadcrumbs {
 p { 
     padding: 0;
     line-height: 140%;
+    font-size: larger;
 }
 
 /* Extra small pagination */
@@ -1728,6 +1733,9 @@ svg .nodes text {
     margin-top: 10px;
     margin-left: -40px;
 }
+.stalla-filter table tr td, stalla-filter label {
+    font-size: larger;
+}
 
 .werkstuk-image img {
     max-height: 60px;
@@ -1862,3 +1870,32 @@ div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
     margin-top: 50px;
     margin-right: 15px;
 }
+
+.btn {
+    font-size: large;
+}
+
+h2 {
+    font-size: larger;
+}
+h3 {
+    font-size: larger;
+}
+h4 {
+    font-size: larger;
+}
+h5 { font-size: larger;}
+
+.select2-selection__placeholder {
+    font-size: large;
+}
+
+.select2-search__field {
+    width: 300px !important;
+    font-size: large;
+}
+
+.select2-results__option {
+    font-size: medium;
+}
+

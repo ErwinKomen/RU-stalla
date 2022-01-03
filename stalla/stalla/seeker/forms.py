@@ -131,9 +131,9 @@ class WerkstukForm(forms.ModelForm):
     """A form to update and search in Werkstuk objects"""
 
     aardlist = ModelMultipleChoiceField(queryset=None, required=False, 
-                widget=AardtypeWidget(attrs={'data-placeholder': _('Select one or more kind-types...'), 'style': 'width: 100%;', 'class': 'searching'}))
+                widget=AardtypeWidget(attrs={'data-placeholder': _('Select one or more kind types...'), 'style': 'width: 100%;', 'class': 'searching'}))
     aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select an aard-type...'), 'style': 'width: 30%;', 'class': 'searching'}))
+                widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select an aard type...'), 'style': 'width: 30%;', 'class': 'searching'}))
     land    = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=LandOneWidget(attrs={'data-placeholder': _('Select a country...'), 'style': 'width: 100%;', 'class': 'searching'}))
     plaats  = forms.ModelChoiceField(queryset=None, required=False, 

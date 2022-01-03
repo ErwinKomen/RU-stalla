@@ -153,10 +153,11 @@ var ru = (function ($, ru) {
             base_url = "",
             div_ta = "#__typeaheads__",
             i = 0,
-            lst_options = ["countries", "cities", "libraries", "origins", "locations", "litrefs", "authors",
-                           "nicknames", "gldincipits", "srmincipits", "gldexplicits", "srmexplicits",
-                           "signatures", "gldsiggrysons", "gldsigclavises", "srmsignatures", "siggrysons", "sigclavises",
-                           "manuidnos", "editions", "keywords", "collections"],
+            //lst_options = ["countries", "cities", "libraries", "origins", "locations", "litrefs", "authors",
+            //               "nicknames", "gldincipits", "srmincipits", "gldexplicits", "srmexplicits",
+            //               "signatures", "gldsiggrysons", "gldsigclavises", "srmsignatures", "siggrysons", "sigclavises",
+            //               "manuidnos", "editions", "keywords", "collections"],
+            lst_options = [],
             item = "";
 
         // Get the base URL

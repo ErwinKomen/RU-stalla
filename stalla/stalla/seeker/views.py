@@ -928,7 +928,7 @@ class WerkstukMapView(MapView):
 
         pop_up = '<p class="h6">{}</p>'.format(dialect['inventarisnummer'])
         pop_up += '<hr style="border: 1px solid green" />'
-        pop_up += '<p style="font-size: smaller;"><span style="color: purple;">{}</span> {}</p>'.format(
+        pop_up += '<p style="font-size: medium;"><span style="color: purple;">{}</span> {}</p>'.format(
             dialect['soort'], dialect['city'])
         return pop_up
 
@@ -943,7 +943,7 @@ class WerkstukMapView(MapView):
         # Create the popup
         pop_up = '<p class="h6">{}</p>'.format(oPoint['city'])
         pop_up += '<hr style="border: 1px solid green" />'
-        pop_up += '<p style="font-size: smaller;"><a href="{}" title="Show objects"><span style="color: purple;">{}</span> in: {}</a></p>'.format(
+        pop_up += '<p style="font-size: medium;"><a href="{}" title="Show objects"><span style="color: purple;">{}</span> in: {}</a></p>'.format(
             url, oPoint['count'], oPoint['locatie'])
         return pop_up
 
