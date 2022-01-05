@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-25 09:20+0100\n"
+"POT-Creation-Date: 2022-01-05 09:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,49 +18,57 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\stalla\seeker\forms.py:114
+#: .\stalla\seeker\forms.py:129
 msgid "Password"
 msgstr "Wachtwoord"
 
-#: .\stalla\seeker\forms.py:134
+#: .\stalla\seeker\forms.py:149
 msgid "Select one or more kind types..."
 msgstr "Kies één of meer aard types..."
 
-#: .\stalla\seeker\forms.py:136
+#: .\stalla\seeker\forms.py:151
 msgid "Select an aard type..."
-msgstr "Kies een aard..."
+msgstr "Kies een aard type..."
 
-#: .\stalla\seeker\forms.py:138
+#: .\stalla\seeker\forms.py:153
+msgid "Select one or more parts..."
+msgstr "Kies één of meer onderdelen..."
+
+#: .\stalla\seeker\forms.py:155
 msgid "Select a country..."
 msgstr "Kies een land..."
 
-#: .\stalla\seeker\forms.py:141
+#: .\stalla\seeker\forms.py:157
+msgid "Choose a place..."
+msgstr "Kies een plaats..."
+
+#: .\stalla\seeker\forms.py:158
 #, fuzzy
 #| msgid "Date range"
 msgid "Date start"
 msgstr "Datuminterval"
 
-#: .\stalla\seeker\forms.py:142
+#: .\stalla\seeker\forms.py:159
 msgid "Starting from..."
 msgstr "Vanaf..."
 
-#: .\stalla\seeker\forms.py:143
+#: .\stalla\seeker\forms.py:160
 #, fuzzy
 #| msgid "Date range"
 msgid "Date until"
 msgstr "Datuminterval"
 
-#: .\stalla\seeker\forms.py:144
+#: .\stalla\seeker\forms.py:161
 msgid "Until (including)..."
 msgstr "Tot en met..."
 
-#: .\stalla\seeker\forms.py:156
+#: .\stalla\seeker\forms.py:173
 #, fuzzy
 #| msgid "Object number"
 msgid "object number"
 msgstr "Objectnummer"
 
-#: .\stalla\seeker\forms.py:162
+#: .\stalla\seeker\forms.py:179
 msgid "Select a location..."
 msgstr "Kies een locatie..."
 
@@ -75,6 +83,15 @@ msgstr "resultaten"
 #: .\stalla\seeker\templates\seeker\stalla_list.html:172
 msgid "filters active"
 msgstr "filters actief"
+
+#: .\stalla\seeker\templates\seeker\stalla_list.html:250
+msgid "Clear"
+msgstr "Wis"
+
+#: .\stalla\seeker\templates\seeker\stalla_list.html:255
+#: .\stalla\templates\topnav.html:25
+msgid "Search"
+msgstr "Zoek"
 
 #: .\stalla\seeker\templates\seeker\werkstuk_addition.html:8
 #, fuzzy
@@ -196,10 +213,8 @@ msgid "Dating"
 msgstr "Datering"
 
 #: .\stalla\seeker\views.py:726
-#, fuzzy
-#| msgid "Object number"
-msgid "Object type"
-msgstr "Objectnummer"
+msgid "Category"
+msgstr "Categorie"
 
 #: .\stalla\seeker\views.py:732
 msgid "Land"
@@ -214,10 +229,14 @@ msgid "Until (year)"
 msgstr "Tot aan (jaar)"
 
 #: .\stalla\seeker\views.py:739
+msgid "Part"
+msgstr "Onderdeel"
+
+#: .\stalla\seeker\views.py:740
 msgid "Tags"
 msgstr "Kenmerken"
 
-#: .\stalla\seeker\views.py:745
+#: .\stalla\seeker\views.py:746
 msgid "beschrijving_en"
 msgstr "beschrijving_nl"
 
@@ -276,10 +295,6 @@ msgstr "(Zie het menu <b>Speciaal</b> voor afmelden en andere opties)"
 #: .\stalla\templates\topnav.html:19
 msgid "Definitions"
 msgstr "Definities"
-
-#: .\stalla\templates\topnav.html:25
-msgid "Search"
-msgstr "Zoeken"
 
 #: .\stalla\templates\topnav.html:28
 msgid "Craft object"

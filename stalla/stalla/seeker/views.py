@@ -723,7 +723,7 @@ class WerkstukListview(BasicList):
             {"id": "main",      "section": ""},
             {"id": "location",  "section": _("Location")},
             {"id": "dating",    "section": _("Dating")},
-            {"id": "typing",    "section": _("Object type")},
+            {"id": "typing",    "section": _("Category")},
             ]
         filters = [ 
             # Free text fields
@@ -736,7 +736,8 @@ class WerkstukListview(BasicList):
             {"name": _("Until (year)"),    "id": "filter_dateuntil",        "enabled": False, "section": "dating",  "show": "label"},
             # Limited choice fields
             {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False, "section": "typing",  "show": "none"},
-            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False, "section": "typing",  "show": "none"},
+            {"name": _("Part"),            "id": "filter_soort",            "enabled": False, "section": "typing",  "show": "none"},
+            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False, "section": "typing",  "show": "label"},
             ]
         searches = [
             {'section': '', 'filterlist': [
@@ -749,7 +750,8 @@ class WerkstukListview(BasicList):
                 {'filter': 'locatie',       'fkfield': 'locatie',                   'keyFk': 'name',    'keyS': 'locatie'},                                # 
                 {'filter': 'datestart',     'dbfield': 'begindatum__gte',           'keyS': 'date_from'},
                 {'filter': 'dateuntil',     'dbfield': 'einddatum__lte',            'keyS': 'date_until'},
-                {'filter': 'aardtype',      'dbfield': 'aard', 'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist' },
+                {'filter': 'aardtype',      'dbfield': 'aard', 'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist'           },
+                {'filter': 'soort',         'fkfield': 'soort',                     'keyList': 'soortlist', 'infield': 'id'                 },
                 {'filter': 'tags',          'fkfield': 'tags', 'keyType': 'and',    'keyFk': 'abbr', 'keyList': 'taglist', 'infield': 'abbr'},
                 ]
              }
@@ -863,6 +865,9 @@ class WerkstukListview(BasicList):
                 else:
                     f_combi = f_combi | Q(beschrijving_en__icontains=generic_search)
                 fields['inventarisnummer'] = f_combi
+
+            # Disable usersearching
+            self.usersearch_id = ""
 
             # Double check the length of the exclude list
             if len(lstExclude) == 0:

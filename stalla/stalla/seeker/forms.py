@@ -43,7 +43,8 @@ class AardtypeWidget(ModelSelect2MultipleWidget):
     sort_field = "english_name"
 
     def label_from_instance(self, obj):
-        return obj.english_name
+        sName = obj.english_name if self.sort_field == "english_name" else obj.dutch_name
+        return sName
 
     def get_queryset(self):
         return FieldChoice.objects.filter(field=AARD_TYPE).order_by(self.sort_field)
@@ -55,7 +56,8 @@ class AardtypeOneWidget(ModelSelect2Widget):
     sort_field = "english_name"
 
     def label_from_instance(self, obj):
-        return obj.english_name
+        sName = obj.english_name if self.sort_field == "english_name" else obj.dutch_name
+        return sName
 
     def get_queryset(self):
         return FieldChoice.objects.filter(field=AARD_TYPE).order_by(self.sort_field)
@@ -75,6 +77,20 @@ class LandOneWidget(ModelSelect2Widget):
         return qs
 
 
+class LocatieOneWidget(ModelSelect2Widget):
+    model = Location
+    search_fields = [ 'name__icontains']
+    dependent_fields = {}
+    # Note: k = form field, v = model field
+
+    def label_from_instance(self, obj):
+        return "{} ({}, {})".format(obj.name, obj.city.name, obj.country.name)
+
+    def get_queryset(self):
+        qs = Location.objects.exclude(name="").order_by('name').distinct()
+        return qs
+
+
 class PlaatsOneWidget(ModelSelect2Widget):
     model = City
     search_fields = [ 'name__icontains']
@@ -89,18 +105,17 @@ class PlaatsOneWidget(ModelSelect2Widget):
         return qs
 
 
-class LocatieOneWidget(ModelSelect2Widget):
-    model = Location
-    search_fields = [ 'name__icontains']
-    dependent_fields = {}
-    # Note: k = form field, v = model field
+class SoortWidget(ModelSelect2MultipleWidget):
+    model = Soort
+    search_fields = [ 'naam__icontains', 'eng__icontains']
+    sort_field = "eng"
 
     def label_from_instance(self, obj):
-        return "{} ({}, {})".format(obj.name, obj.city.name, obj.country.name)
+        sName = obj.eng if self.sort_field == "eng" else obj.naam
+        return sName
 
     def get_queryset(self):
-        qs = Location.objects.exclude(name="").order_by('name').distinct()
-        return qs
+        return Soort.objects.all().order_by(self.sort_field)
 
 
 # ================= FORMS =======================================
@@ -134,10 +149,12 @@ class WerkstukForm(forms.ModelForm):
                 widget=AardtypeWidget(attrs={'data-placeholder': _('Select one or more kind types...'), 'style': 'width: 100%;', 'class': 'searching'}))
     aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select an aard type...'), 'style': 'width: 30%;', 'class': 'searching'}))
+    soortlist = ModelMultipleChoiceField(queryset=None, required=False, 
+                widget=SoortWidget(attrs={'data-placeholder': _('Select one or more parts...'), 'style': 'width: 100%;', 'class': 'searching'}))
     land    = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=LandOneWidget(attrs={'data-placeholder': _('Select a country...'), 'style': 'width: 100%;', 'class': 'searching'}))
     plaats  = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=PlaatsOneWidget(attrs={'data-placeholder': 'Select a city...', 'style': 'width: 100%;', 'class': 'searching'}))
+                widget=PlaatsOneWidget(attrs={'data-placeholder': _('Choose a place...'), 'style': 'width: 100%;', 'class': 'searching'}))
     date_from   = forms.IntegerField(label=_("Date start"), required = False,
                 widget=forms.TextInput(attrs={'placeholder': _('Starting from...'),  'style': 'width: 100%;', 'class': 'searching'}))
     date_until  = forms.IntegerField(label=_("Date until"), required = False,
@@ -187,20 +204,27 @@ class WerkstukForm(forms.ModelForm):
                     '{}-land'.format(self.prefix): 'country',
                     '{}-plaats'.format(self.prefix): 'city'}
 
-            # Initialize querysets
-            self.fields['aardlist'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by("english_name")
-            self.fields['aardtype'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by("english_name")
-            self.fields['land'].queryset = Country.objects.order_by('name').distinct()
-            self.fields['plaats'].queryset = City.objects.order_by('name').distinct()
-            self.fields['locatie'].queryset = Location.objects.exclude(name="").order_by('name').distinct()
+            # Determine what the appropriate sorting will be (language-dependant)
+            if language == "en":
+                # English sorting
+                aard_sorting = "english_name"
+                soort_sorting = "eng"
+            else:
+                # Dutch sorting
+                aard_sorting = "dutch_name"
+                soort_sorting = "naam"
+            # Widget adjusting
+            self.fields['aardlist'].widget.sort_field = aard_sorting
+            self.fields['aardtype'].widget.sort_field = aard_sorting
+            self.fields['soortlist'].widget.sort_field = soort_sorting
 
-            ## Set the checkbox choices for the correct language
-            #tag_choices = []
-            #for tagobj in Tag.objects.all().order_by('abbr').values('abbr', 'name', 'eng'):
-            #    abbr = tagobj['abbr']
-            #    name = tagobj['name'] if language == "nl" else tagobj['eng']
-            #    tag_choices.append( (abbr, name) )
-            #self.fields['taglist'].choices = tag_choices
+            # Initialize querysets
+            self.fields['aardlist'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by(aard_sorting)
+            self.fields['aardtype'].queryset = FieldChoice.objects.filter(field=AARD_TYPE).order_by(aard_sorting)
+            self.fields['land'].queryset = Country.objects.order_by('name').distinct()
+            self.fields['locatie'].queryset = Location.objects.exclude(name="").order_by('name').distinct()
+            self.fields['plaats'].queryset = City.objects.order_by('name').distinct()
+            self.fields['soortlist'].queryset = Soort.objects.all().order_by(soort_sorting)
 
             self.fields['taglist'].queryset = Tag.objects.all().order_by('name')
 

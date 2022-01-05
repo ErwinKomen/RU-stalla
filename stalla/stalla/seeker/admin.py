@@ -60,6 +60,16 @@ class NewsItemAdmin(admin.ModelAdmin):
         }
 
 
+class TagAdmin(admin.ModelAdmin):
+    """Display and edit of [NewsItem] definitions"""
+
+    list_display = ['abbr', 'name', 'eng' ]
+    search_fields = ['abbr', 'name', 'eng']
+    fields = ['abbr', 'name', 'eng']
+    ordering = ['abbr']
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'class': 'mytextarea'})},
+        }
 
 
 
@@ -70,4 +80,6 @@ admin.site.register(NewsItem, NewsItemAdmin)
 admin.site.register(Information, InformationAdmin)
 
 # Models of this application
-admin.site.register(Tag)
+admin.site.register(Tag, TagAdmin)
+
+

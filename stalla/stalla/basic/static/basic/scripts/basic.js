@@ -2497,7 +2497,8 @@ var ru = (function ($, ru) {
 
       /**
        * search_clear
-       *    No real searching, just reset the criteria
+       *    WAS: No real searching, just reset the criteria
+       *    IS: reset the criteria + actual re-searching!!! (issue #12, Stalla)
        *
        */
       search_clear: function (elStart, bHide) {
@@ -2506,64 +2507,68 @@ var ru = (function ($, ru) {
             elFiltercount = null,
             lFormRow = [];
 
-          try {
-              if (bHide === undefined) bHide = true;
-              // At least hide the clipboard copy
-              $(".clipboard-copy").addClass("hidden");
-              // Clear filters
-              $(".badge.filter").each(function (idx, elThis) {
-                var target;
+        try {
+          if (bHide === undefined) bHide = true;
 
-                target = $(elThis).attr("targetid");
-                if (target !== undefined && target !== null && target !== "") {
-                  target = $("#" + target);
-                  // Action depends on checking or not
-                    if ($(elThis).hasClass("on")) {
-                        // it is on, switch it off
-                        $(elThis).removeClass("on");
-                        $(elThis).removeClass("jumbo-3");
-                        $(elThis).addClass("jumbo-1");
-                        // Must hide it and reset target
-                        if (bHide) { $(target).addClass("hidden"); }
-                        $(target).find("input").each(function (idx, elThis) {
-                            $(elThis).val("");
-                            $(elThis).removeAttr("checked");
-                        });
-                        // TO be done at any rate...
-                        $(target).find("textarea").each(function (idx, elThis) {
-                          $(elThis).val("");
-                          $(elThis).html("");
-                        });
-                        // Also reset all select 2 items
-                        $(target).find("select").each(function (idx, elThis) {
-                            $(elThis).val("").trigger("change");
-                        });
-                    } else {
-                        // TO be done at any rate...
-                        $(target).find("input").each(function (idx, elThis) {
-                            $(elThis).val("");
-                            $(elThis).removeAttr("checked");
-                        });
-                        // TO be done at any rate...
-                        $(target).find("textarea").each(function (idx, elThis) {
-                          $(elThis).val("");
-                          $(elThis).html("");
-                        });
-                        // Also reset all select 2 items
-                        $(target).find("select").each(function (idx, elThis) {
-                            $(elThis).val("").trigger("change");
-                        });
-                    }
-                    elFiltercount = $("#filtercount");
-                    if ($(elFiltercount).length > 0) {
-                        $(elFiltercount).html("0");
-                    }
+          // At least hide the clipboard copy
+          $(".clipboard-copy").addClass("hidden");
+          // Clear filters
+          $(".badge.filter").each(function (idx, elThis) {
+            var target;
+
+            target = $(elThis).attr("targetid");
+            if (target !== undefined && target !== null && target !== "") {
+              target = $("#" + target);
+              // Action depends on checking or not
+                if ($(elThis).hasClass("on")) {
+                    // it is on, switch it off
+                    $(elThis).removeClass("on");
+                    $(elThis).removeClass("jumbo-3");
+                    $(elThis).addClass("jumbo-1");
+                    // Must hide it and reset target
+                    if (bHide) { $(target).addClass("hidden"); }
+                    $(target).find("input").each(function (idx, elThis) {
+                        $(elThis).val("");
+                        $(elThis).removeAttr("checked");
+                    });
+                    // TO be done at any rate...
+                    $(target).find("textarea").each(function (idx, elThis) {
+                      $(elThis).val("");
+                      $(elThis).html("");
+                    });
+                    // Also reset all select 2 items
+                    $(target).find("select").each(function (idx, elThis) {
+                        $(elThis).val("").trigger("change");
+                    });
+                } else {
+                    // TO be done at any rate...
+                    $(target).find("input").each(function (idx, elThis) {
+                        $(elThis).val("");
+                        $(elThis).removeAttr("checked");
+                    });
+                    // TO be done at any rate...
+                    $(target).find("textarea").each(function (idx, elThis) {
+                      $(elThis).val("");
+                      $(elThis).html("");
+                    });
+                    // Also reset all select 2 items
+                    $(target).find("select").each(function (idx, elThis) {
+                        $(elThis).val("").trigger("change");
+                    });
                 }
-              });
+                elFiltercount = $("#filtercount");
+                if ($(elFiltercount).length > 0) {
+                    $(elFiltercount).html("0");
+                }
+            }
+          });
 
-        } catch (ex) {
-          private_methods.errMsg("search_clear", ex);
-        }
+          // Now start actual searching
+          ru.basic.search_start(elStart);
+
+          } catch (ex) {
+            private_methods.errMsg("search_clear", ex);
+          }
       },
 
       /**
