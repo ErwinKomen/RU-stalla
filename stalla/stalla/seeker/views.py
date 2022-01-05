@@ -703,7 +703,8 @@ class WerkstukListview(BasicList):
     new_button = False
     has_select2 = True
     template_name = "seeker/stalla_list.html"
-    order_cols = ['inventarisnummer', '', 'aard', 'beschrijving_nl']
+    # order_cols = ['inventarisnummer', '', 'aard', 'beschrijving_nl']
+    order_cols = ['inventarisnummer', '', 'beschrijving_nl']
     order_default = order_cols
     order_heads = []
     filters = []
@@ -716,7 +717,7 @@ class WerkstukListview(BasicList):
         order_heads = [
             {'name': _('Object number'),   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer',              'linkdetails': True},
             {'name': _('Image'),           'order': 'o=2', 'type': 'str', 'custom': 'image',                        'linkdetails': True},
-            {'name': _('Kind'),            'order': 'o=3', 'type': 'str', 'custom': 'aard',                         'linkdetails': True},
+            # {'name': _('Kind'),            'order': 'o=3', 'type': 'str', 'custom': 'aard',                         'linkdetails': True},
             {'name': _('Description'),     'order': 'o=4', 'type': 'str', 'custom': 'beschrijving', 'main': True,   'linkdetails': True},
             ]
         filter_sections = [
@@ -796,6 +797,8 @@ class WerkstukListview(BasicList):
         # Add a user_button definition
         context['mode'] = "list"
         context['user_button'] = render_to_string("seeker/map_list_switch.html", context, self.request)
+
+        context['no_result_count'] = True
 
         return context
 

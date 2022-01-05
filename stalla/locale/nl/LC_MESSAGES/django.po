@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-05 09:41+0100\n"
+"POT-Creation-Date: 2022-01-05 12:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,18 +132,40 @@ msgstr "(Voor dit voorwerp is er geen literatuur)"
 msgid "Parallels"
 msgstr "Parallellen"
 
-#: .\stalla\seeker\views.py:608 .\stalla\seeker\views.py:717
-#: .\stalla\seeker\views.py:730
+#: .\stalla\seeker\templates\seeker\werkstuk_tooltip.html:5
+msgid "Explanation"
+msgstr "Toelichting"
+
+#: .\stalla\seeker\templates\seeker\werkstuk_tooltip.html:8
+msgid "Country"
+msgstr "Land"
+
+#: .\stalla\seeker\templates\seeker\werkstuk_tooltip.html:9
+msgid "Place"
+msgstr "Plaats"
+
+#: .\stalla\seeker\templates\seeker\werkstuk_tooltip.html:10
+#: .\stalla\seeker\views.py:614 .\stalla\seeker\views.py:725
+#: .\stalla\seeker\views.py:735
+msgid "Location"
+msgstr "Locatie"
+
+#: .\stalla\seeker\templates\seeker\werkstuk_tooltip.html:11
+#: .\stalla\seeker\views.py:740
+msgid "Part"
+msgstr "Onderdeel"
+
+#: .\stalla\seeker\views.py:608 .\stalla\seeker\views.py:718
+#: .\stalla\seeker\views.py:731
 msgid "Object number"
 msgstr "Objectnummer"
 
-#: .\stalla\seeker\views.py:609 .\stalla\seeker\views.py:719
-#: .\stalla\seeker\views.py:738
+#: .\stalla\seeker\views.py:609 .\stalla\seeker\views.py:739
 msgid "Kind"
 msgstr "Aard"
 
-#: .\stalla\seeker\views.py:610 .\stalla\seeker\views.py:720
-#: .\stalla\seeker\views.py:731
+#: .\stalla\seeker\views.py:610 .\stalla\seeker\views.py:721
+#: .\stalla\seeker\views.py:732
 msgid "Description"
 msgstr "Beschrijving"
 
@@ -158,11 +180,6 @@ msgstr "Icoonklassecodes"
 #: .\stalla\seeker\views.py:613
 msgid "Date range"
 msgstr "Datuminterval"
-
-#: .\stalla\seeker\views.py:614 .\stalla\seeker\views.py:724
-#: .\stalla\seeker\views.py:734
-msgid "Location"
-msgstr "Locatie"
 
 #: .\stalla\seeker\views.py:615
 msgid "Photographer"
@@ -188,7 +205,7 @@ msgstr "Auteur(s)"
 msgid "Title"
 msgstr "Titel"
 
-#: .\stalla\seeker\views.py:625 .\stalla\seeker\views.py:733
+#: .\stalla\seeker\views.py:625 .\stalla\seeker\views.py:734
 msgid "City"
 msgstr "Plaats"
 
@@ -204,39 +221,35 @@ msgstr "Tijdschrift"
 msgid "Pages"
 msgstr "Pagina's"
 
-#: .\stalla\seeker\views.py:718
+#: .\stalla\seeker\views.py:719
 msgid "Image"
 msgstr "Afbeelding"
 
-#: .\stalla\seeker\views.py:725
+#: .\stalla\seeker\views.py:726
 msgid "Dating"
 msgstr "Datering"
 
-#: .\stalla\seeker\views.py:726
+#: .\stalla\seeker\views.py:727
 msgid "Category"
 msgstr "Categorie"
 
-#: .\stalla\seeker\views.py:732
+#: .\stalla\seeker\views.py:733
 msgid "Land"
 msgstr "Land"
 
-#: .\stalla\seeker\views.py:735
+#: .\stalla\seeker\views.py:736
 msgid "From (year)"
 msgstr "Vanaf (jaar)"
 
-#: .\stalla\seeker\views.py:736
+#: .\stalla\seeker\views.py:737
 msgid "Until (year)"
 msgstr "Tot aan (jaar)"
 
-#: .\stalla\seeker\views.py:739
-msgid "Part"
-msgstr "Onderdeel"
-
-#: .\stalla\seeker\views.py:740
+#: .\stalla\seeker\views.py:741
 msgid "Tags"
 msgstr "Kenmerken"
 
-#: .\stalla\seeker\views.py:746
+#: .\stalla\seeker\views.py:747
 msgid "beschrijving_en"
 msgstr "beschrijving_nl"
 

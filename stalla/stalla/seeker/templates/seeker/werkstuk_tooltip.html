@@ -1,11 +1,13 @@
+{% load i18n %}
+
 <table>
     <thead>
-        <tr><th colspan="2">Toelichting</th></tr>
+        <tr><th colspan="2">{% trans 'Explanation' %}</th></tr>
     </thead>
     <tbody>
-        <tr><td>Land</td><td>{{country}}</td></tr>
-        <tr><td>Plaats</td><td>{{city}}</td></tr>
-        <tr><td>Locatie</td><td>{{location}}</td></tr>
-        <tr><td>Soort</td><td>{{type}}</td></tr>
+        <tr><td valign="top">{% trans 'Country' %}</td><td>{{country}}</td></tr>
+        <tr><td valign="top">{% trans 'Place' %}</td><td>{{city}}</td></tr>
+        <tr><td valign="top">{% trans 'Location' %}</td><td>{{location}}</td></tr>
+        <tr><td valign="top">{% trans 'Part' %}</td><td>{{type}}</td></tr>
     </tbody>
 </table>

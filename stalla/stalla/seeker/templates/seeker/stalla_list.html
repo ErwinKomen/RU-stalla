@@ -388,7 +388,11 @@
 
                     <!-- Top pagination -->
                     <div class="row">
-                      <div class="col-sm-4"><span>Total: </span><span>{{entrycount}}</span></div>
+                      <div class="col-sm-4">
+                        <span class="result-count {% if no_result_count %}hidden{% endif %}">
+                          <span>Total: </span><span>{{entrycount}}</span>
+                        </span>
+                      </div>
                       <div class="col-sm-8">
                         <span class="step-links pull-right">
                           {% include 'paginationpost.html' %}

@@ -1622,7 +1622,7 @@ g > text {
 div.tooltip {
     position: fixed; /*   !important; */
     text-align: center;
-    width: 120px;
+    width: 200px;
     height: 35px;
     padding: 2px;
     font: 12px sans-serif;
@@ -1743,15 +1743,17 @@ svg .nodes text {
 }
 
 .werkstuk-image img {
-    max-height: 60px;
+    max-height: 150px;
+    max-width: 100px
 }
 
 div.tooltip.werkstuk, div.tooltip .tooltip-inner {
     width: unset;
     height: unset;
+    max-width: 400px;
     background-color: #e7dbdb;
     text-align: left;
-    font-size: 13px;
+    font-size: 16px;
     -moz-box-shadow: 2px 2px 11px #666;
     -webkit-box-shadow: 2px 2px 11px #666;
     color: #686667;
@@ -1761,7 +1763,7 @@ div.tooltip.werkstuk, div.tooltip .tooltip-inner {
 div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
     background-color: #1a0202;
     /* margin: 0; */
-    font-size: 12px;
+    font-size: 14px;
     text-align: center;
     color: #fff;
     padding: 6px;

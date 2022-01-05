@@ -1255,11 +1255,13 @@ class Werkstuk(models.Model):
                 sTitle = self.beschrijving_nl if language == "nl" else self.beschrijving_en
             descr = "object {}: {}".format(self.inventarisnummer, sImageName)
 
+            sClass = "" # Was: col-md-12
+
             if tooltip == None:
-                sBack = "<img src='{}' alt='{}' class='col-md-12'>".format(image, descr)
+                sBack = "<img src='{}' alt='{}' class='{}'>".format(image, descr, sClass)
             else:
-                sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}' class='col-md-12'>".format(
-                    image, descr, tooltip)
+                sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}' class='{}'>".format(
+                    image, descr, tooltip, sClass)
 
         except:
             msg = oErr.get_error_message()
