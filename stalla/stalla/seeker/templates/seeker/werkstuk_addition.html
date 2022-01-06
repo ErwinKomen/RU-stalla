@@ -5,7 +5,11 @@
   <div class="col-md-3">
     <!-- To be shown always: my own picture -->
     <div id="default_table" class="stalla-default">
-      <h3>{% trans "Object picture" %}</h3>
+      {% if show_headers %}
+        <h3>{% trans "Object picture" %}</h3>
+      {% else %}
+        <div>&nbsp;</div>
+      {% endif %}
       <div title="{{default.title}}" info="{{default.info}}" data-toggle="modal" data-target="#werkstuk_modal"
             onclick="ru.stalla.seeker.show_picture(this);">
         {{default.img|safe}}
@@ -19,23 +23,30 @@
     <div class="detail-button">
       <!-- Literature -->
       {% if literaturen|length == 0 %}
-        <button title="{% trans '(No literature for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Literature" %}</button>
+        <button title="{% trans '(No literature for this object)' %}" class="btn btn-normal jumbo-1">{% trans "Literature" %}</button>
       {% else %}
-        <button data-toggle="collapse" data-target="#literature_table" class="btn btn-sm jumbo-3">{% trans "Literature" %}</button>
+        <button data-toggle="collapse" data-target="#literature_table" class="btn btn-normal jumbo-3">{% trans "Literature" %}</button>
       {% endif %}
 
       <!-- Additional images -->
       {% if morepicts|length == 0 %}
-        <button title="{% trans '(No additional pictures for this object)' %}" class="btn btn-sm jumbo-1">{% trans "More pictures" %}</button>
+        <button title="{% trans '(No additional pictures for this object)' %}" class="btn btn-normal jumbo-1">{% trans "More pictures" %}</button>
       {% else %}
-        <button data-toggle="collapse" data-target="#morepicts_table" class="btn btn-sm jumbo-3">{% trans "More pictures" %}</button>
+        <button data-toggle="collapse" data-target="#morepicts_table" class="btn btn-normal jumbo-3">{% trans "More pictures" %}</button>
       {% endif %}
 
       <!-- Parallels -->
       {% if parallels|length == 0 %}
-        <button title="{% trans '(No parallels for this object)' %}" class="btn btn-sm jumbo-1">{% trans "Parallels" %}</button>
+        <button title="{% trans '(No parallels for this object)' %}" class="btn btn-normal jumbo-1">{% trans "Parallels" %}</button>
       {% else %}
-        <button data-toggle="collapse" data-target="#parallels_table" class="btn btn-sm jumbo-3">{% trans "Parallels" %}</button>
+        <button data-toggle="collapse" data-target="#parallels_table" class="btn btn-normal jumbo-3">{% trans "Parallels" %}</button>
+      {% endif %}
+
+      <!-- Remarks -->
+      {% if remarks|length == 0 %}
+        <button title="{% trans '(No remarks for this object)' %}" class="btn btn-normal jumbo-1">{% trans "Remarks" %}</button>
+      {% else %}
+        <button data-toggle="collapse" data-target="#remarks_table" class="btn btn-normal jumbo-3">{% trans "Remarks" %}</button>
       {% endif %}
 
     </div>
@@ -82,6 +93,20 @@
             {{oPict.img|safe}}
           </div>
         {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if remarks|length > 0 %}
+      <div id="remarks_table" class="collapse stalla-remark">
+        <h3>{% trans "Remarks" %}</h3>
+        <table>
+          {% for oRemark in remarks %}
+            <tr>
+              <td valign="top" class="tdnowrap details-label" >{{oRemark.label_text}}:&nbsp;</td>
+              <td valign="top">{{oRemark.value}}</td>
+            </tr>
+          {% endfor %}
+        </table>
       </div>
     {% endif %}
 

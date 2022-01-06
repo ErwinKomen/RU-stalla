@@ -637,6 +637,12 @@
   </div>
 </div>
 
+<!-- List helper -->
+<div class="hidden">
+  <form id="listhelp" targeturl="{% url 'listhelp' %}">
+    {% csrf_token %}
+  </form>
+</div>
 
 <script>
   ru.basic.init_events();

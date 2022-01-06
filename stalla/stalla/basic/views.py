@@ -37,7 +37,7 @@ from datetime import datetime
 # provide error handling
 from .utils import ErrHandle
 
-from stalla.basic.models import UserSearch
+from stalla.basic.models import UserSearch, ViewInfo, UserHelp
 
 
 # Some constants that can be used
@@ -47,6 +47,9 @@ paginateValues = (100, 50, 20, 10, 5, 2, 1, )
 
 # Global debugging 
 bDebug = False
+
+# Global counter for listviews
+listview_number = 0
 
 # General functions serving the list and details views
 
@@ -737,6 +740,34 @@ def csv_to_excel(sCsvData, response):
 
 # The views that are defined by 'basic'
 
+def listhelp(request):
+    """Synchronize information"""
+
+    oErr = ErrHandle()
+    data = {'status': 'ok'}
+    try:
+        # Must be a post request
+        if request.method.lower() == "post":
+            get = request.POST
+            helptype = get.get("helptype")
+            basicid = get.get("basicid")
+            if helptype == "createlistid":
+                pass
+                ## Create an entry for this user
+                #obj = UserHelp.objects.create()
+                #data['basicid'] = obj.id
+            elif helptype == "getlist" and basicid != None and basicid != "":
+                # Get the list associated with this user
+                
+                pass
+
+    except:
+        oErr.DoError("listhelp error")
+        data['status'] = "error"
+
+    # Return this response
+    return JsonResponse(data)
+
 class BasicList(ListView):
     """Basic listview
     
@@ -787,6 +818,7 @@ class BasicList(ListView):
     col_wrap = ""
     language = ""
     param_list = []
+    userhelp = None
     request = None
     qs = None
     page_function = "ru.basic.search_paged_start"
@@ -839,6 +871,10 @@ class BasicList(ListView):
         # Need to pass on a pagination function
         if self.page_function:
             context['page_function'] = self.page_function
+
+        # Stalla-specific: add basicid
+        if not self.userhelp is None:
+            self.param_list.append("basicid={}".format(self.userhelp.id))
 
         # Set the page number if needed
         if 'page_obj' in context and 'page' in initial and initial['page'] != "":
@@ -1309,6 +1345,10 @@ class BasicList(ListView):
         # Allow doing something additionally with the queryset
         self.view_queryset(qs)
 
+        # Fill the list of id's that have been selected by this query
+        id_list = [x['id'] for x in qs.values('id')]
+        self.userhelp = UserHelp.process(id_list)
+
         # Return the resulting filtered and sorted queryset
         self.qs = qs
         return qs
@@ -1376,9 +1416,12 @@ class BasicDetails(DetailView):
     new_button = False
     do_not_save = False
     no_delete = False
+    show_headers = True
     afterdelurl = None
     listview = None
     backbutton = True
+    userhelp = None         # If this has been called from a listview, this provides access to the list
+    params = None
     custombuttons = []
     newRedirect = False     # Redirect the page name to a correct one after creating
     initRedirect = False    # Perform redirect right after initializations
@@ -1395,6 +1438,9 @@ class BasicDetails(DetailView):
         data = {'status': 'ok', 'html': '', 'statuscode': ''}
         # always do this initialisation to get the object
         self.initializations(request, pk)
+
+        # See if access to the list results is needed
+
         if not request.user.is_authenticated:
             # Do not allow to get a good response
             if self.rtype == "json":
@@ -1618,6 +1664,8 @@ class BasicDetails(DetailView):
         context['new_button'] = self.new_button
         context['add_text'] = self.add_text
         context['backbutton'] = self.backbutton
+        context['show_headers'] = self.show_headers
+        context['navigation_buttons'] = False
 
         if self.is_basic and context.get('afterdelurl') == None :
             if self.afterdelurl != None:
@@ -1641,8 +1689,19 @@ class BasicDetails(DetailView):
         # Possibly first get params
         params = ""
         if "params" in dict(self.qd):
+            self.params = self.qd.get("params")
             params = base64_decode( "".join(self.qd.pop("params")))
         context['params'] = params
+        # Possibly get the basicid from the parameters
+        if 'basicid' in params:
+            arParams = params.split("&")
+            arRestore = []
+            for sItem in arParams:
+                arKV = sItem.split("=")
+                sKey = arKV[0]
+                if len(arKV) > 1 and sKey == "basicid":
+                    self.userhelp = UserHelp.objects.filter(id=arKV[1]).first()
+                    break
 
         # Now see if anything is left
         self.bHasFormInfo = (len(self.qd) > 0)

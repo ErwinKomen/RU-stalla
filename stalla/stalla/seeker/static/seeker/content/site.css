@@ -598,9 +598,9 @@ form .panel-heading.row {
   fill: #355e3b;
 }
 .jumbo-4 {
-  background-color: #ff2400;
-  color: lavender !important;
-  fill: #ff2400;
+    background-color: #e3000b; /* #ff2400; */
+    color: lavender !important;
+    fill: #ff2400;
 }
 .jumbo-5 {
   background-color: blue;
@@ -620,9 +620,16 @@ form .panel-heading.row {
 .jumbo-1:hover text {
   fill: black;
 }
-.jumbo-2:hover, .jumbo-3:hover, .jumbo-4:hover {
+.jumbo-2:hover, .jumbo-3:hover {
     color: white;
-    background-color: goldenrod;
+    background-color:  goldenrod; 
+    fill: goldenrod;
+    cursor: pointer;
+    /* stroke: white; */
+}
+.jumbo-4:hover {
+    color: white;
+    background-color: darkred; /*  goldenrod; */
     fill: goldenrod;
     cursor: pointer;
     /* stroke: white; */
@@ -1362,6 +1369,14 @@ span.badge.signature:hover {
     cursor: pointer;
 }
 
+span.badge.categorie {
+    font-size: medium;
+    padding: 2px 5px;
+    font-weight: normal;
+    border-radius: 5px;
+    margin: 1px;
+}
+
 /* Badges with background color for location types */
 span.badge.loctype-city {
   background-color: darkblue;
@@ -1622,7 +1637,8 @@ g > text {
 div.tooltip {
     position: fixed; /*   !important; */
     text-align: center;
-    width: 200px;
+    /* width: 200px; /* */
+    max-width: 400px;
     height: 35px;
     padding: 2px;
     font: 12px sans-serif;
@@ -1633,7 +1649,7 @@ div.tooltip {
     box-shadow: 1px 1px;
     pointer-events: none;
     opacity: 0.8;
-    z-index:1;
+    z-index: 1;
 }
 svg .histogram-bar {
     fill: #337ab7; /* #69b3a2; */
@@ -1882,6 +1898,17 @@ div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
     font-size: large;
 }
 
+/*
+.btn-normal,
+.btn-group-normal > .btn {
+    padding: 7px 12px;
+    font-size: 16px;
+    line-height: 1.3333333;
+    border-radius: 4px;
+}
+*/
+
+
 h2 {
     font-size: larger;
 }
@@ -1904,5 +1931,13 @@ h5 { font-size: larger;}
 
 .select2-results__option {
     font-size: medium;
+}
+
+.werkstuk-beschrijving {
+    font-size: larger;
+}
+
+.stalla-image {
+    max-width: 100%;
 }
 

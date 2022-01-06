@@ -40,7 +40,7 @@ from stalla.utils import ErrHandle
 from stalla.seeker.forms import SignUpForm, WerkstukForm
 from stalla.seeker.models import get_now_time, get_current_datetime, process_userdata, \
     User, Group, Information, Visit, NewsItem, Status, \
-    Werkstuk, Tag, WerkstukTag
+    Werkstuk, Tag, WerkstukTag, Literatuurverwijzing
 from stalla.seeker.adaptations import listview_adaptations
 from stalla.mapview.views import MapView
 
@@ -590,6 +590,7 @@ class WerkstukEdit(BasicDetails):
     prefix = 'wer'
     new_button = False
     # no_delete = True
+    show_headers = False
     permission = "readonly"
     mainitems = []
     literature_def = []
@@ -605,17 +606,21 @@ class WerkstukEdit(BasicDetails):
         try:
             # Define the main items to show and edit
             context['mainitems'] = [
-                {'type': 'plain', 'label': _("Object number"),         'value': instance.inventarisnummer,    },
-                {'type': 'plain', 'label': _("Kind"),                  'value': instance.get_aard(self.language),    },
-                {'type': 'plain', 'label': _("Description"),           'value': instance.get_beschrijving(self.language),     },
-                {'type': 'plain', 'label': _("Location choir stall"),  'value': instance.plaats_koorbank,    },
-                {'type': 'plain', 'label': _("Iconclass codes"),       'value': instance.get_iconclasscodes(),    },
-                {'type': 'plain', 'label': _("Date range"),            'value': instance.get_daterange(),    },
-                {'type': 'plain', 'label': _("Location"),              'value': instance.get_locatie(),    },
-                {'type': 'plain', 'label': _("Photographer"),          'value': instance.get_fotograaf(),    },
-                {'type': 'plain', 'label': _("Artist"),                'value': instance.get_kunstenaren(),    },
-                {'type': 'plain', 'label': _("Literature notes"),      'value': instance.lit_paralel,    },
-                {'type': 'safe',  'label': _("Labels"),                'value': instance.get_tags_html(),    },
+                {'type': 'safe',  'label': _("Description"),        'value': instance.get_beschrijving(self.language),     },
+                {'type': 'plain', 'label': _("Object number"),      'value': instance.inventarisnummer,    },
+                {'type': 'plain', 'label': _("Part"),               'value': instance.get_soort(self.language),    },
+                {'type': 'plain', 'label': _("Kind"),               'value': instance.get_aard(self.language),    },
+                {'type': 'plain', 'label': _("Artist"),             'value': instance.get_kunstenaren(),    },
+                {'type': 'plain', 'label': _("Position"),           'value': instance.plaats_koorbank,    },
+                {'type': 'plain', 'label': _("Date"),               'value': instance.get_daterange(),    },
+                {'type': 'plain', 'label': _("Location"),           'value': instance.get_locatie(),    },
+                {'type': 'plain', 'label': _("Photographer"),       'value': instance.get_fotograaf(),    },
+                {'type': 'safe',  'label': _("Literature notes"),   'value': instance.get_lit_paralel(),    },
+                {'type': 'safe',  'label': _("Categories"),         'value': instance.get_tags_html(),    },
+
+                # Remove this according to issue #16
+                # {'type': 'plain', 'label': _("Iconclass codes"),       'value': instance.get_iconclasscodes(),    },
+
                 ]
 
             # Add the localized literature specification
@@ -626,6 +631,43 @@ class WerkstukEdit(BasicDetails):
             add_literature('jaar', _('Year'))
             add_literature('tijdschrift', _('Journal'))
             add_literature('pagina', _('Pages'))
+
+            if not self.userhelp is None:
+                # Calculate the first, last, previous and next id's
+                idlist = self.userhelp.get_list()
+                if len(idlist) > 0:
+                    # Indicate that we want to see navigation buttons
+                    context['navigation_buttons'] = True
+                    context['navigate_total'] = len(idlist)
+                    context['navigate_current'] = "??"
+
+                    # Figure out if params need to be added
+                    params = ""
+                    if self.params != None and self.params != "":
+                        params = "?params={}".format(self.params)
+
+                    # First and last are easy
+                    id_first = idlist[0]
+                    id_last = idlist[-1]
+                    context['navigate_first'] = "{}{}".format(reverse('werkstuk_details', kwargs={'pk': id_first}), params)
+                    context['navigate_last'] = "{}{}".format(reverse('werkstuk_details', kwargs={'pk': id_last}), params)
+
+                    # Where are we now in the list?
+                    id_current = instance.id
+                    if id_current in idlist:
+                        # Get the index of this id in the idlist
+                        idx = idlist.index(id_current)
+                        context['navigate_current'] = "{}".format(idx+1)
+
+                        # Okay, now 'previous'...
+                        if idx > 0:
+                            id_prev = idlist[idx-1]
+                            context['navigate_prev'] = "{}{}".format(reverse('werkstuk_details', kwargs={'pk': id_prev}), params)
+
+                        # Then what about 'next'...
+                        if idx < len(idlist) - 1:
+                            id_next = idlist[idx+1]
+                            context['navigate_next'] = "{}{}".format(reverse('werkstuk_details', kwargs={'pk': id_next}), params)
 
         except:
             msg = oErr.get_error_message()
@@ -643,6 +685,15 @@ class WerkstukDetails(WerkstukEdit):
         response = super(WerkstukDetails, self).add_to_context(context, instance)
 
         oErr = ErrHandle()
+        remark_fields = [
+            {'field': 'opmerking_datering_nl',      'label': _("About the object date"), 'efield': 'opmerking_datering_en' },
+            {'field': 'opmerking_herkomstplaats',   'label': _("About the origin") },
+            {'field': 'opmerking_toestand',         'label': _("About the condition") },
+            {'field': 'opmerking_materiaal',        'label': _("About the material") },
+            {'field': 'opmerking_foto',             'label': _("About the picture") },
+            {'field': 'opmerking_paralel',          'label': _("About the parallels") },
+            {'field': 'opmerking_datering_afb',     'label': _("About the picture date") },
+            ]
         try:
             lHtml = []
             if 'after_details' in context:
@@ -664,6 +715,14 @@ class WerkstukDetails(WerkstukEdit):
                     if value != None:
                         oLine = dict(label=oField[label_field], value=value)
                         lines.append(oLine)
+                # Get the page numbers
+                pagerefs = []
+                for pageref in Literatuurverwijzing.objects.filter(werkstuk=instance, literatuur=obj).all().order_by('paginaverwijzing'):
+                    ref = pageref.paginaverwijzing
+                    if ref != None and ref != "":
+                        pagerefs.append(ref)
+                if len(pagerefs) > 0:
+                    lines.append(dict(label=_("Page details"), value="; ".join(pagerefs)))
                 oLiterature['lines'] = lines
                 literaturen.append(oLiterature)
             context['literaturen'] = literaturen
@@ -681,6 +740,21 @@ class WerkstukDetails(WerkstukEdit):
                 img_html, sTitle = instance.get_image_html(self.language, field=field)
                 parallels.append(dict(img=img_html, title=sTitle, info=sTitle))
             context['parallels'] = parallels
+
+            # (5) addition: remarks
+            remarks = []
+            for oField in remark_fields:
+                sValue = getattr(instance, oField['field'])
+                sValueEn = None
+                if 'efield' in oField:
+                    sValueEn = getattr(instance, oField['efield'])
+                    if not sValueEn is None:
+                        sValue = sValueEn
+                if sValue != None and sValue != "":
+                    # There is a value: make it available
+                    remarks.append(dict(label_text=oField['label'], value=sValue))
+            context['remarks'] = remarks
+
 
             # COmbine and show the additions
             lHtml.append(render_to_string('seeker/werkstuk_addition.html', context, self.request))
@@ -776,29 +850,36 @@ class WerkstukListview(BasicList):
         return None
 
     def add_to_context(self, context, initial):
-        filtercount = 0
-        for oItem in self.filters:
-            if oItem['enabled']:
-                filtercount += 1
-        context['filtercount'] = filtercount
-        for section in self.filter_sections:
-            section['enabled'] = False
-            # See if this needs enabling
+        oErr = ErrHandle()
+        try:
+
+            filtercount = 0
             for oItem in self.filters:
-                if oItem['section'] == section['id'] and oItem['enabled']:
-                    section['enabled'] = True
-                    break
-        context['filter_sections'] = self.filter_sections
+                if oItem['enabled']:
+                    filtercount += 1
+            context['filtercount'] = filtercount
+            for section in self.filter_sections:
+                section['enabled'] = False
+                # See if this needs enabling
+                for oItem in self.filters:
+                    if oItem['section'] == section['id'] and oItem['enabled']:
+                        section['enabled'] = True
+                        break
+            context['filter_sections'] = self.filter_sections
 
-        # Calculate how many items will be shown on the map
-        qs_mapview = self.qs.exclude(locatie__x_coordinaat="onbekend")
-        context['mapcount'] = qs_mapview.count()
+            # Calculate how many items will be shown on the map
+            qs_mapview = self.qs.exclude(locatie__x_coordinaat="onbekend")
+            context['mapcount'] = qs_mapview.count()
 
-        # Add a user_button definition
-        context['mode'] = "list"
-        context['user_button'] = render_to_string("seeker/map_list_switch.html", context, self.request)
+            # Add a user_button definition
+            context['mode'] = "list"
+            context['user_button'] = render_to_string("seeker/map_list_switch.html", context, self.request)
 
-        context['no_result_count'] = True
+            context['no_result_count'] = True
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("werkstukListview/add_to_context")
 
         return context
 

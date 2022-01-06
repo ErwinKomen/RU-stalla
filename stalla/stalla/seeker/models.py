@@ -1196,6 +1196,8 @@ class Werkstuk(models.Model):
             sBack = self.beschrijving_nl
         else:
             sBack = self.beschrijving_en
+        # Make sure the description is shown in a larger font
+        sBack = "<div class='werkstuk-beschrijving'>{}</div>".format(sBack)
         return sBack
 
     def get_daterange(self):
@@ -1255,10 +1257,10 @@ class Werkstuk(models.Model):
                 sTitle = self.beschrijving_nl if language == "nl" else self.beschrijving_en
             descr = "object {}: {}".format(self.inventarisnummer, sImageName)
 
-            sClass = "" # Was: col-md-12
+            sClass = "stalla-image" # Was: col-md-12
 
             if tooltip == None:
-                sBack = "<img src='{}' alt='{}' class='{}'>".format(image, descr, sClass)
+                sBack = "<img src='{}' alt='{}' class='{}' >".format(image, descr, sClass)
             else:
                 sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}' class='{}'>".format(
                     image, descr, tooltip, sClass)
@@ -1311,6 +1313,14 @@ class Werkstuk(models.Model):
         sBack = ", ".join(lhtml)
         return sBack
 
+    def get_lit_paralel(self):
+        """Retrieve field [lit_paralel] and do some processing on it"""
+
+        sBack = ""
+        if self.lit_paralel != None and self.lit_paralel != "":
+            sBack = self.lit_paralel.replace("_x000D_", "<br />")
+        return sBack
+
     def get_locatie(self, as_object = False):
         sBack = ""
         lhtml = []
@@ -1350,7 +1360,7 @@ class Werkstuk(models.Model):
     def get_tags_html(self):
         lhtml = []
         for obj in self.tags.all().order_by('name'):
-            sTag = "<span class='badge signature gr'>{}</span>".format(obj.name)
+            sTag = "<span class='badge categorie'>{}</span>".format(obj.name)
             lhtml.append(sTag)
         sBack = " ".join(lhtml)
         return sBack

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User, Group
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.db.models.query import QuerySet 
+from django.utils import timezone
 
 import json
 
@@ -14,6 +15,10 @@ from .utils import ErrHandle
 
 LONG_STRING=255
 MAX_TEXT_LEN = 200
+
+def get_current_datetime():
+    """Get the current time"""
+    return timezone.now()
 
 
 # Create your models here.
@@ -98,3 +103,65 @@ class UserSearch(models.Model):
             oErr.DoError("UserSearch/load_parameters")
         # Return what we found
         return qd
+
+
+class ViewInfo(models.Model):
+    """View-specific information"""
+
+    # [1] The list of id's as a JSON field
+    idlist = models.TextField("List of ids", default="[]")
+
+    def __str__(self):
+        sBack = "{}".format(self.id)
+        return sBack
+
+    def get_list(id_list):
+        """Get or create an entry with this list"""
+
+        # Turn list into string
+        sList = json.dumps(id_list)
+        # Try to find it
+        obj = ViewInfo.objects.filter(idlist=sList).first()
+        if obj is None:
+            # Need to create it
+            obj = ViewInfo.objects.create(idlist=sList)
+        # Return the object
+        return obj
+
+
+class UserHelp(models.Model):
+    """Use this id to identify visitors and serve them"""
+
+    # [1] And a date: the date of saving this relation
+    created = models.DateTimeField(default=get_current_datetime)
+    # [0-1] The view information
+    view = models.ForeignKey(ViewInfo, blank=True, null=True, on_delete=models.SET_NULL, related_name="view_lists")
+
+    def __str__(self):
+        sBack = "{}".format(self.id)
+        return sBack
+
+    def get_list(self):
+        """Get the list of ID's associated with me"""
+
+        lBack = []
+        if not self.view is None:
+            sIdList = self.view.idlist
+            # Turn into object
+            lBack = json.loads(sIdList)
+        return lBack 
+
+    def process(id_list):
+        """Create a new userhelp object with this idlist"""
+
+        oErr = ErrHandle()
+        obj = None
+        try:
+            viewinfo = ViewInfo.get_list(id_list)
+            obj = UserHelp.objects.create(view=viewinfo)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("process")
+        # Return what we created
+        return obj
+

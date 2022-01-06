@@ -25,9 +25,9 @@
           <!-- Possibility to go back-->
           <div class="col-md-1">
             {% if backbutton %}
-              <a class="btn jumbo-1" 
+              <a class="btn jumbo-4" 
                  href="{{listview}}{% if params %}?{{params|safe}}{% endif %}"
-                 title="Return to the list of items">&lt;&lt;</a>
+                 title="{% trans 'Return to the list of items' %}">&lt;&lt; {% trans 'List' %}</a>
             {% endif %}
             <!-- Any additional buttons here in the topleft -->
             {% for buttonspec in topleftbuttons %}
@@ -39,34 +39,63 @@
           <!-- Actual contents -->
           <div class="col-md-10">
 
+            <!-- If the user desires: buttons back/forth -->
+            {% if navigation_buttons %}
+              <div class="row">
+                <div class="col-md-12">
+                  <span class="pull-right">
+                    <span>{{navigate_current}} / {{navigate_total}}</span>
+                    <a class="btn btn-sm jumbo-1" role="button" title="{% trans 'Go to the first item' %}" href="{{navigate_first}}">
+                      <span class="glyphicon glyphicon-fast-backward"></span>
+                    </a>
+                    {% if navigate_prev %}
+                      <a class="btn btn-sm jumbo-1" role="button" title="{% trans 'Go to the previous item' %}" href="{{navigate_prev}}">
+                        <span class="glyphicon glyphicon-step-backward"></span>
+                      </a>
+                    {% endif %}
+                    {% if navigate_next %}
+                      <a class="btn btn-sm jumbo-1" role="button" title="{% trans 'Go to the next item' %}" href="{{navigate_next}}">
+                        <span class="glyphicon glyphicon-step-forward"></span>
+                      </a>
+                    {% endif %}
+                    <a class="btn btn-sm jumbo-1" role="button" title="{% trans 'Go to the last item' %}" href="{{navigate_last}}">
+                      <span class="glyphicon glyphicon-fast-forward"></span>
+                    </a>
+                  </span>
+                </div>
+              </div>
+            {% endif %}
+
             <div class="row">
               <div class="col-md-12">
-                <h3>
-                  <span>{{titlesg}} details</span>
-                  {% if title_addition %}
-                    <span>{{title_addition|safe}}</span>
-                  {% endif %}
-                  {% if title_right %}
-                    <span class="pull-right">{{title_right|safe}}</span>
-                  {% elif custombuttons and not new_button %}
-                    <span style="margin-left: 100px;">
-                      {% for citem in custombuttons %}
-                        <a class="btn btn-xs jumbo-1" data-toggle="collapse" data-target="#tab_{{citem.name}}" 
-                           role="button" title="{{citem.title}}">
-                          <span class="glyphicon glyphicon-{{citem.icon}}"></span>
+                {% if show_headers %}
+                  <h3>
+                    <span>{{titlesg}} details</span>
+                    {% if title_addition %}
+                      <span>{{title_addition|safe}}</span>
+                    {% endif %}
+                    {% if title_right %}
+                      <span class="pull-right">{{title_right|safe}}</span>
+                    {% elif custombuttons and not new_button %}
+                      <span style="margin-left: 100px;">
+                        {% for citem in custombuttons %}
+                          <a class="btn btn-xs jumbo-1" data-toggle="collapse" data-target="#tab_{{citem.name}}" 
+                             role="button" title="{{citem.title}}">
+                            <span class="glyphicon glyphicon-{{citem.icon}}"></span>
+                          </a>
+                        {% endfor %}
+                      </span>
+                    {% elif is_app_editor and new_button %}
+                      <span id="add_{{new_button_name}}" class="pull-right">
+                        {% csrf_token %}
+                        <a class="btn btn-xs jumbo-3" role="button" 
+                            onclick="document.getElementById('create_new_{{new_button_name}}').submit();" >
+                          <span class="glyphicon glyphicon-plus"></span>{{add_text}} {{new_button_title}}
                         </a>
-                      {% endfor %}
-                    </span>
-                  {% elif is_app_editor and new_button %}
-                    <span id="add_{{new_button_name}}" class="pull-right">
-                      {% csrf_token %}
-                      <a class="btn btn-xs jumbo-3" role="button" 
-                          onclick="document.getElementById('create_new_{{new_button_name}}').submit();" >
-                        <span class="glyphicon glyphicon-plus"></span>{{add_text}} {{new_button_title}}
-                      </a>
-                    </span>
-                  {% endif %}
-                </h3>
+                      </span>
+                    {% endif %}
+                  </h3>
+                {% endif %}
 
                 <!-- Room to have the form-link to create a new list-item -->
                 <div class="hidden" >

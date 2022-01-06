@@ -35,6 +35,8 @@ var ru = (function ($, ru) {
         loc_urlStore = "",      // Keep track of URL to be shown
         loc_progr = [],         // Progress tracking
         loc_relatedRow = null,  // Row being dragged
+        // loc_basicid = null,     // How to recognize my session
+        // loc_idlist = null,
         loc_params = "",
         loc_colwrap = [],       // Column wrapping
         loc_sWaiting = " <span class=\"glyphicon glyphicon-refresh glyphicon-refresh-animate\"></span>",
@@ -194,6 +196,64 @@ var ru = (function ($, ru) {
         }
         $("#" + loc_divErr).html(sHtml);
       },
+
+      ///** 
+      // *  getListHelp - Communicate for help with the server
+      // */
+      //getListHelp: function (helptype) {
+      //  var targeturl = "",
+      //      el = "#listhelp",
+      //      data = null,
+      //      frm = null;
+
+      //  try {
+      //    // Find the right form and data
+      //    frm = $(el).first();
+      //    data = frm.serializeArray();
+      //    data.push({ name: "helptype", value: helptype });
+      //    // Depending on the helptype more must be uploaded
+      //    switch (helptype) {
+      //      case "getlist":
+      //        // Need to pass on the basicid
+      //        data.push({ name: "basicid", value: loc_basicid });
+      //        break;
+      //    }
+      //    targeturl = $(el).attr("targeturl");
+
+      //    // Make a post to the targeturl
+      //    $.post(targeturl, data, function (response) {
+      //      // Action depends on the response
+      //      if (response === undefined || response === null || !("status" in response)) {
+      //        private_methods.errMsg("No status returned");
+      //      } else {
+      //        switch (response.status) {
+      //          case "ready":
+      //          case "ok":
+      //            // Action depends on the kind of help asked
+      //            switch (helptype) {
+      //              case "createlistid":
+      //                // We should get a package of information
+      //                if ("basicid" in response) {
+      //                  loc_basicid = response.basicid;
+      //                }
+      //                break;
+      //              case "getlist":
+      //                // Load and translate the list
+      //                if ("idlist" in response) {
+      //                  loc_idlist = JSON.parse(response.idlist);
+      //                }
+      //                break;
+      //            }
+      //            break;
+      //        }
+      //      }
+      //    });
+
+      //  } catch (ex) {
+      //    private_methods.errMsg("getListHelp", ex);
+      //    return "";
+      //  }
+      //},
 
       /** 
        *  getStyleVal - needed for resizableGrid
@@ -1363,6 +1423,23 @@ var ru = (function ($, ru) {
 
         try {
           $(".ms.editable a").unbind("click").click(ru.basic.manu_edit);
+
+          //// Get the session key
+          //if (loc_basicid === null) {
+          //  // are we on a list page?
+          //  if ($("#listhelp").length > 0) {
+          //    // We are on a list page: ask for an id
+          //    private_methods.getListHelp("createlistid");
+          //  } else {
+          //    // We are not on a list page. Perhaps details. Let's see if we have a basicid
+          //    if ($("#basicid").length > 0) {
+          //      loc_basicid = $("#basicid").text().trim();
+          //    }
+          //  }
+          //} else {
+          //  // We already have a key, so we can now fetch the current list contents (if available)
+          //  private_methods.getListHelp("getlist");
+          //}
 
           // Switch filters
           $(".badge.filter").unbind("click").click(ru.basic.filter_click);

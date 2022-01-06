@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 import stalla.seeker.views
 import stalla.seeker.forms
 from stalla.seeker.views import *
+from stalla.basic.views import listhelp
 
 # Import settings
 from stalla.settings import APP_PREFIX
@@ -31,6 +32,8 @@ urlpatterns = [
     path('contact/', stalla.seeker.views.contact, name='contact'),
     path('about/', stalla.seeker.views.about, name='about'),
     path('nlogin/', stalla.seeker.views.nlogin, name='nlogin'),
+
+    path('api/listhelp', stalla.basic.views.listhelp, name='listhelp'),
 
     path('sync/stalla/', stalla.seeker.views.sync_stalla, name='sync_stalla'),
     path('sync/start/', stalla.seeker.views.sync_start, name='sync_start'),
