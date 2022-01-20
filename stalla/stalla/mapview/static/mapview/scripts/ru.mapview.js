@@ -74,8 +74,11 @@ var ru = (function ($, ru) {
             // Note: for fontawesome *4*
             // html: '<i class="fa fa-map-marker fa-alt" style="font-size: 24px; color: '+loc_colorDict[name]+';"></i>',
             // Note: for fontawesome *5*
-            html: '<i class="fas fa-map-marker-alt" style="color: ' + loc_colorDict[name] + ';"></i>',
-            iconAncor: [3, 15]
+            // issue #17 (Stalla): all markers one color - use CSS for the [fa-map-marker-alt]
+            // html: '<i class="fas fa-map-marker-alt" style="color: ' + loc_colorDict[name] + ';"></i>',
+            html: '<i class="fas fa-map-marker-alt" ></i>',
+            // iconAncor: [3, 15]
+            iconAncor: [6, 30]
           };
           return L.divIcon(oBack);
         } catch (ex) {

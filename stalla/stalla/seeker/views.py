@@ -1030,10 +1030,12 @@ class WerkstukMapView(MapView):
             params = "&{}".format( "&".join(self.param_list))
         url = "{}?{}-locatie={}{}".format(reverse('werkstuk_list'), self.prefix, oPoint['locid'], params)
         # Create the popup
-        pop_up = '<p class="h6">{}</p>'.format(oPoint['city'])
+        pop_up = '<p class="h4">{}</p>'.format(oPoint['city'])
         pop_up += '<hr style="border: 1px solid green" />'
-        pop_up += '<p style="font-size: medium;"><a href="{}" title="Show objects"><span style="color: purple;">{}</span> in: {}</a></p>'.format(
-            url, oPoint['count'], oPoint['locatie'])
+        popup_title_1 = _("Show")
+        popup_title_2 = _("objects in the list")
+        pop_up += '<p style="font-size: large;"><a href="{}" title="{} {} {}"><span style="color: purple;">{}</span> in: {}</a></p>'.format(
+            url, popup_title_1, oPoint['count'],popup_title_2, oPoint['count'], oPoint['locatie'])
         return pop_up
 
     def group_entries(self, lst_this):

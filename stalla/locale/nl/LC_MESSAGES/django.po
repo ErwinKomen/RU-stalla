@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-06 16:10+0100\n"
+"POT-Creation-Date: 2022-01-20 16:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -318,6 +318,14 @@ msgstr "Kenmerken"
 #: .\stalla\seeker\views.py:821
 msgid "beschrijving_en"
 msgstr "beschrijving_nl"
+
+#: .\stalla\seeker\views.py:1035
+msgid "Show"
+msgstr "Toon"
+
+#: .\stalla\seeker\views.py:1036
+msgid "objects in the list"
+msgstr "objecten in de lijst"
 
 #: .\stalla\templates\admin\base.html:41
 msgid "Welcome,"

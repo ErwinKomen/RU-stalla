@@ -1898,6 +1898,11 @@ div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
     font-size: large;
 }
 
+.leaflet-marker-icon .fa-map-marker-alt {
+    font-size: x-large;
+    color: #345beb;
+}
+
 /*
 .btn-normal,
 .btn-group-normal > .btn {
