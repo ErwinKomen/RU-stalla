@@ -111,11 +111,15 @@ class SoortWidget(ModelSelect2MultipleWidget):
     sort_field = "eng"
 
     def label_from_instance(self, obj):
-        sName = obj.eng if self.sort_field == "eng" else obj.naam
+        sName = "-"
+        if self.sort_field == "eng":
+            sName = "{} ({})".format(obj.eng, obj.naam)
+        else:
+            sName = obj.eng if obj.naam == "" else "{} ({})".format(obj.naam, obj.eng)
         return sName
 
     def get_queryset(self):
-        return Soort.objects.all().order_by(self.sort_field)
+        return Soort.objects.all().order_by(self.sort_field).distinct()
 
 
 # ================= FORMS =======================================
@@ -224,7 +228,7 @@ class WerkstukForm(forms.ModelForm):
             self.fields['land'].queryset = Country.objects.order_by('name').distinct()
             self.fields['locatie'].queryset = Location.objects.exclude(name="").order_by('name').distinct()
             self.fields['plaats'].queryset = City.objects.order_by('name').distinct()
-            self.fields['soortlist'].queryset = Soort.objects.all().order_by(soort_sorting)
+            self.fields['soortlist'].queryset = Soort.objects.all().order_by(soort_sorting).distinct()
 
             self.fields['taglist'].queryset = Tag.objects.all().order_by('name')
 

@@ -1237,6 +1237,11 @@ class Werkstuk(models.Model):
             # Correct for case sensitivity
             if sImageName.lower() == "ga":
                 sImageName = "GA"
+
+            # Don't show GA images
+            if sImageName == "GA":
+                return None, None
+
             # Determine the directory
             arDir = ["static", "seeker", "images"]
             if sImageName != "GA":

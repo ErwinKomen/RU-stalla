@@ -1424,22 +1424,15 @@ var ru = (function ($, ru) {
         try {
           $(".ms.editable a").unbind("click").click(ru.basic.manu_edit);
 
-          //// Get the session key
-          //if (loc_basicid === null) {
-          //  // are we on a list page?
-          //  if ($("#listhelp").length > 0) {
-          //    // We are on a list page: ask for an id
-          //    private_methods.getListHelp("createlistid");
-          //  } else {
-          //    // We are not on a list page. Perhaps details. Let's see if we have a basicid
-          //    if ($("#basicid").length > 0) {
-          //      loc_basicid = $("#basicid").text().trim();
-          //    }
-          //  }
-          //} else {
-          //  // We already have a key, so we can now fetch the current list contents (if available)
-          //  private_methods.getListHelp("getlist");
-          //}
+          // Look for any data data-initial stuff in inboxes
+          $("input[data-initial]").each(function (idx, value) {
+            var el = $(this),
+                value = "";
+            value = $(el).attr("data-initial");
+            if (value !== "") {
+              $(el).val(value);
+            }
+          });
 
           // Switch filters
           $(".badge.filter").unbind("click").click(ru.basic.filter_click);
@@ -2589,6 +2582,12 @@ var ru = (function ($, ru) {
 
           // At least hide the clipboard copy
           $(".clipboard-copy").addClass("hidden");
+
+          // Clear generic filter(s)
+          $("input[data-initial]").each(function (idx, elThis) {
+              $(elThis).val("");
+          });
+
           // Clear filters
           $(".badge.filter").each(function (idx, elThis) {
             var target;
@@ -2689,6 +2688,15 @@ var ru = (function ($, ru) {
               $(this).val(sOrder);
             });
           }
+
+          // Copy any generic filter contents
+          $("input[data-initial][data-target]").each(function (idx, elThis) {
+            var target = $(elThis).attr("data-target");
+            if (target !== undefined && target !== "") {
+              // Copy the value to there
+              $(target).val($(elThis).val());
+            }
+          });
 
           // Get to the form
           frm = $(elStart).closest('form');

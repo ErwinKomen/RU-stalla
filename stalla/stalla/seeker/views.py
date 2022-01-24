@@ -731,14 +731,16 @@ class WerkstukDetails(WerkstukEdit):
             morepicts = []
             for field in instance.get_available('dubnummer'  ):
                 img_html, sTitle = instance.get_image_html(self.language, field=field)
-                morepicts.append(dict(img=img_html, title=sTitle, info=sTitle))
+                if not img_html is None:
+                    morepicts.append(dict(img=img_html, title=sTitle, info=sTitle))
             context['morepicts'] = morepicts
 
             # (4) addition: parallels
             parallels = []
             for field in instance.get_available('nummer'):
                 img_html, sTitle = instance.get_image_html(self.language, field=field)
-                parallels.append(dict(img=img_html, title=sTitle, info=sTitle))
+                if not img_html is None:
+                    parallels.append(dict(img=img_html, title=sTitle, info=sTitle))
             context['parallels'] = parallels
 
             # (5) addition: remarks
@@ -866,6 +868,9 @@ class WerkstukListview(BasicList):
                         section['enabled'] = True
                         break
             context['filter_sections'] = self.filter_sections
+
+            # Possibly take over generic_search
+            context['generic_search'] = self.qd.get("generic_search", "")
 
             # Calculate how many items will be shown on the map
             qs_mapview = self.qs.exclude(locatie__x_coordinaat="onbekend")
