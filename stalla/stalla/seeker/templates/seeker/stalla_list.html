@@ -102,7 +102,7 @@
         <div class="panel panel-none generic-search">
           <div class="row alt-form-row">
             <div class="col-md-10">
-              <input class="searching" type="text" 
+              <input class="searching" type="text" id="generic-search-input"
                      data-target="#generic_search" data-initial="{{generic_search}}"
                      placeholder="{% trans 'Search in description or object number' %}" />
               <!-- Hier was een vergrootglas -->
@@ -129,7 +129,7 @@
                 <div class="hidden search_ordered_start">
                   <input name="o" type="text" value="{{sortOrder}}" />
                   <input name="w" type="text" value="{{colWrap}}" />
-                  <input name="generic_search" id="generic_search" type="text" />
+                  <input name="wer-generic" id="generic_search" type="text" />
                 </div>
 
                 {% if downloads %}

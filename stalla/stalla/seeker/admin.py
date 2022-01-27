@@ -61,11 +61,11 @@ class NewsItemAdmin(admin.ModelAdmin):
 
 
 class TagAdmin(admin.ModelAdmin):
-    """Display and edit of [NewsItem] definitions"""
+    """Display and edit of [Tag] definitions"""
 
-    list_display = ['abbr', 'name', 'eng' ]
-    search_fields = ['abbr', 'name', 'eng']
-    fields = ['abbr', 'name', 'eng']
+    list_display = ['abbr', 'field', 'name', 'eng' ]
+    search_fields = ['abbr', 'field', 'name', 'eng']
+    fields = ['abbr', 'field', 'name', 'eng']
     ordering = ['abbr']
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'class': 'mytextarea'})},

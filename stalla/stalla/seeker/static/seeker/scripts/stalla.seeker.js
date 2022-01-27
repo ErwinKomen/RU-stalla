@@ -1101,6 +1101,9 @@ var ru = (function ($, ru) {
               $(".werkstuk-map").css("height", height + "px");
               $(".werkstuk-map").css("width", width + "px");
 
+              // And copy the generic search value
+              $("#generic_search").val($("#generic-search-input").val());
+
               // Initiate showing a map
               ru.mapview.stalla_map(elStart);
               break;

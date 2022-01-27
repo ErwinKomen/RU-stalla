@@ -98,7 +98,7 @@ msgstr "Kies een locatie..."
 
 #: .\stalla\seeker\templates\seeker\stalla_list.html:106
 msgid "Search in description or object number"
-msgstr "Zoek in de beschrijving en het objectnummer"
+msgstr "Zoek in de beschrijving of het objectnummer"
 
 #: .\stalla\seeker\templates\seeker\stalla_list.html:110
 msgid "results"

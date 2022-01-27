@@ -13,8 +13,67 @@
 
   {% if user.is_authenticated %}
 
-    <!-- Add codicologial layer to newly imported manuscripts -->
     {% if user.is_superuser %}
+      <!-- Syncing is for superusers -->
+
+      <fieldset class="module aligned" >
+        <div class="row" style="border: 1px solid darkgray; padding-top: 15px;  padding-bottom: 15px;">
+          <div class="col-md-4">
+            <h3 class="straight" style="margin-top: 0px; margin-left: 10px;">JSON data on the server</h3>
+              <p style="margin-top: 0px; margin-left: 10px;">This updates the database data from the JSON data in the media directory.</p>
+          </div>
+          <div class="col-md-8">
+            <form id="sync_form_jsondata" method="POST">
+ 
+
+              <div class="row">&nbsp;</div>
+              <div class="row">
+                <div class="col-md-4">
+                  <span><a id="sync_start_jsondata" class="btn btn-primary btn-xs" 
+                      sync-start="{% url 'sync_start' %}?synctype=jsondata" 
+                      sync-progress="{% url 'sync_progress' %}?synctype=jsondata" 
+                      onclick="ru.stalla.sync_start('jsondata')">Update data from JSON</a>
+                  </span>
+                </div>
+                <div id="sync_progress_jsondata" class="col-md-8">
+                  <!-- This is where the progress will be reported -->
+                </div>
+              </div>
+              <div class="row">
+                <div id="sync_details_jsondata" class="col-md-12"></div>
+              </div>
+
+              <div class="row">&nbsp;</div>
+              <div class="row">
+                <div class="col-md-4">
+                  <a class="btn btn-default btn-xs" data-target="#json_explanation" data-toggle="collapse">Details...</a>
+                </div>
+              </div>
+              <div class="collapse row" id="json_explanation">
+                <div class="col-md-12">
+                  These are the steps to be taken, when doing an update:
+                  <ul>
+                    <li>Backup the SQlite database on the server into database/bkup directory</li>
+                    <li>Receive the STALLA.mdb file, rename it into STALLA_{datum}.mdb, and copy it to the server (e.g. using FileZilla) into the directory 
+                    <code>/var/www/writable/media/stalla</code></li>
+                    <li>While on the server, in the directory above, execute the shell script <code>mdb_to_json_tables.sh</code>.
+                    This will create 7 JSON files, one for each table in the Stalla Access database</li>
+                    <li>Sign in on the Stalla web application</li>
+                    <li>Go to Special > Synchronization...</li>
+                    <li>Then press the button <code>Update data from JSON</code>, and wait until it is finished.</li>
+                  </ul>
+                  This process may take some time, and it will intensively use resources. 
+                  So make sure to do this at an opportune moment!
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="row">&nbsp;</div>
+
       <fieldset class="module aligned" >
         <div class="row" style="border: 1px solid darkgray; padding-top: 15px;  padding-bottom: 15px;">
           <div class="col-md-4">
@@ -27,24 +86,30 @@
 
               <div class="row">&nbsp;</div>
               <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <span><a id="sync_start_userdata" class="btn btn-primary btn-xs" 
                       sync-start="{% url 'sync_start' %}?synctype=userdata" 
                       sync-progress="{% url 'sync_progress' %}?synctype=userdata" 
-                      onclick="ru.stalla.sync_start('userdata')">Update data from Excel</a>
+                      data-target="#excel_message"
+                      data-toggle="collapse"
+                      was-earlier-onclick="ru.stalla.sync_start('userdata')">Update data from Excel</a>
                   </span>
                 </div>
-                <div id="sync_progress_userdata" class="col-md-9">
+                <div id="sync_progress_userdata" class="col-md-8">
                   <!-- This is where the progress will be reported -->
+                  <div id="excel_message" class="collapse">Sorry, but this was a one-time only upload from Excel. No longer active. Please use the Update-data-from-JSON instead.</div>
                 </div>
               </div>
-              <div id="sync_details_userdata" class="row"></div>
+              <div class="row">
+                <div id="sync_details_userdata" class="col-md-12"></div>
+              </div>
             </form>
           </div>
         </div>
       </fieldset>
 
       <div class="row">&nbsp;</div>
+
     {% endif %}
 
   {% else %}

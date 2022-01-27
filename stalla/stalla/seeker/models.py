@@ -264,6 +264,22 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
                     if obj == None:
                         lstQ[path] = value
                     elif getattr(obj,path) != value:
+                        # Log change
+                        oErr.Status("custom_add change {} from {} into {}".format(path,getattr(obj,path), value ))
+                        # Perform the change
+                        setattr(obj, path, value)
+                        bNeedsSaving = True
+                elif type == "intfield":
+                    # Convert to integer if needed
+                    if isinstance(value, str):
+                        value = int(value)
+                    # Set the correct field's value
+                    if obj == None:
+                        lstQ[path] = value
+                    elif getattr(obj,path) != value:
+                        # Log change
+                        oErr.Status("custom_add change {} from {} into {}".format(path,getattr(obj,path), value ))
+                        # Perform the change
                         setattr(obj, path, value)
                         bNeedsSaving = True
                 elif type == "fk":
@@ -277,16 +293,24 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
                             if obj == None:
                                 lstQ[path]  = instance
                             elif getattr(obj,path) != instance:
+                                # Log change
+                                org = getattr(obj,path)
+                                original = "None" if org is None else org.id
+                                target = "None" if instance is None else instance.id
+                                oErr.Status("custom_add change {} from {} into {}".format(path, original, target ))
+                                # Perform the change
                                 setattr(obj, path, instance)
                                 bNeedsSaving = True
                 elif type == "func":
                     # Set the KV in a special way
                     if obj == None:
+                        # Creating a new one: response will be dictionary
                         oResponse = cls.custom_set(None, path, value, oWerkstuk, **kwargs)
                         if oResponse != None:
                             for k,v in oResponse.items():
                                 lstQ[k] = v
                     else:
+                        # Existing one: response will be boolean
                         bNeedsSaving = obj.custom_set(path, value, oWerkstuk, **kwargs)
 
         # Make sure the update the object
@@ -338,6 +362,65 @@ def process_userdata(oStatus):
         filename = os.path.abspath(os.path.join(MEDIA_DIR, "stalla", "StallaTables.xlsx"))
 
         oResult = Werkstuk.read_excel(oStatus, filename)
+
+        # We are done!
+        oStatus.set("done", oBack)
+
+        # return positively
+        oBack['result'] = True
+        return oBack
+    except:
+        oStatus.set("error")
+        oErr.DoError("process_userdata", True)
+        return oBack
+
+def process_jsondata(oStatus):
+    """Read userdata from JSON files"""
+
+    oBack = {}
+    oErr = ErrHandle()
+    lst_table = ["object", "iconclass", "Kunstenaar", "literatuur",
+                 "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
+    try:
+        oStatus.set("preparing")
+
+        # Read and combine the JSON table files
+        oStallaData = {}
+        for tblName in lst_table:
+            tbl_this = []
+
+            # We are reading this file
+            oBack['table'] = tblName
+            oStatus.set("reading", oBack)
+
+            # Get full path
+            tblFile = os.path.abspath(os.path.join(MEDIA_DIR, "stalla", "{}.json".format(tblName)))
+            # Read table
+            with open(tblFile, "r", encoding="utf-8") as fp:
+                for line in fp:
+                    oLine = json.loads(line)
+                    # Change all keys to lower case
+                    oNew = {k.lower(): v for k,v in oLine.items()}
+                    tbl_this.append(oNew)
+            # Add this table to the data
+            oStallaData[tblName] = tbl_this
+        # Save the whole stalla JSON
+        filename = os.path.abspath(os.path.join(MEDIA_DIR, "stalla", "StallaTables.json"))
+
+        # We are saving this file
+        oBack['table'] = "all done"
+        oBack['file'] = filename
+        oStatus.set("saving", oBack)
+
+        with open(filename, "w", encoding="utf-8") as fp:
+            json.dump(oStallaData, fp)
+
+        # We are saving this file
+        oBack['table'] = "all done"
+        oBack['file'] = "saved"
+        oStatus.set("saving", oBack)
+
+        oResult = Werkstuk.read_json(oStatus, filename)
 
         # We are done!
         oStatus.set("done", oBack)
@@ -711,8 +794,10 @@ class Tag(models.Model):
     abbr = models.CharField("Abbreviation",  max_length=MAX_TEXT_LEN, blank=True)
     # [1] Name
     name = models.CharField("Name (nld)",  max_length=MAX_TEXT_LEN)
-    # [1] Name
+    # [0-1] Name
     eng = models.CharField("Name (eng)",  max_length=MAX_TEXT_LEN, blank=True)
+    # [0-1] Field
+    field = models.CharField("Field in object",  max_length=MAX_TEXT_LEN, blank=True)
 
     def __str__(self):
         return self.name
@@ -979,10 +1064,10 @@ class Werkstuk(models.Model):
         {'name': 'beschrijving_ned',    'type': 'field',    'path': 'beschrijving_nl'},
         {'name': 'beschrijving_eng',    'type': 'field',    'path': 'beschrijving_en'},
         {'name': 'nietopnet',           'type': 'field',    'path': 'nietopnet'},
-        {'name': 'begindatum',          'type': 'field',    'path': 'begindatum'},
-        {'name': 'einddatum',           'type': 'field',    'path': 'einddatum'},
+        {'name': 'begindatum',          'type': 'intfield', 'path': 'begindatum'},
+        {'name': 'einddatum',           'type': 'intfield', 'path': 'einddatum'},
         {'name': 'afmetingen',          'type': 'field',    'path': 'afmetingen'},
-        {'name': 'materiaal',           'type': 'field',    'path': 'materiaal'},
+        {'name': 'materiaal',           'type': 'func',     'path': 'materiaal'},
         {'name': 'toestand',            'type': 'field',    'path': 'toestand'},
         {'name': 'begindatering_foto',  'type': 'field',    'path': 'begindatering_foto'},
         {'name': 'einddatering_foto',   'type': 'field',    'path': 'einddatering_foto'},
@@ -1065,8 +1150,18 @@ class Werkstuk(models.Model):
 
         oErr = ErrHandle()
         aard_abbr = {"4": "prof", "5": "reli", "6": "uncl"}
+        materiaal_abbr = dict(eikenhout= "eik", 
+                              notenhout="noot", 
+                              grenenhout="gre",
+                              kalksteen="kal",
+                              onbekend="unkn")
         lstQ = {}
         try:
+            # The nature of [lstQ] depends on whether we are creating something new or not
+            if not self is None:
+                lstQ = False
+
+            # Make sure we have the right information
             profile = kwargs.get("profile")
             username = kwargs.get("username")
             team_group = kwargs.get("team_group")
@@ -1079,15 +1174,17 @@ class Werkstuk(models.Model):
 
             if path == "aard":
                 # Get the abbreviation
-                abbr = aard_abbr[value]
+                abbr = aard_abbr[str(value)]
                 # Set the value
                 if self == None:
                     lstQ['aard'] = abbr
                 else:
                     if self.aard != abbr:
+                        # Log change
+                        oErr.Status("custom_add change [aard] from {} into {}".format(self.aard, abbr))
+                        # Perform change
                         self.aard = abbr
-                    else:
-                        lstQ = False
+                        lstQ = True
             elif path == "fotograaf" and value != "":
                 # Find the photographer
                 obj = Photographer.objects.filter(name=value).first()
@@ -1098,9 +1195,13 @@ class Werkstuk(models.Model):
                     lstQ['fotograaf'] = obj
                 else:
                     if self.fotograaf != obj:
+                        # Log change
+                        original = "None" if self.fotograaf is None else self.fotograaf.id
+                        target = "None" if obj is None else obj.id
+                        oErr.Status("custom_add change [aard] from {} into {}".format(original, target))
+                        # Perform change
                         self.fotograaf = obj                
-                    else:
-                        lstQ = False
+                        lstQ = True
             elif path == "locatie":
                 name = oWerkstuk.get('locatie')
                 land = oWerkstuk.get('land')
@@ -1108,18 +1209,24 @@ class Werkstuk(models.Model):
                 x_coordinaat = oWerkstuk.get('x-coördinaat')
                 y_coordinaat = oWerkstuk.get('y-coördinaat')
                 # Find the Location entry
-                obj = Location.objects.filter(name=name, land=land, plaats=plaats).first()
+                country = Country.objects.filter(name__iexact=land).first()
+                city = City.objects.filter(name__iexact=plaats, country=country).first()
+                obj = Location.objects.filter(name__iexact=name, country=country, city=city).first()
                 if obj == None:
-                    obj = Location.objects.create(name=name, land=land, plaats=plaats, 
+                    obj = Location.objects.create(name=name, country=country, city=city, 
                                                   x_coordinaat=x_coordinaat, y_coordinaat=y_coordinaat)
                 # Set myself
                 if self == None:
                     lstQ['locatie'] = obj
                 else:
                     if self.locatie != obj:
+                        # Log change
+                        original = "None" if self.locatie is None else self.locatie.id
+                        target = "None" if obj is None else obj.id
+                        oErr.Status("custom_add change [aard] from {} into {}".format(original, target))
+                        # Perform change
                         self.locatie = obj
-                    else:
-                        lstQ = False
+                        lstQ = True
             elif path == "soort":
                 soort = oWerkstuk.get("soort")
                 soort_eng = oWerkstuk.get("soort_engels")
@@ -1132,9 +1239,29 @@ class Werkstuk(models.Model):
                     lstQ['soort'] = obj
                 else:
                     if self.soort != obj:
+                        # Log change
+                        original = "None" if self.soort is None else self.soort.id
+                        target = "None" if obj is None else obj.id
+                        oErr.Status("custom_add change [aard] from {} into {}".format(original, target))
+                        # Perform change
                         self.soort = obj
-                    else:
-                        lstQ = False
+                        lstQ = True
+            elif path == "materiaal":
+                # Only three choices recognized
+                materiaal = oWerkstuk.get("materiaal")
+                abbr = materiaal_abbr[materiaal.lower()]
+                # Set the value
+                if self == None:
+                    lstQ['materiaal'] = abbr
+                else:
+                    if self.materiaal != abbr:
+                        # Log change
+                        oErr.Status("custom_add change [materiaal] from {} into {}".format(self.materiaal, abbr))
+                        # Perform change
+                        self.materiaal = abbr
+                        lstQ = True
+
+                # Find the materiaal entry
             else:
                 # Figure out what to do in this case
                 pass
@@ -1142,7 +1269,7 @@ class Werkstuk(models.Model):
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Werkstuk/custom_set")
-            lstQ = None
+            lstQ = {} if self is None else False
         return lstQ
 
     def custom_tags(oWerkstuk, addonly = False, taglist = None):
@@ -1152,13 +1279,14 @@ class Werkstuk(models.Model):
         bFound = True
         try:
             if taglist == None:
-                taglist = [{"id": x.id, "name": x.name} for x in Tag.objects.all()]
+                taglist = [{"id": x.id, "name": x.name, "field": x.field} for x in Tag.objects.all()]
             accessid = oWerkstuk['objectid']
             obj = Werkstuk.objects.filter(accessid=accessid).first()
             if obj != None:
                 # Walk all tags
                 for oTag in taglist:
-                    tagvalue = oWerkstuk[oTag['name'].lower()]
+                    # tagvalue = oWerkstuk[oTag['name'].lower()]
+                    tagvalue = oWerkstuk[oTag['field']]
                     if tagvalue == "True" or tagvalue == "1":
                         # see if it is there
                         wtag = WerkstukTag.objects.filter(werkstuk=obj, tag_id=oTag['id']).first()
@@ -1501,6 +1629,167 @@ class Werkstuk(models.Model):
         # Return the correct result
         return oResult
             
+    def read_json(oStatus, fname):
+        """Update information from JSON file"""
+
+        oErr = ErrHandle()
+        oResult = {}
+        oBack = {}
+        count = 0
+        lst_all = ["object", "iconclass", "Kunstenaar", "literatuur", "tags",
+                    "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
+        lst_skip = []
+        oStallaData = {}
+
+        try:
+            # Check
+            if not os.path.exists(fname) or not os.path.isfile(fname):
+                # Return negatively
+                oErr.Status("Werkstuk/read_json: cannot read {}".format(fname))
+                oResult['status'] = "error"
+                oResult['msg'] = "Werkstuk/read_json: cannot read {}".format(fname)
+                return oResult
+
+            # Read the JSON data into an object
+            with open(fname, "r", encoding="utf-8") as fp:
+                oStallaData = json.load(fp)
+
+            # We are saving this file
+            oBack['file'] = "loaded JSON"
+            oStatus.set("loaded", oBack)
+
+            # Pre-load taglist
+            taglist = [{"id": x.id, "name": x.name, "field": x.field} for x in Tag.objects.all()]
+
+            # (1) Read the 'object' table with new werkstukken
+            oStatus.set("tables 1", {'table': 'object'})
+            if "object" not in lst_skip:
+                count = 0
+                # Read the 
+                with transaction.atomic():
+                    for oRow in oStallaData['object']:
+                        # Show where we are
+                        count += 1
+                        oStatus.set("reading object {}".format(count))
+                        # Process this item into the database
+                        custom_add(oRow, Werkstuk, "objectid")
+
+            # (2) Read the 'iconclass' objects
+            oStatus.set("tables 2", {'table': 'iconclass'})
+            if "iconclass" not in lst_skip:
+                count = 0
+                bAddOnly = (IconClass.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in oStallaData['iconclass']:
+                        # Show where we are
+                        count += 1
+                        oStatus.set("reading iconclass {}".format(count))
+                        # Process this item into the database
+                        custom_add(oRow, IconClass, "iconclassID")
+
+            # (3) Read the 'Kunstenaar' objects
+            oStatus.set("tables 3", {'table': 'Kunstenaar'})
+            if "Kunstenaar" not in lst_skip:
+                count = 0
+                bAddOnly = (Kunstenaar.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in oStallaData['Kunstenaar']:
+                        # Show where we are
+                        count += 1
+                        oStatus.set("reading kunstenaar {}".format(count))
+                        # Process this item into the database
+                        custom_add(oRow, Kunstenaar, "KunstenaarID")
+
+            # (4) Read the 'literatuur' objects
+            oStatus.set("tables 4", {'table': 'literatuur'})
+            if "literatuur" not in lst_skip:
+                count = 0
+                bAddOnly = (Literatuur.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in oStallaData['literatuur']:
+                        # Show where we are
+                        count += 1
+                        oStatus.set("reading literatuur {}".format(count))
+                        # Process this item into the database
+                        custom_add(oRow, Literatuur, "literatuurID")
+
+            # Update many-to-many relations
+            oStatus.set("tables 5", {'table': 'tags'})
+            if "tags" not in lst_skip:
+                count = 0
+                addonly = (WerkstukTag.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in oStallaData['object']:
+                        # Show where we are
+                        count += 1
+                        if count % 1000 == 0:
+                            oStatus.set("reading tag {}".format(count))
+                            oErr.Status("reading tag {}".format(count))
+                        # Process this item into the database
+                        Werkstuk.custom_tags(oRow, addonly=addonly, taglist=taglist)
+
+            # (2) Read the 'iconclassnotatie' objects
+            oStatus.set("tables 6", {'table': 'iconclassnotatie'})
+            if "iconclassnotatie" not in lst_skip:
+                count = 0
+                bAddOnly = (Iconclassnotatie.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in oStallaData['iconclassnotatie']:
+                        # Show where we are
+                        count += 1
+                        if count % 1000 == 0:
+                            oStatus.set("reading Iconclassnotatie {}".format(count))
+                        # Process this item into the database
+                        objectid = oRow.get("objectid", "")
+                        iconclassid = oRow.get("iconclassid", "")
+                        if objectid != "" and iconclassid != "":
+                            custom_add(oRow, Iconclassnotatie, "iconobjid")
+
+            # (3) Read the 'Kunstenaarnotatie' objects
+            oStatus.set("tables 7", {'table': 'Kunstenaarnotatie'})
+            if "Kunstenaarnotatie" not in lst_skip:
+                count = 0
+                bAddOnly = (Kunstenaarnotatie.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in oStallaData['Kunstenaarnotatie']:
+                        # Show where we are
+                        count += 1
+                        if count % 1000 == 0:
+                            oStatus.set("reading Kunstenaarnotatie {}".format(count))
+                        # Process this item into the database
+                        objectid = oRow.get("objectid", "")
+                        kunstenaarid = oRow.get("kunstenaarid", "")
+                        if objectid != "" and kunstenaarid != "":
+                            custom_add(oRow, Kunstenaarnotatie, "kunstenaarobjid")
+
+            # (4) Read the 'literatuurverwijzing' objects
+            oStatus.set("tables 8", {'table': 'Literatuurverwijzing'})
+            if "Literatuurverwijzing" not in lst_skip:
+                count = 0
+                bAddOnly = (Literatuurverwijzing.objects.count() == 0)
+                with transaction.atomic():
+                    for oRow in oStallaData['Literatuurverwijzing']:
+                        # Show where we are
+                        count += 1
+                        if count % 1000 == 0:
+                            oStatus.set("reading Literatuurverwijzing {}".format(count))
+                        # Process this item into the database
+                        objectid = oRow.get("objectid", "")
+                        literatuurid = oRow.get("literatuurid", "")
+                        if objectid != "" and literatuurid != "":
+                            custom_add(oRow, Literatuurverwijzing, "litobjectid", addonly = bAddOnly)
+
+            # Now we are ready
+            oResult['status'] = "ok"
+            oResult['msg'] = "Read {} items".format(count)
+            oResult['count'] = count
+        except:
+            oResult['status'] = "error"
+            oResult['msg'] = oErr.get_error_message()
+
+        # Return the correct result
+        return oResult
+
 
 class WerkstukTag(models.Model):
     """Link between werkstuk and tag"""

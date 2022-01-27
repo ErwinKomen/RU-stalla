@@ -38,7 +38,7 @@ import csv, re
 from stalla.settings import APP_PREFIX, WRITABLE_DIR, MEDIA_DIR
 from stalla.utils import ErrHandle
 from stalla.seeker.forms import SignUpForm, WerkstukForm
-from stalla.seeker.models import get_now_time, get_current_datetime, process_userdata, \
+from stalla.seeker.models import get_now_time, get_current_datetime, process_userdata, process_jsondata, \
     User, Group, Information, Visit, NewsItem, Status, \
     Werkstuk, Tag, WerkstukTag, Literatuurverwijzing
 from stalla.seeker.adaptations import listview_adaptations
@@ -453,6 +453,8 @@ def sync_start(request):
             data['status'] = 'no sync type specified'
 
         else:
+            # All other update types
+
             # Remove previous status objects for this combination of user/type
             qs = Status.objects.filter(user=username, type=synctype)
             qs.delete()
@@ -466,6 +468,8 @@ def sync_start(request):
 
             # The actual synchronisation process starts here, depending on the type
             if synctype == "userdata":
+                # This updates from the Excel file on the server
+
                 # Now perform the update
                 oStatus.set("loading")
 
@@ -474,6 +478,19 @@ def sync_start(request):
                     data['status'] = 'error'
                 elif oResult != None:
                     data['count'] = oResult
+
+            elif synctype == "jsondata":
+                # This updates from the JSON files created on the server using [mdb_to_json_tables.sh]
+
+                # Now perform the update
+                oStatus.set("loading")
+
+                oResult = process_jsondata(oStatus)
+                if oResult == None or oResult['result'] == False:
+                    data['status'] = 'error'
+                elif oResult != None:
+                    data['count'] = oResult
+
 
     except:
         oErr.DoError("sync_start error")
@@ -804,8 +821,8 @@ class WerkstukListview(BasicList):
             ]
         filters = [ 
             # Free text fields
-            {"name": _('Object number'),   "id": "filter_inventarisnum",    "enabled": False, "section": "main",    "show": "none"},
-            {"name": _("Description"),     "id": "filter_beschrijving",     "enabled": False, "section": "main",    "show": "none"},
+            #{"name": _('Object number'),   "id": "filter_inventarisnum",    "enabled": False, "section": "main",    "show": "none"},
+            #{"name": _("Description"),     "id": "filter_beschrijving",     "enabled": False, "section": "main",    "show": "none"},
             {"name": _("Land"),            "id": "filter_land",             "enabled": False, "section": "location", "show": "none"},
             {"name": _("City"),            "id": "filter_plaats",           "enabled": False, "section": "location", "show": "none"},
             {"name": _("Location"),        "id": "filter_locatie",          "enabled": False, "section": "location", "show": "none"},
@@ -818,9 +835,6 @@ class WerkstukListview(BasicList):
             ]
         searches = [
             {'section': '', 'filterlist': [
-                # Free text searches
-                {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer',     'contains': 'yes'},
-                {'filter': 'beschrijving',  'dbfield': _('beschrijving_en'),'keyS': _('beschrijving_en'),   'contains': 'yes'},
                 # Limited choice searches
                 {'filter': 'land',          'fkfield': 'locatie__city__country',    'keyFk': 'name',    'keyS': 'land'},              # 
                 {'filter': 'plaats',        'fkfield': 'locatie__city',             'keyFk': 'name',    'keyS': 'plaats'},                         # 
@@ -831,7 +845,13 @@ class WerkstukListview(BasicList):
                 {'filter': 'soort',         'fkfield': 'soort',                     'keyList': 'soortlist', 'infield': 'id'                 },
                 {'filter': 'tags',          'fkfield': 'tags', 'keyType': 'and',    'keyFk': 'abbr', 'keyList': 'taglist', 'infield': 'abbr'},
                 ]
-             }
+             },
+             {'section': 'other', 'filterlist': [
+                # Free text searches
+                {'filter': 'inventarisnum', 'dbfield': 'inventarisnummer',  'keyS': 'inventarisnummer',     'contains': 'yes'},
+                {'filter': 'beschrijving',  'dbfield': _('beschrijving_en'),'keyS': _('beschrijving_en'),   'contains': 'yes'},
+                {'filter': 'generic',       'dbfield': 'inventarisnummer',  'keyS': 'generic'}
+                 ]}
             ]
         oErr = ErrHandle()
 
@@ -870,7 +890,7 @@ class WerkstukListview(BasicList):
             context['filter_sections'] = self.filter_sections
 
             # Possibly take over generic_search
-            context['generic_search'] = self.qd.get("generic_search", "")
+            context['generic_search'] = self.qd.get("wer-generic", "")
 
             # Calculate how many items will be shown on the map
             qs_mapview = self.qs.exclude(locatie__x_coordinaat="onbekend")
@@ -945,7 +965,7 @@ class WerkstukListview(BasicList):
                 fields['tags'] = Q(id__in=id_list)
 
             # Look for a generic search
-            generic_search = self.qd.get("generic_search")
+            generic_search = self.qd.get("wer-generic")
             if generic_search != None and generic_search != "":
                 # The user is using the generic text filter search facility
                 f_combi = Q(inventarisnummer__icontains=generic_search)
@@ -987,6 +1007,7 @@ class WerkstukMapView(MapView):
         self.language = "en" if "en" in language else language
 
         # Entries with a 'form' value
+        self.entry_list = []
         self.add_entry('inventarisnummer',  'str', 'inventarisnummer',  'inventarisnummer')
         self.add_entry('locatie',           'fk',  'locatie',           'locatie', fkfield= 'name')
         self.add_entry('country',           'fk',  'locatie__country',  'land', fkfield= 'name')
@@ -1016,7 +1037,7 @@ class WerkstukMapView(MapView):
         # Also get the parameters
         self.param_list = lv.param_list
         # usersearch_id = lv.usersearch_id
-
+        
     def get_popup(self, dialect):
         """Create a popup from the 'key' values defined in [initialize()]"""
 
