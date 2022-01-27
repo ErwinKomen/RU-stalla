@@ -216,7 +216,7 @@ def get_helptext(name):
     return sBack
 
 def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
-    """Add a werkstuk according to the specifications provided"""
+    """Add or change a werkstuk according to the specifications provided"""
 
     oErr = ErrHandle()
     manu = None
@@ -384,43 +384,53 @@ def process_jsondata(oStatus):
     try:
         oStatus.set("preparing")
 
-        # Read and combine the JSON table files
-        oStallaData = {}
-        for tblName in lst_table:
-            tbl_this = []
-
-            # We are reading this file
-            oBack['table'] = tblName
-            oStatus.set("reading", oBack)
-
-            # Get full path
-            tblFile = os.path.abspath(os.path.join(MEDIA_DIR, "stalla", "{}.json".format(tblName)))
-            # Read table
-            with open(tblFile, "r", encoding="utf-8") as fp:
-                for line in fp:
-                    oLine = json.loads(line)
-                    # Change all keys to lower case
-                    oNew = {k.lower(): v for k,v in oLine.items()}
-                    tbl_this.append(oNew)
-            # Add this table to the data
-            oStallaData[tblName] = tbl_this
-        # Save the whole stalla JSON
+        # Get the filename of the combined JSON
         filename = os.path.abspath(os.path.join(MEDIA_DIR, "stalla", "StallaTables.json"))
+        # Does it exist?
+        if os.path.exists(filename):
+            oStatus.set("re-using existing JSON")
 
-        # We are saving this file
-        oBack['table'] = "all done"
-        oBack['file'] = filename
-        oStatus.set("saving", oBack)
+            # Read the JSON data into an object
+            with open(filename, "r", encoding="utf-8") as fp:
+                oStallaData = json.load(fp)
+        else:
+            # Need to create it
 
-        with open(filename, "w", encoding="utf-8") as fp:
-            json.dump(oStallaData, fp)
+            # Read and combine the JSON table files
+            oStallaData = {}
+            for tblName in lst_table:
+                tbl_this = []
+
+                # We are reading this file
+                oBack['table'] = tblName
+                oStatus.set("reading", oBack)
+
+                # Get full path
+                tblFile = os.path.abspath(os.path.join(MEDIA_DIR, "stalla", "{}.json".format(tblName)))
+                # Read table
+                with open(tblFile, "r", encoding="utf-8") as fp:
+                    for line in fp:
+                        oLine = json.loads(line)
+                        # Change all keys to lower case
+                        oNew = {k.lower(): v for k,v in oLine.items()}
+                        tbl_this.append(oNew)
+                # Add this table to the data
+                oStallaData[tblName] = tbl_this
+
+            # We are saving this file
+            oBack['table'] = "Saving new JSON"
+            oBack['file'] = filename
+            oStatus.set("saving", oBack)
+
+            with open(filename, "w", encoding="utf-8") as fp:
+                json.dump(oStallaData, fp, indent=2)
 
         # We are saving this file
         oBack['table'] = "all done"
         oBack['file'] = "saved"
         oStatus.set("saving", oBack)
 
-        oResult = Werkstuk.read_json(oStatus, filename)
+        oResult = Werkstuk.read_json(oStatus, data=oStallaData)
 
         # We are done!
         oStatus.set("done", oBack)
@@ -1145,6 +1155,52 @@ class Werkstuk(models.Model):
             oErr.DoError("Werkstuk/custom_get")
         return sBack
 
+    def custom_m2m(oWerkstuk, clsTarget, clsM2m, rel, fk, extra_fields = None):
+        """"""
+
+        oErr = ErrHandle()
+        try:
+            # Get the objectid (access id)
+            werkstuk = Werkstuk.objects.filter(accessid=oWerkstuk['objectid']).first()
+            if not werkstuk is None:
+                # Get the current iconclass accessids for Iconclass
+                target = [x['targetid'] for x in oWerkstuk['values']]
+                # Get the current list of iconclass access id's
+                current = getattr(werkstuk, rel).all() # werkstuk.werkstuk_iconclass.all()
+                oCurrent = { getattr(x, fk).accessid : getattr(x, fk).id for x in current}
+                # Add relations that are not in there
+                for oItem in oWerkstuk['values']:
+                    targetid = oItem['targetid']
+                    if not targetid in oCurrent:
+                        # Add this relation
+                        obj = clsTarget.objects.filter(accessid=targetid).first()
+                        accessid = oItem['accessid']
+                        args = dict(werkstuk=werkstuk, accessid=accessid)
+                        args[fk] = obj
+
+                        # Possibly add extra fields
+                        if not extra_fields is None:
+                            for extra in extra_fields:
+                                value = oItem.get(extra)
+                                if not value is None:
+                                    args[extra] = value
+
+                        clsM2m.objects.create(**args)
+                # Remove relations that should be deleted
+                delete_id = []
+                for obj in current:
+                    # Check if this accessid should actually occur in the target
+                    targetid = getattr(obj, fk).accessid # obj.iconclass.accessid
+                    if not targetid in target:
+                        # No, it may not occur: add the correct information in [delete_id]
+                        delete_id.append(obj.id)
+                if len(delete_id) > 0:
+                    clsM2m.objects.filter(id__in=delete_id).delete()
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Werkstuk/custom_set")
+            lstQ = {} if self is None else False
+
     def custom_set(self, path, value, oWerkstuk, **kwargs):
         """Set related items"""
 
@@ -1629,8 +1685,43 @@ class Werkstuk(models.Model):
         # Return the correct result
         return oResult
             
-    def read_json(oStatus, fname):
+    def read_json(oStatus, data=None, fname=None):
         """Update information from JSON file"""
+
+        def get_object_dict(oStallaData, tblname, f_target, f_m2m, extra_fields = None):
+            """"""
+
+            oErr = ErrHandle()
+            oList = []
+            oDict = {}
+            try:
+                for oRow in oStallaData[tblname]:
+                    # Within each access table, the Access own id is called ObjectID
+                    objectid = oRow.get("objectid", "")
+                    # The targetid is the access id within the target table
+                    targetid = oRow.get(f_target, "")
+                    # The m2m id is the access id of the 
+                    m2m_id = oRow.get(f_m2m)
+                    oItem = dict(accessid=m2m_id, targetid=targetid)
+
+                    # Possibly add extra fields
+                    if not extra_fields is None:
+                        for extra in extra_fields:
+                            value = oRow.get(extra)
+                            if not value is None:
+                                oItem[extra] = value
+
+                    if objectid != "" and targetid != "":
+                        if objectid in oDict:
+                            oDict[objectid].append(oItem)
+                        else:
+                            oDict[objectid] = [ oItem ]
+                # Turn dict into a list
+                oList = [{'objectid': k, 'values': v} for k, v in oDict.items()]
+            except:
+                msg = oErr.get_error_message()
+                oErr.DoError("get_object_dict")
+            return oList
 
         oErr = ErrHandle()
         oResult = {}
@@ -1640,19 +1731,24 @@ class Werkstuk(models.Model):
                     "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
         lst_skip = []
         oStallaData = {}
+        skip_start = False
 
         try:
-            # Check
-            if not os.path.exists(fname) or not os.path.isfile(fname):
-                # Return negatively
-                oErr.Status("Werkstuk/read_json: cannot read {}".format(fname))
-                oResult['status'] = "error"
-                oResult['msg'] = "Werkstuk/read_json: cannot read {}".format(fname)
-                return oResult
+            if data is None:
+                if not fname is None:
+                    # Check
+                    if not os.path.exists(fname) or not os.path.isfile(fname):
+                        # Return negatively
+                        oErr.Status("Werkstuk/read_json: cannot read {}".format(fname))
+                        oResult['status'] = "error"
+                        oResult['msg'] = "Werkstuk/read_json: cannot read {}".format(fname)
+                        return oResult
 
-            # Read the JSON data into an object
-            with open(fname, "r", encoding="utf-8") as fp:
-                oStallaData = json.load(fp)
+                    # Read the JSON data into an object
+                    with open(fname, "r", encoding="utf-8") as fp:
+                        oStallaData = json.load(fp)
+            else:
+                oStallaData = data
 
             # We are saving this file
             oBack['file'] = "loaded JSON"
@@ -1714,6 +1810,8 @@ class Werkstuk(models.Model):
                         custom_add(oRow, Literatuur, "literatuurID")
 
             # Update many-to-many relations
+
+            # (1) the Tags per object
             oStatus.set("tables 5", {'table': 'tags'})
             if "tags" not in lst_skip:
                 count = 0
@@ -1733,51 +1831,99 @@ class Werkstuk(models.Model):
             if "iconclassnotatie" not in lst_skip:
                 count = 0
                 bAddOnly = (Iconclassnotatie.objects.count() == 0)
-                with transaction.atomic():
-                    for oRow in oStallaData['iconclassnotatie']:
-                        # Show where we are
+                if bAddOnly:
+                    with transaction.atomic():
+                        for oRow in oStallaData['iconclassnotatie']:
+                            # Show where we are
+                            count += 1
+                            if count % 1000 == 0:
+                                oStatus.set("reading Iconclassnotatie {}".format(count))
+                            # Process this item into the database
+                            objectid = oRow.get("objectid", "")
+                            iconclassid = oRow.get("iconclassid", "")
+                            if objectid != "" and iconclassid != "":
+                                custom_add(oRow, Iconclassnotatie, "iconobjid")
+                else:
+                    # Transform the iconclassnotatie lines
+                    oList = get_object_dict(oStallaData, "iconclassnotatie", "iconclassid", "iconobjid")
+
+                    # Walk the list of target values per Werkstuk object
+                    count = 0
+                    for oRow in oList:
+                        # Show where we are 
                         count += 1
                         if count % 1000 == 0:
                             oStatus.set("reading Iconclassnotatie {}".format(count))
-                        # Process this item into the database
-                        objectid = oRow.get("objectid", "")
-                        iconclassid = oRow.get("iconclassid", "")
-                        if objectid != "" and iconclassid != "":
-                            custom_add(oRow, Iconclassnotatie, "iconobjid")
+
+                        # Process the new m2m list
+                        Werkstuk.custom_m2m(oRow, IconClass, Iconclassnotatie, "werkstuk_iconclass", "iconclass")
 
             # (3) Read the 'Kunstenaarnotatie' objects
             oStatus.set("tables 7", {'table': 'Kunstenaarnotatie'})
             if "Kunstenaarnotatie" not in lst_skip:
                 count = 0
                 bAddOnly = (Kunstenaarnotatie.objects.count() == 0)
-                with transaction.atomic():
-                    for oRow in oStallaData['Kunstenaarnotatie']:
-                        # Show where we are
+                if bAddOnly:
+                    with transaction.atomic():
+                        for oRow in oStallaData['Kunstenaarnotatie']:
+                            # Show where we are
+                            count += 1
+                            if count % 1000 == 0:
+                                oStatus.set("reading Kunstenaarnotatie {}".format(count))
+                            # Process this item into the database
+                            objectid = oRow.get("objectid", "")
+                            kunstenaarid = oRow.get("kunstenaarid", "")
+                            if objectid != "" and kunstenaarid != "":
+                                custom_add(oRow, Kunstenaarnotatie, "kunstenaarobjid")
+                else:
+                    # Transform the kunstenaarnotatie lines
+                    oList = get_object_dict(oStallaData, "Kunstenaarnotatie", "kunstenaarid", "kunstenaarobjid")
+
+                    # Walk the list of target values per Werkstuk object
+                    count = 0
+                    for oRow in oList:
+                        # Show where we are 
                         count += 1
                         if count % 1000 == 0:
                             oStatus.set("reading Kunstenaarnotatie {}".format(count))
-                        # Process this item into the database
-                        objectid = oRow.get("objectid", "")
-                        kunstenaarid = oRow.get("kunstenaarid", "")
-                        if objectid != "" and kunstenaarid != "":
-                            custom_add(oRow, Kunstenaarnotatie, "kunstenaarobjid")
+
+                        # Process the new m2m list
+                        Werkstuk.custom_m2m(oRow, Kunstenaar, Kunstenaarnotatie, "werkstuk_kunstenaar", "kunstenaar")
+
 
             # (4) Read the 'literatuurverwijzing' objects
             oStatus.set("tables 8", {'table': 'Literatuurverwijzing'})
             if "Literatuurverwijzing" not in lst_skip:
                 count = 0
                 bAddOnly = (Literatuurverwijzing.objects.count() == 0)
-                with transaction.atomic():
-                    for oRow in oStallaData['Literatuurverwijzing']:
-                        # Show where we are
+                if bAddOnly:
+                    with transaction.atomic():
+                        for oRow in oStallaData['Literatuurverwijzing']:
+                            # Show where we are
+                            count += 1
+                            if count % 1000 == 0:
+                                oStatus.set("reading Literatuurverwijzing {}".format(count))
+                            # Process this item into the database
+                            objectid = oRow.get("objectid", "")
+                            literatuurid = oRow.get("literatuurid", "")
+                            if objectid != "" and literatuurid != "":
+                                custom_add(oRow, Literatuurverwijzing, "litobjectid", addonly = bAddOnly)
+                else:
+                    # Transform the iconclassnotatie lines
+                    oList = get_object_dict(oStallaData, "Literatuurverwijzing", "literatuurid", "litobjectid",
+                                            extra_fields = ['paginaverwijzing', 'exemplaar'])
+
+                    # Walk the list of target values per Werkstuk object
+                    count = 0
+                    for oRow in oList:
+                        # Show where we are 
                         count += 1
                         if count % 1000 == 0:
                             oStatus.set("reading Literatuurverwijzing {}".format(count))
-                        # Process this item into the database
-                        objectid = oRow.get("objectid", "")
-                        literatuurid = oRow.get("literatuurid", "")
-                        if objectid != "" and literatuurid != "":
-                            custom_add(oRow, Literatuurverwijzing, "litobjectid", addonly = bAddOnly)
+
+                        # Process the new m2m list
+                        Werkstuk.custom_m2m(oRow, Literatuur, Literatuurverwijzing, "werkstuk_literatuur", "literatuur",
+                                            extra_fields = ['paginaverwijzing', 'exemplaar'])
 
             # Now we are ready
             oResult['status'] = "ok"
