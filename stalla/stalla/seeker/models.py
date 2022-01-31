@@ -256,6 +256,8 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
                 type = oField.get("type")
                 if type == None: type = "field"
                 if type == "field":
+                    if isinstance(value, str):
+                        value = value.strip()
                     # Possibly correct for field type
                     if value in ['True', 'False']:
                         value = True if value == "True" else False
@@ -380,7 +382,7 @@ def process_jsondata(oStatus):
     oBack = {}
     oErr = ErrHandle()
     lst_table = ["object", "iconclass", "Kunstenaar", "literatuur",
-                 "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
+                 "iconclassnotatie", "Kunstenaarnotatie", "literatuurverwijzing"]
     try:
         oStatus.set("preparing")
 
@@ -1561,9 +1563,9 @@ class Werkstuk(models.Model):
         oResult = {}
         count = 0
         lst_all = ["object", "iconclass", "Kunstenaar", "literatuur", "tags",
-                    "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
+                    "iconclassnotatie", "Kunstenaarnotatie", "literatuurverwijzing"]
         lst_skip = ["object", "iconclass", "Kunstenaar", "literatuur",
-                    "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
+                    "iconclassnotatie", "Kunstenaarnotatie", "literatuurverwijzing"]
 
         try:
             # Check
@@ -1661,7 +1663,7 @@ class Werkstuk(models.Model):
                         custom_add(oRow, Kunstenaarnotatie, "kunstenaarobjid")
 
             # (4) Read the 'literatuurverwijzing' objects
-            if "Literatuurverwijzing" not in lst_skip:
+            if "literatuurverwijzing" not in lst_skip:
                 count = 0
                 bAddOnly = (Literatuurverwijzing.objects.count() == 0)
                 with transaction.atomic():
@@ -1728,7 +1730,7 @@ class Werkstuk(models.Model):
         oBack = {}
         count = 0
         lst_all = ["object", "iconclass", "Kunstenaar", "literatuur", "tags",
-                    "iconclassnotatie", "Kunstenaarnotatie", "Literatuurverwijzing"]
+                    "iconclassnotatie", "Kunstenaarnotatie", "literatuurverwijzing"]
         lst_skip = []
         oStallaData = {}
         skip_start = False
@@ -1892,17 +1894,17 @@ class Werkstuk(models.Model):
 
 
             # (4) Read the 'literatuurverwijzing' objects
-            oStatus.set("tables 8", {'table': 'Literatuurverwijzing'})
-            if "Literatuurverwijzing" not in lst_skip:
+            oStatus.set("tables 8", {'table': 'literatuurverwijzing'})
+            if "literatuurverwijzing" not in lst_skip:
                 count = 0
                 bAddOnly = (Literatuurverwijzing.objects.count() == 0)
                 if bAddOnly:
                     with transaction.atomic():
-                        for oRow in oStallaData['Literatuurverwijzing']:
+                        for oRow in oStallaData['literatuurverwijzing']:
                             # Show where we are
                             count += 1
                             if count % 1000 == 0:
-                                oStatus.set("reading Literatuurverwijzing {}".format(count))
+                                oStatus.set("reading literatuurverwijzing {}".format(count))
                             # Process this item into the database
                             objectid = oRow.get("objectid", "")
                             literatuurid = oRow.get("literatuurid", "")
@@ -1910,7 +1912,7 @@ class Werkstuk(models.Model):
                                 custom_add(oRow, Literatuurverwijzing, "litobjectid", addonly = bAddOnly)
                 else:
                     # Transform the iconclassnotatie lines
-                    oList = get_object_dict(oStallaData, "Literatuurverwijzing", "literatuurid", "litobjectid",
+                    oList = get_object_dict(oStallaData, "literatuurverwijzing", "literatuurid", "litobjectid",
                                             extra_fields = ['paginaverwijzing', 'exemplaar'])
 
                     # Walk the list of target values per Werkstuk object
