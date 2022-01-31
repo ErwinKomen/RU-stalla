@@ -817,6 +817,7 @@ class WerkstukListview(BasicList):
             {"id": "main",      "section": ""},
             {"id": "location",  "section": _("Location")},
             {"id": "dating",    "section": _("Dating")},
+            {"id": "parting",   "section": _("Parts")},
             {"id": "typing",    "section": _("Category")},
             ]
         filters = [ 
@@ -826,12 +827,13 @@ class WerkstukListview(BasicList):
             {"name": _("Land"),            "id": "filter_land",             "enabled": False, "section": "location", "show": "none"},
             {"name": _("City"),            "id": "filter_plaats",           "enabled": False, "section": "location", "show": "none"},
             {"name": _("Location"),        "id": "filter_locatie",          "enabled": False, "section": "location", "show": "none"},
-            {"name": _("From (year)"),     "id": "filter_datestart",        "enabled": False, "section": "dating",  "show": "label"},
-            {"name": _("Until (year)"),    "id": "filter_dateuntil",        "enabled": False, "section": "dating",  "show": "label"},
+            {"name": _("From (year)"),     "id": "filter_datestart",        "enabled": False, "section": "dating",   "show": "label"},
+            {"name": _("Until (year)"),    "id": "filter_dateuntil",        "enabled": False, "section": "dating",   "show": "label"},
             # Limited choice fields
-            {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False, "section": "typing",  "show": "none"},
-            {"name": _("Part"),            "id": "filter_soort",            "enabled": False, "section": "typing",  "show": "none"},
-            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False, "section": "typing",  "show": "label"},
+            # Issue #23: remove aard filtering
+            # {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False, "section": "typing",  "show": "none"},
+            {"name": _("Parts"),           "id": "filter_soort",            "enabled": False, "section": "parting",  "show": "none"},
+            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False, "section": "typing",   "show": "label"},
             ]
         searches = [
             {'section': '', 'filterlist': [
@@ -841,7 +843,8 @@ class WerkstukListview(BasicList):
                 {'filter': 'locatie',       'fkfield': 'locatie',                   'keyFk': 'name',    'keyS': 'locatie'},                                # 
                 {'filter': 'datestart',     'dbfield': 'begindatum__gte',           'keyS': 'date_from'},
                 {'filter': 'dateuntil',     'dbfield': 'einddatum__lte',            'keyS': 'date_until'},
-                {'filter': 'aardtype',      'dbfield': 'aard', 'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist'           },
+                # Issue #23: remove aard filtering
+                # {'filter': 'aardtype',      'dbfield': 'aard', 'keyType': 'fieldchoice', 'infield': 'abbr', 'keyList': 'aardlist'           },
                 {'filter': 'soort',         'fkfield': 'soort',                     'keyList': 'soortlist', 'infield': 'id'                 },
                 {'filter': 'tags',          'fkfield': 'tags', 'keyType': 'and',    'keyFk': 'abbr', 'keyList': 'taglist', 'infield': 'abbr'},
                 ]
