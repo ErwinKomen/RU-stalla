@@ -407,6 +407,21 @@ def nlogin(request):
     context['is_app_uploader'] = user_is_ingroup(request, app_uploader)
     return render(request,'nlogin.html', context)
 
+@csrf_exempt
+def image_upload_handler(request):
+    oErr = ErrHandle()
+    data = {'status': 'starting'}
+    try:
+        if request.method == 'POST':
+            file = request.FILES['file']
+        x = 1
+    except:
+        oErr.DoError("upload_image error")
+        data['status'] = "error"
+
+    # Return this response
+    return JsonResponse(data)
+
 # ================ OTHER VIEW HELP FUNCTIONS ============================
 
 def sync_stalla(request):

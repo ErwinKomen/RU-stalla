@@ -34,6 +34,7 @@ urlpatterns = [
     path('nlogin/', stalla.seeker.views.nlogin, name='nlogin'),
 
     path('api/listhelp', stalla.basic.views.listhelp, name='listhelp'),
+    path('api/image/', stalla.seeker.views.image_upload_handler, name='image_upload_handler'),
 
     path('sync/stalla/', stalla.seeker.views.sync_stalla, name='sync_stalla'),
     path('sync/start/', stalla.seeker.views.sync_start, name='sync_start'),
