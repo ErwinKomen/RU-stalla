@@ -624,6 +624,7 @@ class WerkstukEdit(BasicDetails):
     # no_delete = True
     show_headers = False
     permission = "readonly"
+    authenticated = True
     mainitems = []
     literature_def = []
 
@@ -641,7 +642,7 @@ class WerkstukEdit(BasicDetails):
                 {'type': 'safe',  'label': _("Description"),        'value': instance.get_beschrijving(self.language),     },
                 {'type': 'plain', 'label': _("Object number"),      'value': instance.inventarisnummer,    },
                 {'type': 'plain', 'label': _("Part"),               'value': instance.get_soort(self.language),    },
-                {'type': 'plain', 'label': _("Kind"),               'value': instance.get_aard(self.language),    },
+                {'type': 'plain', 'label': _("Nature"),             'value': instance.get_aard(self.language),    },
                 {'type': 'plain', 'label': _("Artist"),             'value': instance.get_kunstenaren(),    },
                 {'type': 'plain', 'label': _("Position"),           'value': instance.plaats_koorbank,    },
                 {'type': 'plain', 'label': _("Date"),               'value': instance.get_daterange(),    },
@@ -810,6 +811,8 @@ class WerkstukListview(BasicList):
     prefix = "wer"
     new_button = False
     has_select2 = True
+    # view_unauthenticated = True
+    authenticated = True
     template_name = "seeker/stalla_list.html"
     # order_cols = ['inventarisnummer', '', 'aard', 'beschrijving_nl']
     order_cols = ['inventarisnummer', '', 'beschrijving_nl']
@@ -919,6 +922,8 @@ class WerkstukListview(BasicList):
             context['user_button'] = render_to_string("seeker/map_list_switch.html", context, self.request)
 
             context['no_result_count'] = True
+
+            context['authenticated'] = True
 
         except:
             msg = oErr.get_error_message()

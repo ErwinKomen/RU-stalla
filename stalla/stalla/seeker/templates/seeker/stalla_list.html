@@ -23,7 +23,7 @@
         {% include 'mapview/map_view_full.html' %}
 
 
-    {% if authenticated and permission %}
+    {% if authenticated and permission or view_unauthenticated and permission %}
       <!-- Upper part of the basic list interface -->
 
       <div id="basiclist_top" class="container-small" >

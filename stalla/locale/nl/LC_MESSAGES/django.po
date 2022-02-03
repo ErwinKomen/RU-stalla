@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-02 17:11+0100\n"
+"POT-Creation-Date: 2022-02-03 08:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,11 +47,11 @@ msgid "Password"
 msgstr "Wachtwoord"
 
 #: stalla/seeker/forms.py:153
-msgid "Select one or more kind types..."
+msgid "Select one or more nature types..."
 msgstr "Kies één of meer aard types..."
 
 #: stalla/seeker/forms.py:155
-msgid "Select an aard type..."
+msgid "Select a nature type..."
 msgstr "Kies een aard type..."
 
 #: stalla/seeker/forms.py:157
@@ -201,7 +201,7 @@ msgid "Object number"
 msgstr "Objectnummer"
 
 #: stalla/seeker/views.py:644
-msgid "Kind"
+msgid "Nature"
 msgstr "Aard"
 
 #: stalla/seeker/views.py:645
@@ -344,7 +344,7 @@ msgstr "Documentatie"
 
 #: stalla/templates/admin/base.html:55
 #: stalla/templates/archief/topnav_archief.html:74
-#: stalla/templates/topnav.html:73
+#: stalla/templates/topnav.html:59
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
@@ -363,7 +363,6 @@ msgid "To the database"
 msgstr "Naar de database"
 
 #: stalla/templates/archief/index_archief.html:78
-#: stalla/templates/index.html:77
 msgid ""
 "The stalla application has been designed by the Technical Service Group of "
 "the Humanities Lab at the Radboud University Nijmegen.\n"
@@ -374,19 +373,16 @@ msgstr ""
 "is, dan kun je je als medewerker registreren (via "
 
 #: stalla/templates/archief/index_archief.html:81
-#: stalla/templates/index.html:80
 msgid "sign up"
 msgstr "Registreren"
 
 #: stalla/templates/archief/index_archief.html:83
-#: stalla/templates/index.html:82
 msgid ""
 "Regular researchers are able to read and search through the information that "
 "is provided."
 msgstr "Voor gewone zoektochten hoef je niet als gebruiker ingelogd te zijn."
 
 #: stalla/templates/archief/index_archief.html:88
-#: stalla/templates/index.html:87
 msgid "(See the <b>Extra</b> menu for logout and other options)"
 msgstr "(Zie het menu <b>Speciaal</b> voor afmelden en andere opties)"
 
@@ -410,12 +406,12 @@ msgid "About"
 msgstr "Over"
 
 #: stalla/templates/archief/topnav_archief.html:73
-#: stalla/templates/topnav.html:72
+#: stalla/templates/topnav.html:58
 msgid "Log off"
 msgstr "Afmelden"
 
 #: stalla/templates/archief/topnav_archief.html:76
-#: stalla/templates/topnav.html:75
+#: stalla/templates/topnav.html:61
 msgid "Log in"
 msgstr "Aanmelden"
 
@@ -423,15 +419,15 @@ msgstr "Aanmelden"
 msgid "Sign up"
 msgstr "Registreren"
 
-#: stalla/templates/contact.html:12
+#: stalla/templates/contact.html:13
 msgid "Radboud University"
 msgstr "Radboud Universiteit"
 
-#: stalla/templates/contact.html:13
+#: stalla/templates/contact.html:14
 msgid "PO Box"
 msgstr "Postbus"
 
-#: stalla/templates/contact.html:15
+#: stalla/templates/contact.html:16
 msgid "Netherlands"
 msgstr ""
 
@@ -478,6 +474,9 @@ msgstr ""
 "koorbanken en misericorden in Europa. Dit om deze rijke beeldwereld bekender "
 "te maken en om het wetenschappelijk onderzoek naar deze objecten en de "
 "laatmiddeleeuwse beeldtaal die daarbij hoort te ondersteunen"
+
+#~ msgid "Kind"
+#~ msgstr "Aard"
 
 #~ msgid "Location choir stall"
 #~ msgstr "Plaats koorstal"

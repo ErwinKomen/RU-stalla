@@ -150,9 +150,9 @@ class WerkstukForm(forms.ModelForm):
     """A form to update and search in Werkstuk objects"""
 
     aardlist = ModelMultipleChoiceField(queryset=None, required=False, 
-                widget=AardtypeWidget(attrs={'data-placeholder': _('Select one or more kind types...'), 'style': 'width: 100%;', 'class': 'searching'}))
+                widget=AardtypeWidget(attrs={'data-placeholder': _('Select one or more nature types...'), 'style': 'width: 100%;', 'class': 'searching'}))
     aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select an aard type...'), 'style': 'width: 30%;', 'class': 'searching'}))
+                widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select a nature type...'), 'style': 'width: 30%;', 'class': 'searching'}))
     soortlist = ModelMultipleChoiceField(queryset=None, required=False, 
                 widget=SoortWidget(attrs={'data-placeholder': _('Select one or more parts...'), 'style': 'width: 100%;', 'class': 'searching'}))
     land    = forms.ModelChoiceField(queryset=None, required=False, 
@@ -163,7 +163,9 @@ class WerkstukForm(forms.ModelForm):
                 widget=forms.TextInput(attrs={'placeholder': _('Starting from...'),  'style': 'width: 100%;', 'class': 'searching'}))
     date_until  = forms.IntegerField(label=_("Date until"), required = False,
                 widget=forms.TextInput(attrs={'placeholder': _('Until (including)...'),  'style': 'width: 100%;', 'class': 'searching'}))
-    taglist     = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=forms.CheckboxSelectMultiple)
+    # OLD (see issue #15) 
+    # taglist     = forms.ModelMultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
+    taglist     = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
 
     class Meta:
         ATTRS_FOR_FORMS = {'class': 'form-control'};
@@ -209,14 +211,17 @@ class WerkstukForm(forms.ModelForm):
                     '{}-plaats'.format(self.prefix): 'city'}
 
             # Determine what the appropriate sorting will be (language-dependant)
+            tag_choices = []
             if language == "en":
                 # English sorting
                 aard_sorting = "english_name"
                 soort_sorting = "eng"
+                tag_choices = [(x.abbr, x.eng) for x in Tag.objects.all().order_by('name')]
             else:
                 # Dutch sorting
                 aard_sorting = "dutch_name"
                 soort_sorting = "naam"
+                tag_choices = [(x.abbr, x.name) for x in Tag.objects.all().order_by('name')]
             # Widget adjusting
             self.fields['aardlist'].widget.sort_field = aard_sorting
             self.fields['aardtype'].widget.sort_field = aard_sorting
@@ -230,7 +235,9 @@ class WerkstukForm(forms.ModelForm):
             self.fields['plaats'].queryset = City.objects.order_by('name').distinct()
             self.fields['soortlist'].queryset = Soort.objects.all().order_by(soort_sorting).distinct()
 
-            self.fields['taglist'].queryset = Tag.objects.all().order_by('name')
+            # OLD (see issue #15) 
+            #     self.fields['taglist'].queryset = Tag.objects.all().order_by('name')
+            self.fields['taglist'].choices = tag_choices
 
             # Get the instance
             if 'instance' in kwargs:

@@ -811,6 +811,7 @@ class BasicList(ListView):
     use_team_group = False
     admin_editable = False
     permission = True
+    authenticated = False
     usersearch_id = ""
     redirectpage = ""
     lst_typeaheads = []
@@ -1029,7 +1030,7 @@ class BasicList(ListView):
         context['filterhelp_contents'] = self.get_filterhelp()
 
         # Check if user may upload
-        context['is_authenticated'] = user_is_authenticated(self.request)
+        context['is_authenticated'] = user_is_authenticated(self.request) or self.authenticated
         context['authenticated'] = context['is_authenticated'] 
         context['is_app_uploader'] = user_is_ingroup(self.request, app_uploader)
         context['is_app_editor'] = user_is_ingroup(self.request, app_editor)
@@ -1359,7 +1360,7 @@ class BasicList(ListView):
     def get(self, request, *args, **kwargs):
         if self.request == None:
             self.request = request
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated and not self.authenticated:
             # Do not allow to get a good response
             response = redirect(reverse('nlogin'))
         else:
@@ -1422,6 +1423,7 @@ class BasicDetails(DetailView):
     backbutton = True
     userhelp = None         # If this has been called from a listview, this provides access to the list
     params = None
+    authenticated = False
     custombuttons = []
     newRedirect = False     # Redirect the page name to a correct one after creating
     initRedirect = False    # Perform redirect right after initializations
@@ -1441,7 +1443,7 @@ class BasicDetails(DetailView):
 
         # See if access to the list results is needed
 
-        if not request.user.is_authenticated:
+        if not request.user.is_authenticated and not self.authenticated:
             # Do not allow to get a good response
             if self.rtype == "json":
                 data['html'] = "(No authorization)"
@@ -1619,7 +1621,7 @@ class BasicDetails(DetailView):
         oErr = ErrHandle()
 
         # Check this user: is he allowed to UPLOAD data?
-        context['authenticated'] = user_is_authenticated(self.request)
+        context['authenticated'] = user_is_authenticated(self.request) or self.authenticated
         context['is_app_uploader'] = user_is_ingroup(self.request, app_uploader)
         context['is_app_editor'] = user_is_ingroup(self.request, app_editor)
         context['is_app_userplus'] = user_is_ingroup(self.request, app_userplus)
