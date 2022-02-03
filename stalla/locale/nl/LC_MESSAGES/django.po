@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-31 09:09+0100\n"
+"POT-Creation-Date: 2022-02-02 17:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,6 +113,7 @@ msgid "Clear"
 msgstr "Wis"
 
 #: stalla/seeker/templates/seeker/stalla_list.html:256
+#: stalla/templates/archief/topnav_archief.html:25
 #: stalla/templates/topnav.html:25
 msgid "Search"
 msgstr "Zoek"
@@ -181,151 +182,151 @@ msgid "Place"
 msgstr "Plaats"
 
 #: stalla/seeker/templates/seeker/werkstuk_tooltip.html:10
-#: stalla/seeker/views.py:633 stalla/seeker/views.py:818
-#: stalla/seeker/views.py:829
+#: stalla/seeker/views.py:648 stalla/seeker/views.py:833
+#: stalla/seeker/views.py:844
 msgid "Location"
 msgstr "Locatie"
 
 #: stalla/seeker/templates/seeker/werkstuk_tooltip.html:11
-#: stalla/seeker/views.py:628
+#: stalla/seeker/views.py:643
 msgid "Part"
 msgstr "Onderdeel"
 
-#: stalla/seeker/views.py:626 stalla/seeker/views.py:814
+#: stalla/seeker/views.py:641 stalla/seeker/views.py:829
 msgid "Description"
 msgstr "Beschrijving"
 
-#: stalla/seeker/views.py:627 stalla/seeker/views.py:811
+#: stalla/seeker/views.py:642 stalla/seeker/views.py:826
 msgid "Object number"
 msgstr "Objectnummer"
 
-#: stalla/seeker/views.py:629
+#: stalla/seeker/views.py:644
 msgid "Kind"
 msgstr "Aard"
 
-#: stalla/seeker/views.py:630
+#: stalla/seeker/views.py:645
 msgid "Artist"
 msgstr "Kunstenaar"
 
-#: stalla/seeker/views.py:631
+#: stalla/seeker/views.py:646
 msgid "Position"
 msgstr "Positie"
 
-#: stalla/seeker/views.py:632
+#: stalla/seeker/views.py:647
 msgid "Date"
 msgstr "Datering"
 
-#: stalla/seeker/views.py:634
+#: stalla/seeker/views.py:649
 msgid "Photographer"
 msgstr "Fotograaf"
 
-#: stalla/seeker/views.py:635
+#: stalla/seeker/views.py:650
 msgid "Literature notes"
 msgstr "Duiding"
 
-#: stalla/seeker/views.py:636
+#: stalla/seeker/views.py:651
 #, fuzzy
 #| msgid "Category"
 msgid "Categories"
 msgstr "Categorie"
 
-#: stalla/seeker/views.py:645
+#: stalla/seeker/views.py:660
 msgid "Author(s)"
 msgstr "Auteur(s)"
 
-#: stalla/seeker/views.py:646
+#: stalla/seeker/views.py:661
 msgid "Title"
 msgstr "Titel"
 
-#: stalla/seeker/views.py:647 stalla/seeker/views.py:828
+#: stalla/seeker/views.py:662 stalla/seeker/views.py:843
 msgid "City"
 msgstr "Plaats"
 
-#: stalla/seeker/views.py:648
+#: stalla/seeker/views.py:663
 msgid "Year"
 msgstr "Jaar"
 
-#: stalla/seeker/views.py:649
+#: stalla/seeker/views.py:664
 msgid "Journal"
 msgstr "Tijdschrift"
 
-#: stalla/seeker/views.py:650
+#: stalla/seeker/views.py:665
 msgid "Pages"
 msgstr "Pagina's"
 
-#: stalla/seeker/views.py:706
+#: stalla/seeker/views.py:721
 msgid "About the object date"
 msgstr "Over de datering"
 
-#: stalla/seeker/views.py:707
+#: stalla/seeker/views.py:722
 msgid "About the origin"
 msgstr "Over de herkomst"
 
-#: stalla/seeker/views.py:708
+#: stalla/seeker/views.py:723
 msgid "About the condition"
 msgstr "Over de toestand"
 
-#: stalla/seeker/views.py:709
+#: stalla/seeker/views.py:724
 msgid "About the material"
 msgstr "Over het materiaal"
 
-#: stalla/seeker/views.py:710
+#: stalla/seeker/views.py:725
 msgid "About the picture"
 msgstr "Over de fotooto"
 
-#: stalla/seeker/views.py:711
+#: stalla/seeker/views.py:726
 msgid "About the parallels"
 msgstr "Over de parallellen"
 
-#: stalla/seeker/views.py:712
+#: stalla/seeker/views.py:727
 msgid "About the picture date"
 msgstr "Over de datering (afbeelding)"
 
-#: stalla/seeker/views.py:742
+#: stalla/seeker/views.py:757
 msgid "Page details"
 msgstr "Paginaverwijzing"
 
-#: stalla/seeker/views.py:812
+#: stalla/seeker/views.py:827
 msgid "Image"
 msgstr "Afbeelding"
 
-#: stalla/seeker/views.py:819
+#: stalla/seeker/views.py:834
 msgid "Dating"
 msgstr "Datering"
 
-#: stalla/seeker/views.py:820 stalla/seeker/views.py:835
+#: stalla/seeker/views.py:835 stalla/seeker/views.py:850
 msgid "Parts"
 msgstr "Onderdeel"
 
-#: stalla/seeker/views.py:821
+#: stalla/seeker/views.py:836
 msgid "Category"
 msgstr "Categorie"
 
-#: stalla/seeker/views.py:827
+#: stalla/seeker/views.py:842
 msgid "Land"
 msgstr "Land"
 
-#: stalla/seeker/views.py:830
+#: stalla/seeker/views.py:845
 msgid "From (year)"
 msgstr "Vanaf (jaar)"
 
-#: stalla/seeker/views.py:831
+#: stalla/seeker/views.py:846
 msgid "Until (year)"
 msgstr "Tot aan (jaar)"
 
-#: stalla/seeker/views.py:836
+#: stalla/seeker/views.py:851
 msgid "Tags"
 msgstr "Kenmerken"
 
-#: stalla/seeker/views.py:855
+#: stalla/seeker/views.py:870
 msgid "beschrijving_en"
 msgstr "beschrijving_nl"
 
-#: stalla/seeker/views.py:1064
+#: stalla/seeker/views.py:1079
 msgid "Show"
 msgstr "Toon"
 
-#: stalla/seeker/views.py:1065
+#: stalla/seeker/views.py:1080
 msgid "objects in the list"
 msgstr "objecten in de lijst"
 
@@ -341,7 +342,9 @@ msgstr "Site bekijken"
 msgid "Documentation"
 msgstr "Documentatie"
 
-#: stalla/templates/admin/base.html:55 stalla/templates/topnav.html:74
+#: stalla/templates/admin/base.html:55
+#: stalla/templates/archief/topnav_archief.html:74
+#: stalla/templates/topnav.html:73
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
@@ -353,11 +356,14 @@ msgstr "Uitloggen"
 msgid "Home"
 msgstr "Home"
 
-#: stalla/templates/index.html:12
+#: stalla/templates/archief/index_archief.html:11
+#: stalla/templates/archief/index_archief.html:21
+#: stalla/templates/index.html:11
 msgid "To the database"
 msgstr "Naar de database"
 
-#: stalla/templates/index.html:69
+#: stalla/templates/archief/index_archief.html:78
+#: stalla/templates/index.html:77
 msgid ""
 "The stalla application has been designed by the Technical Service Group of "
 "the Humanities Lab at the Radboud University Nijmegen.\n"
@@ -367,47 +373,111 @@ msgstr ""
 "het Humanities Lab van de Radboud Universiteit Nijmegen. Wanneer het nodig "
 "is, dan kun je je als medewerker registreren (via "
 
-#: stalla/templates/index.html:72
+#: stalla/templates/archief/index_archief.html:81
+#: stalla/templates/index.html:80
 msgid "sign up"
 msgstr "Registreren"
 
-#: stalla/templates/index.html:74
+#: stalla/templates/archief/index_archief.html:83
+#: stalla/templates/index.html:82
 msgid ""
 "Regular researchers are able to read and search through the information that "
 "is provided."
 msgstr "Voor gewone zoektochten hoef je niet als gebruiker ingelogd te zijn."
 
-#: stalla/templates/index.html:79
+#: stalla/templates/archief/index_archief.html:88
+#: stalla/templates/index.html:87
 msgid "(See the <b>Extra</b> menu for logout and other options)"
 msgstr "(Zie het menu <b>Speciaal</b> voor afmelden en andere opties)"
 
+#: stalla/templates/archief/topnav_archief.html:19
 #: stalla/templates/topnav.html:19
 msgid "Definitions"
 msgstr "Definities"
 
+#: stalla/templates/archief/topnav_archief.html:28
 #: stalla/templates/topnav.html:28
 msgid "Craft object"
 msgstr "Werkstuk"
 
+#: stalla/templates/archief/topnav_archief.html:35
 #: stalla/templates/topnav.html:35
 msgid "Tools"
 msgstr "Speciaal"
 
-#: stalla/templates/topnav.html:67
+#: stalla/templates/archief/topnav_archief.html:67
 msgid "About"
 msgstr "Over"
 
-#: stalla/templates/topnav.html:73
+#: stalla/templates/archief/topnav_archief.html:73
+#: stalla/templates/topnav.html:72
 msgid "Log off"
 msgstr "Afmelden"
 
-#: stalla/templates/topnav.html:76
+#: stalla/templates/archief/topnav_archief.html:76
+#: stalla/templates/topnav.html:75
 msgid "Log in"
 msgstr "Aanmelden"
 
-#: stalla/templates/topnav.html:77
+#: stalla/templates/archief/topnav_archief.html:77
 msgid "Sign up"
 msgstr "Registreren"
+
+#: stalla/templates/contact.html:12
+msgid "Radboud University"
+msgstr "Radboud Universiteit"
+
+#: stalla/templates/contact.html:13
+msgid "PO Box"
+msgstr "Postbus"
+
+#: stalla/templates/contact.html:15
+msgid "Netherlands"
+msgstr ""
+
+#: stalla/templates/index.html:26
+msgid "Medieval choir stalls database"
+msgstr "Middeleeuwse koorbanken database"
+
+#: stalla/templates/index.html:28
+msgid ""
+"\n"
+"        Choir stalls are part of the fixed church furniture in medieval "
+"monasteries and collegiate churches. Parts of the choir banks, such as the "
+"misericords, are frequently decorated with carvings. On the bench ends are "
+"mainly religious scenes. This is in contrast to the carvings of the "
+"misericords and the arm rests. There, the profane world predominates with "
+"fantasy creatures, human types, animals, proverbs and fables. Placed in the "
+"religious centre of the church building, the carvings of the choir stalls "
+"are an exponent of the medieval world view.\n"
+"        "
+msgstr ""
+"\n"
+"Koorbanken maakten deel uit van het vaste kerkmeubilair in middeleeuwse "
+"klooster- en kapittelkerken. Onderdelen van de koorbanken zijn vaak voorzien "
+"van houtsnijwerk. Op de wangen zijn vooral religieuze scènes te zien. Dit in "
+"tegenstelling tot het snijwerk van de misericorden en de knoppen.  Daar "
+"overheerst de profane wereld met fantasiewezens, mensentypen, dieren, "
+"spreekwoorden en fabels. Geplaatst in het religieuze centrum van het "
+"kerkgebouw vormt het houtsnijwerk van de koorbanken een exponent van het "
+"middeleeuwse wereldbeeld."
+
+#: stalla/templates/index.html:33
+msgid ""
+"\n"
+"        Since 15 April 2005, the CKD has been building a database with "
+"images and documentary data - in the broadest sense - of choir stalls and "
+"misericords in Europe. This is to make this rich world of images better "
+"known and to support scientific research into these objects and the "
+"associated late-medieval imagery.\n"
+"        "
+msgstr ""
+"\n"
+"Sinds 15 april 2005 wordt bij het CKD een database opgebouwd met "
+"afbeeldingen en documentaire gegevens - in de meest ruime zin - van "
+"koorbanken en misericorden in Europa. Dit om deze rijke beeldwereld bekender "
+"te maken en om het wetenschappelijk onderzoek naar deze objecten en de "
+"laatmiddeleeuwse beeldtaal die daarbij hoort te ondersteunen"
 
 #~ msgid "Location choir stall"
 #~ msgstr "Plaats koorstal"

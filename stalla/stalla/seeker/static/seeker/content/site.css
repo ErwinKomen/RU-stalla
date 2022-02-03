@@ -1913,6 +1913,14 @@ div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
 }
 */
 
+.btn-xlarge {
+    font-size: 2.2rem;
+    margin: 40px 0px;
+    height: 72px;
+    border-radius: 36px;
+    padding: 0px 4rem;
+}
+
 
 h2 {
     font-size: larger;
@@ -1944,5 +1952,34 @@ h5 { font-size: larger;}
 
 .stalla-image {
     max-width: 100%;
+}
+
+.stalla-banner {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+    height: 600px;
+}
+
+.stalla-start {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    /*
+    align-items: flex-end;
+    justify-content: flex-start;
+        
+    align-items: center;*/
+    justify-content: center;
+    margin: 0px auto;
+    max-width: var(--width-container);
+}
+.stalla-start a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    margin-top: 450px;
+    align-content: center;
 }
 

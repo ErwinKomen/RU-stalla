@@ -4,24 +4,16 @@
 
 {% block content %}
 
-<div class="container body-content">
-  <div class="jumbotron" style="max-height: 180px;">
-      <h1>
-        <span>STALLA</span>
-        <span class="pull-right">
-          <a href="{% url 'werkstuk_list' %}" class="btn btn-success btn-large">{% trans "To the database" %}</a>
-          {% if not user.is_authenticated %}
-            <a class="btn btn-default" href="{% url 'login' %}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>Log in</a>
-            <a class="btn btn-default" href="{% url 'signup' %}">Sign up</a>
-          {% endif %}
-          <a href="{% url 'about' %}" class="btn btn-primary btn-large">Learn more &raquo;</a>
-        </span>
-      </h1>
-      <p class="lead">
-        <span>The stalla web application provides search facilities for choir bank images.</span>
-        
-      </p>
+<!-- Banner -->
+<div class="stalla-banner" img="{% static 'seeker/content/logo_stalla.jpg' %}">
+  <!-- to the database button -->
+  <div class="stalla-start">
+    <a href="{% url 'werkstuk_list' %}" class="btn btn-success btn-xlarge">{% trans "To the database" %}</a>
   </div>
+</div>
+
+
+<div class="container body-content">
 
   {% if is_404 %}
     <div class="sent-error">
@@ -30,59 +22,25 @@
   {% endif %}
 
   <div class="row">
-      <div class="col-md-6 bgimg">
-        <h2>Summary</h2>
-        <p>Currently the web application hosts {{count_image}} choir bank images. 
-        (see <a href="{% url 'about' %}">statistics</a>).
-
-        <h2>Latest news</h2>
-        {% if newsitem_list %}
-          {% for item in newsitem_list %}
-            <div class="panel-news panel-default">
-              <div class="panel-heading collapsed" data-toggle="collapse" data-target="#news-item-{{item.id}}">
-                <span>{{item.title}}</span>
-                <span class="pull-right" style="font-size: smaller;">
-                  {% if item.saved|date:"j/b/o" == item.created|date:"j/b/o" %}
-                    <i>{{item.saved|date:"j/b/o"}}</i>
-                  {% else %}
-                    <i>{{item.created|date:"j/b/o"}} - {{item.saved|date:"j/b/o"}}</i>
-                  {% endif %}
-                </span>
-              </div>
-              <div class="collapse newsitem" id="news-item-{{item.id}}">
-                {{item.msg|safe}}
-              </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <p><i>(There is no news yet)</i></p>
-        {% endif %}
-      </div>
-      <div class="col-md-6">
-        <h2>Project</h2>
-        <p>See the STALLA 
-        <a href="https://www.ru.nl/rich/our-research/affiliated-institutes/centrum-voor-kunsthistorische-documentatie/databases/stalla/zoeken/" 
-           target="_blank">page</a> for more information.</p>
-
-        <h2>Getting started</h2>
-        <p>          
-          {% blocktrans %}The stalla application has been designed by the Technical Service Group of the Humanities Lab at the Radboud University Nijmegen.
-          Any researcher is invited to register (via {% endblocktrans %}
-
-          <a role="button" class="btn btn-default btn-xs" href="{% url 'signup' %}">{% trans "sign up" %}</a>).
-
-          {% blocktrans %}Regular researchers are able to read and search through the information that is provided.{% endblocktrans %}
-
-        </p>
-        <p>
-          {% if user.is_authenticated %}
-            {% blocktrans %}(See the <b>Extra</b> menu for logout and other options){% endblocktrans %}
-          {% endif %}
-        </p>
-
-
-      </div>
+    <div class="col-md-12">
+      <h1>Stalla - {% trans "Medieval choir stalls database" %}</h1>
+      <p>
+        {% blocktrans %}
+        Choir stalls are part of the fixed church furniture in medieval monasteries and collegiate churches. Parts of the choir banks, such as the misericords, are frequently decorated with carvings. On the bench ends are mainly religious scenes. This is in contrast to the carvings of the misericords and the arm rests. There, the profane world predominates with fantasy creatures, human types, animals, proverbs and fables. Placed in the religious centre of the church building, the carvings of the choir stalls are an exponent of the medieval world view.
+        {% endblocktrans %}
+      </p>
+      <p>
+        {% blocktrans %}
+        Since 15 April 2005, the CKD has been building a database with images and documentary data - in the broadest sense - of choir stalls and misericords in Europe. This is to make this rich world of images better known and to support scientific research into these objects and the associated late-medieval imagery.
+        {% endblocktrans %}
+      </p>
+    </div>
   </div>
+
+  <div>
+    <a class="btn btn-large btn-success " href="{% url 'contact' %}">Contact</a>
+  </div>
+
 </div>
 <script type="text/javascript">
 

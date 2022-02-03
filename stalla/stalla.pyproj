@@ -113,6 +113,7 @@
     <Folder Include="stalla\seeker\templates\" />
     <Folder Include="stalla\seeker\templates\seeker\" />
     <Folder Include="stalla\templates\admin\" />
+    <Folder Include="stalla\templates\archief\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="locale\nl\LC_MESSAGES\django.po" />
@@ -179,6 +180,7 @@
     <Content Include="stalla\seeker\static\seeker\content\favicon.ico" />
     <Content Include="stalla\seeker\static\seeker\content\Icon Passim RGB.png" />
     <Content Include="stalla\seeker\static\seeker\content\IconPassimP.ico" />
+    <Content Include="stalla\seeker\static\seeker\content\logo_stalla.jpg" />
     <Content Include="stalla\seeker\static\seeker\content\ru-base.css" />
     <Content Include="stalla\seeker\static\seeker\content\ru-form.css" />
     <Content Include="stalla\seeker\static\seeker\content\ru-widgets.css" />
@@ -219,7 +221,9 @@
     <Content Include="stalla\templates\about.html" />
     <Content Include="stalla\templates\admin\base.html" />
     <Content Include="stalla\templates\breadcrumb_list.html" />
+    <Content Include="stalla\templates\archief\contact_archief.html" />
     <Content Include="stalla\templates\contact.html" />
+    <Content Include="stalla\templates\archief\index_archief.html" />
     <Content Include="stalla\templates\index.html" />
     <Content Include="stalla\templates\layout.html" />
     <Content Include="stalla\templates\login.html" />
@@ -229,6 +233,7 @@
     <Content Include="stalla\templates\pagination.html" />
     <Content Include="stalla\templates\paginationpost.html" />
     <Content Include="stalla\templates\signup.html" />
+    <Content Include="stalla\templates\archief\topnav_archief.html" />
     <Content Include="stalla\templates\topnav.html" />
   </ItemGroup>
   <ItemGroup>

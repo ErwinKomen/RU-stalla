@@ -151,7 +151,8 @@ var ru = (function ($, ru) {
       init_event_listeners: function (lst_typeahead) {
         var lst_use = [],
             base_url = "",
-            div_ta = "#__typeaheads__",
+          div_ta = "#__typeaheads__",
+            imageurl = "",
             i = 0,
             //lst_options = ["countries", "cities", "libraries", "origins", "locations", "litrefs", "authors",
             //               "nicknames", "gldincipits", "srmincipits", "gldexplicits", "srmexplicits",
@@ -166,6 +167,12 @@ var ru = (function ($, ru) {
           if ($(div_ta).length > 0 && $(div_ta).text() !== "") {
             lst_typeahead = JSON.parse($(div_ta).text());
           }
+        }
+
+        // Adapt the stalla background image url
+        if ($(".stalla-banner").length > 0) {
+          imageurl = $(".stalla-banner").first().attr("img");
+          $(".stalla-banner").css("background-image", 'url("' + imageurl + '")');
         }
 
         // Set the elements that should be used

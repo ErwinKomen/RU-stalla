@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load i18n %}
 
 {% block content %}
 
@@ -9,25 +10,14 @@
   <h3>{{ message }}</h3>
 
   <address>
-      Senior Researcher<br />
-      History department<br />
-      Institute for History, Literature and Cultural studies<br />
-      Radboud University<br />
-      Erasmusplein 1<br />
-      Kamer 11.14
-      NL-6525 HT Nijmegen<br />
-      Netherlands<br />
-      <abbr title="Phone">P:</abbr>
-      +31 24 361 26 23
-  </address>
-
-  <address>
-    <p>
-      <strong>STALLA contents:</strong> <a href="mailto:willy.piron@ru.nl">drs. Willy Piron</a>
-    </p>
-    <p>
-      <strong>Technical support:</strong>   <a href="mailto:erwin.komen@ru.nl">Erwin Komen</a> <br />
-    </p>
+      {% trans "Radboud University" %} / Stalla<br />
+      {% trans "PO Box" %} 9102<br />
+      NL-6500 HD Nijmegen<br />
+      {% trans "Netherlands" %} <br />
+      <abbr title="Phone">Tel:</abbr> 
+      +31 24 36 12 623<br />
+      E-mail: CKD@let.ru.nl<br />
+      Website: <a href="https://www.ru.nl/ckd/">https://www.ru.nl/ckd/</a>
   </address>
 
 </div>
