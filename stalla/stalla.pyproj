@@ -229,6 +229,7 @@
     <Content Include="stalla\templates\login.html" />
     <Content Include="stalla\templates\loginpartial.html" />
     <Content Include="stalla\templates\more.html" />
+    <Content Include="stalla\templates\archief\nlogin_archief.html" />
     <Content Include="stalla\templates\nlogin.html" />
     <Content Include="stalla\templates\pagination.html" />
     <Content Include="stalla\templates\paginationpost.html" />

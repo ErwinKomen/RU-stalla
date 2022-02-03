@@ -624,9 +624,16 @@ class WerkstukEdit(BasicDetails):
     # no_delete = True
     show_headers = False
     permission = "readonly"
-    authenticated = True
+    authenticated = False   # True if we open it up
     mainitems = []
     literature_def = []
+
+    def custom_init(self, instance):
+        # Check and set the authentication if needed
+        auth = Information.get_kvalue("authenticated")
+        if auth.lower() in ['true', 'ok', 'set']:
+            self.authenticated = True
+        return None
 
     def add_to_context(self, context, instance):
         """Add to the existing context"""
@@ -812,7 +819,7 @@ class WerkstukListview(BasicList):
     new_button = False
     has_select2 = True
     # view_unauthenticated = True
-    authenticated = True
+    authenticated = False   # True if we open it up
     template_name = "seeker/stalla_list.html"
     # order_cols = ['inventarisnummer', '', 'aard', 'beschrijving_nl']
     order_cols = ['inventarisnummer', '', 'beschrijving_nl']
@@ -821,6 +828,13 @@ class WerkstukListview(BasicList):
     filters = []
     searches = []
     bTags = False
+
+    def custom_init(self):
+        # Check and set the authentication if needed
+        auth = Information.get_kvalue("authenticated")
+        if auth.lower() in ['true', 'ok', 'set']:
+            self.authenticated = True
+        return None
 
     def initializations(self):
         """Perform some initializations"""
@@ -986,6 +1000,11 @@ class WerkstukListview(BasicList):
             if tags != None and len(tags) > 0:
                 id_list = [x['werkstuk__id'] for x in WerkstukTag.objects.filter(tag__abbr=tags).values('werkstuk__id')]
                 fields['tags'] = Q(id__in=id_list)
+
+            # Convert the taglist into a Query result
+            taglist = fields['taglist']
+            if len(taglist) > 0:
+                fields['taglist'] = Tag.objects.filter(abbr__in=taglist)
 
             # Look for a generic search
             generic_search = self.qd.get("wer-generic")

@@ -827,6 +827,9 @@ class BasicList(ListView):
     def initializations(self):
         return None
 
+    def custom_init(self):
+        pass
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(BasicList, self).get_context_data(**kwargs)
@@ -1360,6 +1363,10 @@ class BasicList(ListView):
     def get(self, request, *args, **kwargs):
         if self.request == None:
             self.request = request
+        # At least perform custom initialization
+        self.custom_init()
+
+        # Now only continue
         if not request.user.is_authenticated and not self.authenticated:
             # Do not allow to get a good response
             response = redirect(reverse('nlogin'))

@@ -151,12 +151,14 @@ var ru = (function ($, ru) {
       init_event_listeners: function (lst_typeahead) {
         var lst_use = [],
             base_url = "",
-            div_ta = "#__typeaheads__",
+          div_ta = "#__typeaheads__",
+            imageurl = "",
             i = 0,
-            lst_options = ["countries", "cities", "libraries", "origins", "locations", "litrefs", "authors",
-                           "nicknames", "gldincipits", "srmincipits", "gldexplicits", "srmexplicits",
-                           "signatures", "gldsiggrysons", "gldsigclavises", "srmsignatures", "siggrysons", "sigclavises",
-                           "manuidnos", "editions", "keywords", "collections"],
+            //lst_options = ["countries", "cities", "libraries", "origins", "locations", "litrefs", "authors",
+            //               "nicknames", "gldincipits", "srmincipits", "gldexplicits", "srmexplicits",
+            //               "signatures", "gldsiggrysons", "gldsigclavises", "srmsignatures", "siggrysons", "sigclavises",
+            //               "manuidnos", "editions", "keywords", "collections"],
+            lst_options = [],
             item = "";
 
         // Get the base URL
@@ -165,6 +167,12 @@ var ru = (function ($, ru) {
           if ($(div_ta).length > 0 && $(div_ta).text() !== "") {
             lst_typeahead = JSON.parse($(div_ta).text());
           }
+        }
+
+        // Adapt the stalla background image url
+        if ($(".stalla-banner").length > 0) {
+          imageurl = $(".stalla-banner").first().attr("img");
+          $(".stalla-banner").css("background-image", 'url("' + imageurl + '")');
         }
 
         // Set the elements that should be used
@@ -1492,6 +1500,7 @@ var ru = (function ($, ru) {
             arParam = [],
             sUrl = "";
 
+        try {
         // Indicate that we are starting
         $("#sync_progress_" + sSyncType).html("Synchronization is starting: " + sSyncType);
 
@@ -1532,6 +1541,10 @@ var ru = (function ($, ru) {
             $("#sync_details_" + sSyncType).html("Ajax failure");
           }
         });
+        } catch (ex) {
+          private_methods.errMsg("sync_start", ex);
+        }
+
 
       },
 
@@ -1544,23 +1557,27 @@ var ru = (function ($, ru) {
         var oData = {},
             sUrl = "";
 
-        oData = { 'type': sSyncType };
-        sUrl = $("#sync_start_" + sSyncType).attr('sync-progress');
-        $.ajax({
-          url: sUrl,
-          type: "GET",
-          async: true,
-          dataType: "json",
-          data: oData,
-          cache: false,
-          success: function (json) {
-            $("#sync_details_" + sSyncType).html("progress >> sync_handle");
-            ru.stalla.sync_handle(sSyncType, json);
-          },
-          failure: function () {
-            $("#sync_details_" + sSyncType).html("Ajax failure");
-          }
-        });
+        try {
+          oData = { 'type': sSyncType };
+          sUrl = $("#sync_start_" + sSyncType).attr('sync-progress');
+          $.ajax({
+            url: sUrl,
+            type: "GET",
+            async: true,
+            dataType: "json",
+            data: oData,
+            cache: false,
+            success: function (json) {
+              $("#sync_details_" + sSyncType).html("progress >> sync_handle");
+              ru.stalla.sync_handle(sSyncType, json);
+            },
+            failure: function () {
+              $("#sync_details_" + sSyncType).html("Ajax failure");
+            }
+          });
+        } catch (ex) {
+          private_methods.errMsg("sync_progress", ex);
+        }
       },
 
       /**
@@ -1572,39 +1589,44 @@ var ru = (function ($, ru) {
         var sStatus = "",
             options = {};
 
-        // Validate
-        if (json === undefined) {
-          sStatus = $("#sync_details_" + sSyncType).html();
-          $("#sync_details_" + sSyncType).html(sStatus + "(undefined status)");
-          return;
-        }
-        // Action depends on the status in [json]
-        switch (json.status) {
-          case 'error':
-            // Show we are ready
-            $("#sync_progress_" + sSyncType).html("Error synchronizing: " + sSyncType);
-            $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
-            // Stop the progress calling
-            window.clearInterval(ru.stalla.oSyncTimer);
-            // Leave the routine, and don't return anymore
+        try {
+          // Validate
+          if (json === undefined) {
+            sStatus = $("#sync_details_" + sSyncType).html();
+            $("#sync_details_" + sSyncType).html(sStatus + "(undefined status)");
             return;
-          case "done":
-          case "finished":
-            // Default action is to show the status
-            $("#sync_progress_" + sSyncType).html(json.status);
-            $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
-            loc_sync_detail[sSyncType] = json;
-            // Finish nicely
-            ru.stalla.sync_stop(sSyncType, json, false);
-            return;
-          default:
-            // Default action is to show the status
-            $("#sync_progress_" + sSyncType).html(json.status);
-            $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
-            loc_sync_detail[sSyncType] = json;
-            ru.stalla.oSyncTimer = window.setTimeout(function () { ru.stalla.sync_progress(sSyncType, options); }, 1000);
-            break;
+          }
+          // Action depends on the status in [json]
+          switch (json.status) {
+            case 'error':
+              // Show we are ready
+              $("#sync_progress_" + sSyncType).html("Error synchronizing: " + sSyncType);
+              $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
+              // Stop the progress calling
+              window.clearInterval(ru.stalla.oSyncTimer);
+              // Leave the routine, and don't return anymore
+              return;
+            case "done":
+            case "finished":
+              // Default action is to show the status
+              $("#sync_progress_" + sSyncType).html(json.status);
+              $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
+              loc_sync_detail[sSyncType] = json;
+              // Finish nicely
+              ru.stalla.sync_stop(sSyncType, json, false);
+              return;
+            default:
+              // Default action is to show the status
+              $("#sync_progress_" + sSyncType).html(json.status);
+              $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
+              loc_sync_detail[sSyncType] = json;
+              ru.stalla.oSyncTimer = window.setTimeout(function () { ru.stalla.sync_progress(sSyncType, options); }, 1000);
+              break;
+          }
+        } catch (ex) {
+          private_methods.errMsg("sync_handle", ex);
         }
+
       },
 
       /**
@@ -1615,13 +1637,17 @@ var ru = (function ($, ru) {
       sync_stop: function (sSyncType, json) {
         var lHtml = [], json = {};
 
-        // Stop the progress calling
-        window.clearInterval(ru.stalla.oSyncTimer);
+        try {
+          // Stop the progress calling
+          window.clearInterval(ru.stalla.oSyncTimer);
 
-        // Show we are ready
-        $("#sync_progress_" + sSyncType).html("Finished synchronizing: " + sSyncType + "<br>Last details:" );
-        json = loc_sync_detail[sSyncType];
-        $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
+          // Show we are ready
+          $("#sync_progress_" + sSyncType).html("Finished synchronizing: " + sSyncType + "<br>Last details:");
+          json = loc_sync_detail[sSyncType];
+          $("#sync_details_" + sSyncType).html(ru.stalla.sync_details(json));
+        } catch (ex) {
+          private_methods.errMsg("sync_handle", ex);
+        }
 
       },
 
@@ -1634,19 +1660,23 @@ var ru = (function ($, ru) {
         var lHtml = [],
             oCount = {};
 
-        // Validate
-        if (json === undefined || !json.hasOwnProperty("count"))
-          return "";
-        // Get the counts
-        oCount = JSON.parse(json['count']);
-        // Create a reply
-        lHtml.push("<div><table><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody>");
-        for (var property in oCount) {
-          if (oCount.hasOwnProperty(property)) {
-            lHtml.push("<tr><td style='color: darkblue;'><b>" + property + "</b>:</td><td>" + oCount[property] + "</td></tr>");
+        try {
+          // Validate
+          if (json === undefined || !json.hasOwnProperty("count"))
+            return "";
+          // Get the counts
+          oCount = JSON.parse(json['count']);
+          // Create a reply
+          lHtml.push("<div><table><thead><tr><th>Item</th><th>Value</th></tr></thead><tbody>");
+          for (var property in oCount) {
+            if (oCount.hasOwnProperty(property)) {
+              lHtml.push("<tr><td style='color: darkblue;'><b>" + property + "</b>:</td><td>" + oCount[property] + "</td></tr>");
+            }
           }
+          lHtml.push("</tbody></table></div>");
+        } catch (ex) {
+          private_methods.errMsg("sync_details", ex);
         }
-        lHtml.push("</tbody></table></div>");
         // Return as string
         return lHtml.join("\n");
       },

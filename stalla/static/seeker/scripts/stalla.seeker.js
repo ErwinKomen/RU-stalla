@@ -133,6 +133,28 @@ var ru = (function ($, ru) {
         }
       },
 
+      /** 
+       *  werkstuk_showtooltip_init - Initialize tooltip processing
+       */
+      werkstuk_showtooltip_init: function () {
+        try {
+          // initialize tooltipping: hover-type
+          $('.dict-entry td[data-toggle="tooltip"][data-tooltip="werkstuk-hover"], .dict-entry img[data-toggle="tooltip"][data-tooltip="werkstuk-hover"]').tooltip({
+            html: true,
+            container: 'body',
+            placement: 'bottom auto',
+            animation: true,
+            trigger: "hover focus",
+            template: '<div class="tooltip werkstuk" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+          });
+
+          // What to do when a tooltip has been shown
+
+        } catch (ex) {
+          private_methods.errMsg("werkstuk_showtooltip_init", ex);
+        }
+      },
+
       errMsg: function (sMsg, ex, bNoCode) {
         var sHtml = "",
             bCode = true;
@@ -222,7 +244,13 @@ var ru = (function ($, ru) {
             sHtml = "";
 
         try {
-          // 
+
+          // Activate tooltips
+          private_methods.werkstuk_showtooltip_init();
+
+          // Bind clicking events on images
+          targetid = targetid;
+          
           // Allow "Search on ENTER" from typeahead fields
           $(".alt-form-row .searching").on("keypress",
             function (evt) {
@@ -1050,7 +1078,73 @@ var ru = (function ($, ru) {
         return false;
       },
 
+      /**
+       * goto_view
+       *   Open the indicated view
+       *
+       */
+      goto_view: function (elStart, sView) {
+        var height = 0,
+            width = 0,  
+            id_mapview = "#basicmap",
+            id_listview = "#basiclist_top";
+        try {
+          switch (sView) {
+            case "map":   // Open the map-view
+              $(id_listview).addClass("hidden");
+              $(id_mapview).removeClass("hidden");
+              $(".map-list-switch").addClass("map-active");
 
+              // Calculate and set the height
+              height = $("footer").position().top - $(".werkstuk-map").position().top - 10;
+              width = $(id_mapview).width();
+              $(".werkstuk-map").css("height", height + "px");
+              $(".werkstuk-map").css("width", width + "px");
+
+              // And copy the generic search value
+              $("#generic_search").val($("#generic-search-input").val());
+
+              // Initiate showing a map
+              ru.mapview.stalla_map(elStart);
+              break;
+            case "list":  // Open the listview
+              $(id_mapview).addClass("hidden");
+              $(id_listview).removeClass("hidden");
+              $(".map-list-switch").removeClass("map-active");
+              break;
+          }
+
+        } catch (ex) {
+          private_methods.errMsg("goto_view", ex);
+        }
+      },
+
+      /**
+       * show_picture
+       *   Make sure that the modal shows the correct picture and additional information
+       *
+       */
+      show_picture: function (elStart) {
+        var elImage = null,
+            sImgText = "",
+            elInfo = null;
+
+        try {
+          // Determine the locations
+          elImage = $(".modal-image").first();
+          elInfo = $(".modal-info").first();
+
+          // copy the image
+          $(elImage).html($(elStart).find("img").first().parent().html());
+          // Make sure the col-md-12 class is removed here
+          $(elImage).find(".col-md-12").removeClass("col-md-12");
+
+          // Copy the information
+          $(elInfo).html($(elStart).attr("info"));
+        } catch (ex) {
+          private_methods.errMsg("show_picture", ex);
+        }
+      },
  
       /**
        * formset_setdel

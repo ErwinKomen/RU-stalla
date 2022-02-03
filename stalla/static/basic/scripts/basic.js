@@ -14,6 +14,9 @@ var $ = jQuery;
       // Initialize Bootstrap popover
       // Note: this is used when hovering over the question mark button
       $('[data-toggle="popover"]').popover();
+
+      // Initialize bootstrap tooltip
+      $('[data-toggle="tooltip"]').tooltip();
     });
   });
 })(django.jQuery);
@@ -32,6 +35,8 @@ var ru = (function ($, ru) {
         loc_urlStore = "",      // Keep track of URL to be shown
         loc_progr = [],         // Progress tracking
         loc_relatedRow = null,  // Row being dragged
+        // loc_basicid = null,     // How to recognize my session
+        // loc_idlist = null,
         loc_params = "",
         loc_colwrap = [],       // Column wrapping
         loc_sWaiting = " <span class=\"glyphicon glyphicon-refresh glyphicon-refresh-animate\"></span>",
@@ -191,6 +196,64 @@ var ru = (function ($, ru) {
         }
         $("#" + loc_divErr).html(sHtml);
       },
+
+      ///** 
+      // *  getListHelp - Communicate for help with the server
+      // */
+      //getListHelp: function (helptype) {
+      //  var targeturl = "",
+      //      el = "#listhelp",
+      //      data = null,
+      //      frm = null;
+
+      //  try {
+      //    // Find the right form and data
+      //    frm = $(el).first();
+      //    data = frm.serializeArray();
+      //    data.push({ name: "helptype", value: helptype });
+      //    // Depending on the helptype more must be uploaded
+      //    switch (helptype) {
+      //      case "getlist":
+      //        // Need to pass on the basicid
+      //        data.push({ name: "basicid", value: loc_basicid });
+      //        break;
+      //    }
+      //    targeturl = $(el).attr("targeturl");
+
+      //    // Make a post to the targeturl
+      //    $.post(targeturl, data, function (response) {
+      //      // Action depends on the response
+      //      if (response === undefined || response === null || !("status" in response)) {
+      //        private_methods.errMsg("No status returned");
+      //      } else {
+      //        switch (response.status) {
+      //          case "ready":
+      //          case "ok":
+      //            // Action depends on the kind of help asked
+      //            switch (helptype) {
+      //              case "createlistid":
+      //                // We should get a package of information
+      //                if ("basicid" in response) {
+      //                  loc_basicid = response.basicid;
+      //                }
+      //                break;
+      //              case "getlist":
+      //                // Load and translate the list
+      //                if ("idlist" in response) {
+      //                  loc_idlist = JSON.parse(response.idlist);
+      //                }
+      //                break;
+      //            }
+      //            break;
+      //        }
+      //      }
+      //    });
+
+      //  } catch (ex) {
+      //    private_methods.errMsg("getListHelp", ex);
+      //    return "";
+      //  }
+      //},
 
       /** 
        *  getStyleVal - needed for resizableGrid
@@ -1361,6 +1424,16 @@ var ru = (function ($, ru) {
         try {
           $(".ms.editable a").unbind("click").click(ru.basic.manu_edit);
 
+          // Look for any data data-initial stuff in inboxes
+          $("input[data-initial]").each(function (idx, value) {
+            var el = $(this),
+                value = "";
+            value = $(el).attr("data-initial");
+            if (value !== "") {
+              $(el).val(value);
+            }
+          });
+
           // Switch filters
           $(".badge.filter").unbind("click").click(ru.basic.filter_click);
 
@@ -2494,7 +2567,8 @@ var ru = (function ($, ru) {
 
       /**
        * search_clear
-       *    No real searching, just reset the criteria
+       *    WAS: No real searching, just reset the criteria
+       *    IS: reset the criteria + actual re-searching!!! (issue #12, Stalla)
        *
        */
       search_clear: function (elStart, bHide) {
@@ -2503,58 +2577,74 @@ var ru = (function ($, ru) {
             elFiltercount = null,
             lFormRow = [];
 
-          try {
-              if (bHide === undefined) bHide = true;
-              // At least hide the clipboard copy
-              $(".clipboard-copy").addClass("hidden");
-              // Clear filters
-              $(".badge.filter").each(function (idx, elThis) {
-                var target;
+        try {
+          if (bHide === undefined) bHide = true;
 
-                target = $(elThis).attr("targetid");
-                if (target !== undefined && target !== null && target !== "") {
-                  target = $("#" + target);
-                  // Action depends on checking or not
-                    if ($(elThis).hasClass("on")) {
-                        // it is on, switch it off
-                        $(elThis).removeClass("on");
-                        $(elThis).removeClass("jumbo-3");
-                        $(elThis).addClass("jumbo-1");
-                        // Must hide it and reset target
-                        if (bHide) { $(target).addClass("hidden"); }
-                        $(target).find("input").each(function (idx, elThis) {
-                            $(elThis).val("");
-                            $(elThis).removeAttr("checked");
-                        });
-                        // Also reset all select 2 items
-                        $(target).find("select").each(function (idx, elThis) {
-                            $(elThis).val("").trigger("change");
-                        });
-                    } else {
-                        // TO be done at any rate...
-                        $(target).find("input").each(function (idx, elThis) {
-                            $(elThis).val("");
-                            $(elThis).removeAttr("checked");
-                        });
-                        // TO be done at any rate...
-                        $(target).find("textarea").each(function (idx, elThis) {
-                            $(elThis).val("");
-                        });
-                        // Also reset all select 2 items
-                        $(target).find("select").each(function (idx, elThis) {
-                            $(elThis).val("").trigger("change");
-                        });
-                    }
-                    elFiltercount = $("#filtercount");
-                    if ($(elFiltercount).length > 0) {
-                        $(elFiltercount).html("0");
-                    }
+          // At least hide the clipboard copy
+          $(".clipboard-copy").addClass("hidden");
+
+          // Clear generic filter(s)
+          $("input[data-initial]").each(function (idx, elThis) {
+              $(elThis).val("");
+          });
+
+          // Clear filters
+          $(".badge.filter").each(function (idx, elThis) {
+            var target;
+
+            target = $(elThis).attr("targetid");
+            if (target !== undefined && target !== null && target !== "") {
+              target = $("#" + target);
+              // Action depends on checking or not
+                if ($(elThis).hasClass("on")) {
+                    // it is on, switch it off
+                    $(elThis).removeClass("on");
+                    $(elThis).removeClass("jumbo-3");
+                    $(elThis).addClass("jumbo-1");
+                    // Must hide it and reset target
+                    if (bHide) { $(target).addClass("hidden"); }
+                    $(target).find("input").each(function (idx, elThis) {
+                        $(elThis).val("");
+                        $(elThis).removeAttr("checked");
+                    });
+                    // TO be done at any rate...
+                    $(target).find("textarea").each(function (idx, elThis) {
+                      $(elThis).val("");
+                      $(elThis).html("");
+                    });
+                    // Also reset all select 2 items
+                    $(target).find("select").each(function (idx, elThis) {
+                        $(elThis).val("").trigger("change");
+                    });
+                } else {
+                    // TO be done at any rate...
+                    $(target).find("input").each(function (idx, elThis) {
+                        $(elThis).val("");
+                        $(elThis).removeAttr("checked");
+                    });
+                    // TO be done at any rate...
+                    $(target).find("textarea").each(function (idx, elThis) {
+                      $(elThis).val("");
+                      $(elThis).html("");
+                    });
+                    // Also reset all select 2 items
+                    $(target).find("select").each(function (idx, elThis) {
+                        $(elThis).val("").trigger("change");
+                    });
                 }
-              });
+                elFiltercount = $("#filtercount");
+                if ($(elFiltercount).length > 0) {
+                    $(elFiltercount).html("0");
+                }
+            }
+          });
 
-        } catch (ex) {
-          private_methods.errMsg("search_clear", ex);
-        }
+          // Now start actual searching
+          ru.basic.search_start(elStart);
+
+          } catch (ex) {
+            private_methods.errMsg("search_clear", ex);
+          }
       },
 
       /**
@@ -2598,6 +2688,15 @@ var ru = (function ($, ru) {
               $(this).val(sOrder);
             });
           }
+
+          // Copy any generic filter contents
+          $("input[data-initial][data-target]").each(function (idx, elThis) {
+            var target = $(elThis).attr("data-target");
+            if (target !== undefined && target !== "") {
+              // Copy the value to there
+              $(target).val($(elThis).val());
+            }
+          });
 
           // Get to the form
           frm = $(elStart).closest('form');

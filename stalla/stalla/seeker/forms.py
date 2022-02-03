@@ -164,7 +164,7 @@ class WerkstukForm(forms.ModelForm):
     date_until  = forms.IntegerField(label=_("Date until"), required = False,
                 widget=forms.TextInput(attrs={'placeholder': _('Until (including)...'),  'style': 'width: 100%;', 'class': 'searching'}))
     # OLD (see issue #15) 
-    # taglist     = forms.ModelMultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
+    # taglist     = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=forms.CheckboxSelectMultiple)
     taglist     = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple)
 
     class Meta:
@@ -236,7 +236,7 @@ class WerkstukForm(forms.ModelForm):
             self.fields['soortlist'].queryset = Soort.objects.all().order_by(soort_sorting).distinct()
 
             # OLD (see issue #15) 
-            #     self.fields['taglist'].queryset = Tag.objects.all().order_by('name')
+            # self.fields['taglist'].queryset = Tag.objects.all().order_by('name')
             self.fields['taglist'].choices = tag_choices
 
             # Get the instance

@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_NAME = os.path.basename(BASE_DIR)
 WRITABLE_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../writable/database/"))
 
-if r"\\writable" in WRITABLE_DIR:
-    # Need another string
-    WRITABLE_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../../writable/database/"))
+#if r"\writable" in WRITABLE_DIR:
+#    # Need another string
+#    WRITABLE_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../../writable/database/"))
 
 print("Database directory: {}".format(WRITABLE_DIR), file=sys.stderr)
 
@@ -44,13 +44,22 @@ elif "131.174" in hst:
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = '8e814e9e-3d83-4a27-b4df-c471fe6e8a6e'
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '839d2a41-aa6e-401d-8e84-449a7bb44609'
 
+BLOCKED_IPS = ['40.77.167.57',      '161.35.188.242',
+               '46.229.168.133',    '54.202.172.244',
+               '88.198.17.136',     '34.222.29.95',
+               '157.55.39.235',     '37.9.13.199',
+               '157.55.39.199',     '61.119.158.79',
+               '54.36.148.',        '54.36.149.'
+               '45.146.164.110',
+               ]
+   
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+if r"\writable" in WRITABLE_DIR:
+    DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', 'stalla.rich.ru.nl', 'testserver' ]
 
@@ -73,6 +82,7 @@ INSTALLED_APPS = [
 # Middleware framework
 # https://docs.djangoproject.com/en/2.1/topics/http/middleware/
 MIDDLEWARE = [
+    'stalla.utils.BlockedIpMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',

@@ -1,6 +1,7 @@
-﻿body {
+body {
     padding-top: 50px;
     padding-bottom: 20px;
+    font-size: medium;      /* Stalla-specific */
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -149,6 +150,7 @@ div.inline-group a.add-related {
 /* title */
 .navbar-custom .navbar-brand {
     color: lightgoldenrodyellow;
+    font-size: 22px;
 }
 .navbar-custom .navbar-brand:hover,
 .navbar-custom .navbar-brand:focus {
@@ -157,6 +159,7 @@ div.inline-group a.add-related {
 /* link */
 .navbar-custom .navbar-nav > li > a {
     color: white;
+    font-size: large;
 }
 .navbar-custom .navbar-nav > li > a:hover,
 .navbar-custom .navbar-nav > li > a:focus {
@@ -182,6 +185,7 @@ div.inline-group a.add-related {
 .navbar-custom .dropdown-menu > li > a {
     background-color: black;
     color: white;
+    font-size: larger;
 }
 
 /* caret */
@@ -236,6 +240,7 @@ div.breadcrumbs {
 p { 
     padding: 0;
     line-height: 140%;
+    font-size: larger;
 }
 
 /* Extra small pagination */
@@ -593,9 +598,9 @@ form .panel-heading.row {
   fill: #355e3b;
 }
 .jumbo-4 {
-  background-color: #ff2400;
-  color: lavender !important;
-  fill: #ff2400;
+    background-color: #e3000b; /* #ff2400; */
+    color: lavender !important;
+    fill: #ff2400;
 }
 .jumbo-5 {
   background-color: blue;
@@ -615,9 +620,16 @@ form .panel-heading.row {
 .jumbo-1:hover text {
   fill: black;
 }
-.jumbo-2:hover, .jumbo-3:hover, .jumbo-4:hover {
+.jumbo-2:hover, .jumbo-3:hover {
     color: white;
-    background-color: goldenrod;
+    background-color:  goldenrod; 
+    fill: goldenrod;
+    cursor: pointer;
+    /* stroke: white; */
+}
+.jumbo-4:hover {
+    color: white;
+    background-color: darkred; /*  goldenrod; */
     fill: goldenrod;
     cursor: pointer;
     /* stroke: white; */
@@ -1296,15 +1308,18 @@ div > span.twitter-typeahead {
 
 /* Adapt the standard modal to my own */
 .modal-dialog {
-    width: 80%;
+    width: 700px; /* 80%; */
     margin: 30px auto;
-  }
+}
 .modal-comment {
     width: 50%;
     margin: 20px auto;
   }
 .modal-header {
   cursor: move;
+}
+.modal-body {
+    text-align: center;
 }
 
 td.hightlighted {
@@ -1352,6 +1367,14 @@ span.badge.signature:hover {
     color: whitesmoke;
     background-color: darkblue;
     cursor: pointer;
+}
+
+span.badge.categorie {
+    font-size: medium;
+    padding: 2px 5px;
+    font-weight: normal;
+    border-radius: 5px;
+    margin: 1px;
 }
 
 /* Badges with background color for location types */
@@ -1614,7 +1637,8 @@ g > text {
 div.tooltip {
     position: fixed; /*   !important; */
     text-align: center;
-    width: 120px;
+    /* width: 200px; /* */
+    max-width: 400px;
     height: 35px;
     padding: 2px;
     font: 12px sans-serif;
@@ -1625,7 +1649,7 @@ div.tooltip {
     box-shadow: 1px 1px;
     pointer-events: none;
     opacity: 0.8;
-    z-index:1;
+    z-index: 1;
 }
 svg .histogram-bar {
     fill: #337ab7; /* #69b3a2; */
@@ -1720,8 +1744,246 @@ svg .nodes text {
     cursor: pointer;
 }
 
+.stalla-filter {
+    margin-bottom: 10px; /* Issue #12: need more space between fields */
+}
+
 .stalla-filter ul {
     list-style-type: none;
     margin-top: 10px;
     margin-left: -40px;
+}
+
+.stalla-filter table tr td, stalla-filter label {
+    font-size: larger;
+}
+
+.werkstuk-image img {
+    max-height: 150px;
+    max-width: 100px
+}
+
+div.tooltip.werkstuk, div.tooltip .tooltip-inner {
+    width: unset;
+    height: unset;
+    max-width: 400px;
+    background-color: #e7dbdb;
+    text-align: left;
+    font-size: 16px;
+    -moz-box-shadow: 2px 2px 11px #666;
+    -webkit-box-shadow: 2px 2px 11px #666;
+    color: #686667;
+    opacity: 1;
+}
+
+div.tooltip.werkstuk thead th, div.tooltip .tooltip-inner thead th {
+    background-color: #1a0202;
+    /* margin: 0; */
+    font-size: 14px;
+    text-align: center;
+    color: #fff;
+    padding: 6px;
+    opacity: 1;
+}
+.tooltip-inner td {
+    padding: 3px;
+}
+
+.stalla-more img {
+    max-height: 200px;
+    max-width: 200px;
+}
+
+.stalla-para img {
+    max-height: 140px;
+    max-width: 140px;
+}
+
+.stalla-more div, .stalla-para div {
+    display: inline-block;
+}
+
+.detail-button {
+    padding-top: 20px;
+}
+
+.modal-image img {
+    width: 650px;
+    height: 450px;
+    object-fit: contain;
+}
+
+.map-list-switch {
+    height: 44px;
+    border-radius: 22px;
+    padding: 2px;
+    background-color: #ddd;
+    top: 18px;
+    z-index: 10;
+    position: sticky;
+    color: #000;
+    box-sizing: border-box;
+    font-size: 18px;
+}
+
+.map-list-switch.map-active {
+    background-color: #000;
+    color: #fff;
+}
+
+.map-list-switch ul {
+    list-style: none;
+    display: flex;
+    padding: 0;
+}
+
+.map-list-switch li {
+    height: 40px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.map-list-switch li.list-switch {
+    background-color: #fff;
+}
+
+.map-list-switch.map-active li.map-switch {
+    background-color: #fff;
+}
+
+.map-list-switch.map-active li.list-switch {
+    background-color: transparent;
+}
+
+.map-list-switch.map-active li.list-switch .switch-item {
+    color: #fff;
+}
+
+.map-list-switch .switch-item {
+    display: flex;
+    text-decoration: none;
+    color: #000;
+    line-height: 29px;
+}
+
+.map-list-switch .switch-item strong {
+    font-weight: 700;
+    margin-right: 7px;
+}
+
+.werkstuk-map {
+    z-index: 5;
+    top: 55px; /* -45px; */
+    position: absolute;
+}
+
+.inner-map {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    position: absolute;
+    right: 0px;
+    margin-top: 10px;
+}
+
+.leaflet-top {
+    margin-top: 50px;
+    margin-right: 15px;
+}
+
+.btn {
+    font-size: large;
+}
+
+.leaflet-marker-icon .fa-map-marker-alt {
+    font-size: x-large;
+    color: #345beb;
+}
+
+/*
+.btn-normal,
+.btn-group-normal > .btn {
+    padding: 7px 12px;
+    font-size: 16px;
+    line-height: 1.3333333;
+    border-radius: 4px;
+}
+*/
+
+.btn-xlarge {
+    font-size: 2.2rem;
+    margin: 40px 0px;
+    height: 72px;
+    border-radius: 36px;
+    padding: 0px 4rem;
+}
+
+
+h2 {
+    font-size: larger;
+}
+h3 {
+    font-size: larger;
+}
+h4 {
+    font-size: larger;
+}
+h5 { font-size: larger;}
+
+.select2-selection__placeholder {
+    font-size: large;
+}
+
+.select2-search__field {
+    width: 300px !important;
+    font-size: large;
+}
+
+.select2-results__option {
+    font-size: medium;
+}
+
+.werkstuk-beschrijving {
+    font-size: larger;
+}
+
+.stalla-image {
+    max-width: 100%;
+}
+
+.stalla-banner {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+    height: 600px;
+}
+
+.stalla-start {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    /*
+    align-items: flex-end;
+    justify-content: flex-start;
+        
+    align-items: center;*/
+    justify-content: center;
+    margin: 0px auto;
+    max-width: var(--width-container);
+}
+.stalla-start a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    margin-top: 450px;
+    align-content: center;
+}
+
+.jumbo-x {
+    margin-top: -10px;
+    color: lightgoldenrodyellow;
 }

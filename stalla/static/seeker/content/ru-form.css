@@ -10,7 +10,7 @@
 .view-row {
     overflow: hidden;
     padding: 3px;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .form-row img, .form-row input {
@@ -46,7 +46,8 @@ form .form-row p {
 label {
     font-weight: normal;
     color: #666;
-    font-size: 13px;
+    font-size: medium;
+    /* font-size: 13px; */
 }
 
 .required label, label.required {
