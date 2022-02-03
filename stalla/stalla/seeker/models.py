@@ -1823,19 +1823,19 @@ class Werkstuk(models.Model):
             if "tags" not in lst_skip:
                 count = 0
                 addonly = (WerkstukTag.objects.count() == 0)
-                # with transaction.atomic():
-                for oRow in oStallaData['object']:
-                    # Show where we are
-                    count += 1
-                    if count % 1000 == 0:
-                        oStatus.set("reading tag {}".format(count))
-                        oErr.Status("reading tag {}".format(count))
-                    # Process this item into the database
-                    Werkstuk.custom_tags(oRow, addonly=addonly, taglist=taglist)
-                    count_wst_now = WerkstukTag.objects.count()
-                    if count_wst_now < count_wst:
-                        # Did something go wrong?
-                        iStop = True
+                with transaction.atomic():
+                    for oRow in oStallaData['object']:
+                        # Show where we are
+                        count += 1
+                        if count % 1000 == 0:
+                            oStatus.set("reading tag {}".format(count))
+                            oErr.Status("reading tag {}".format(count))
+                        # Process this item into the database
+                        Werkstuk.custom_tags(oRow, addonly=addonly, taglist=taglist)
+                        count_wst_now = WerkstukTag.objects.count()
+                        if count_wst_now < count_wst:
+                            # Did something go wrong?
+                            iStop = True
 
             # (2) Read the 'iconclassnotatie' objects
             oStatus.set("tables 6", {'table': 'iconclassnotatie'})
