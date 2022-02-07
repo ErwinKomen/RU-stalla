@@ -129,6 +129,10 @@ class SoortWidget(ModelSelect2MultipleWidget):
         return Soort.objects.all().order_by(self.sort_field).distinct()
 
 
+class SoortWidgetNL(SoortWidget):
+    sort_field = "naam"
+
+
 # ================= FORMS =======================================
 
 class BootstrapAuthenticationForm(AuthenticationForm):
@@ -160,12 +164,12 @@ class WerkstukForm(forms.ModelForm):
                 widget=AardtypeWidget(attrs={'data-placeholder': _('Select one or more nature types...'), 'style': 'width: 100%;', 'class': 'searching'}))
     aardtype    = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=AardtypeOneWidget(attrs={'data-placeholder': _('Select a nature type...'), 'style': 'width: 30%;', 'class': 'searching'}))
-    soortlist = ModelMultipleChoiceField(queryset=None, required=False, 
-                widget=SoortWidget(attrs={'data-placeholder': _('Select one or more parts...'), 'style': 'width: 100%;', 'class': 'searching'}))
+    soortlist = ModelMultipleChoiceField(queryset=None, required=False)
+    #            widget=SoortWidget(attrs={'data-placeholder': _('Select one or more parts...'), 'style': 'width: 100%;', 'class': 'searching'}))
     land    = forms.ModelChoiceField(queryset=None, required=False, 
                 widget=LandOneWidget(attrs={'data-placeholder': _('Select a country...'), 'style': 'width: 100%;', 'class': 'searching'}))
     plaats  = forms.ModelChoiceField(queryset=None, required=False, 
-                widget=PlaatsOneWidget(attrs={'data-placeholder': _('Choose a place...'), 'style': 'width: 100%;', 'class': 'searching'}))
+                widget=PlaatsOneWidget(attrs={'data-placeholder': _('Select a place...'), 'style': 'width: 100%;', 'class': 'searching'}))
     date_from   = forms.IntegerField(label=_("Date start"), required = False,
                 widget=forms.TextInput(attrs={'placeholder': _('Starting from...'),  'style': 'width: 100%;', 'class': 'searching'}))
     date_until  = forms.IntegerField(label=_("Date until"), required = False,
@@ -224,11 +228,13 @@ class WerkstukForm(forms.ModelForm):
                 aard_sorting = "english_name"
                 soort_sorting = "eng"
                 tag_choices = [(x.abbr, x.eng) for x in Tag.objects.all().order_by('name')]
+                self.fields['soortlist'].widget = SoortWidget(attrs={'data-placeholder': _('Select one or more parts...'), 'style': 'width: 100%;', 'class': 'searching'})
             else:
                 # Dutch sorting
                 aard_sorting = "dutch_name"
                 soort_sorting = "naam"
                 tag_choices = [(x.abbr, x.name) for x in Tag.objects.all().order_by('name')]
+                self.fields['soortlist'].widget = SoortWidgetNL(attrs={'data-placeholder': _('Select one or more parts...'), 'style': 'width: 100%;', 'class': 'searching'})
             # Widget adjusting
             self.fields['aardlist'].widget.sort_field = aard_sorting
             self.fields['aardtype'].widget.sort_field = aard_sorting

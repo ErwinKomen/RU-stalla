@@ -656,7 +656,7 @@ class WerkstukEdit(BasicDetails):
                 {'type': 'plain', 'label': _("Location"),           'value': instance.get_locatie(),    },
                 {'type': 'plain', 'label': _("Photographer"),       'value': instance.get_fotograaf(),    },
                 {'type': 'safe',  'label': _("Literature notes"),   'value': instance.get_lit_paralel(),    },
-                {'type': 'safe',  'label': _("Categories"),         'value': instance.get_tags_html(),    },
+                {'type': 'safe',  'label': _("Categories"),         'value': instance.get_tags_html(self.language),    },
 
                 # Remove this according to issue #16
                 # {'type': 'plain', 'label': _("Iconclass codes"),       'value': instance.get_iconclasscodes(),    },
@@ -841,9 +841,9 @@ class WerkstukListview(BasicList):
 
         order_heads = [
             {'name': _('Object number'),   'order': 'o=1', 'type': 'str', 'field': 'inventarisnummer',              'linkdetails': True},
-            {'name': _('Image'),           'order': 'o=2', 'type': 'str', 'custom': 'image',                        'linkdetails': True},
+            {'name': _('Image'),           'order': '',    'type': 'str', 'custom': 'image',                        'linkdetails': True},
             # {'name': _('Kind'),            'order': 'o=3', 'type': 'str', 'custom': 'aard',                         'linkdetails': True},
-            {'name': _('Description'),     'order': 'o=4', 'type': 'str', 'custom': 'beschrijving', 'main': True,   'linkdetails': True},
+            {'name': _('Description'),     'order': 'o=3', 'type': 'str', 'custom': 'beschrijving', 'main': True,   'linkdetails': True},
             ]
         filter_sections = [
             {"id": "main",      "section": ""},
@@ -865,7 +865,7 @@ class WerkstukListview(BasicList):
             # Issue #23: remove aard filtering
             # {"name": _("Kind"),            "id": "filter_aardtype",         "enabled": False, "section": "typing",  "show": "none"},
             {"name": _("Parts"),           "id": "filter_soort",            "enabled": False, "section": "parting",  "show": "none"},
-            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False, "section": "typing",   "show": "label"},
+            {"name": _("Tags"),            "id": "filter_tags",             "enabled": False, "section": "typing",   "show": "none"},
             ]
         searches = [
             {'section': '', 'filterlist': [
@@ -891,6 +891,12 @@ class WerkstukListview(BasicList):
         oErr = ErrHandle()
 
         try:
+            # Some language-dependant part
+            if self.language == "en":
+                self.order_cols = ['inventarisnummer', '', 'beschrijving_en']
+            else:
+                self.order_cols = ['inventarisnummer', '', 'beschrijving_nl']
+
             # Make sure the searches and stuff appear with the correct translation
             self.order_heads = order_heads
             self.filters = filters

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-03 08:48+0100\n"
+"POT-Creation-Date: 2022-02-07 16:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,83 +18,83 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: stalla/basic/templates/basic/basic_details.html:30
+#: stalla/basic/templates/basic/basic_details.html:33
 msgid "Return to the list of items"
 msgstr "Terug naar de lijst met objecten"
 
-#: stalla/basic/templates/basic/basic_details.html:30
+#: stalla/basic/templates/basic/basic_details.html:33
 msgid "List"
 msgstr "Lijst"
 
-#: stalla/basic/templates/basic/basic_details.html:48
+#: stalla/basic/templates/basic/basic_details.html:51
 msgid "Go to the first item"
 msgstr "Ga naar het eerste object"
 
-#: stalla/basic/templates/basic/basic_details.html:52
+#: stalla/basic/templates/basic/basic_details.html:55
 msgid "Go to the previous item"
 msgstr "Ga naar het vorige object"
 
-#: stalla/basic/templates/basic/basic_details.html:57
+#: stalla/basic/templates/basic/basic_details.html:60
 msgid "Go to the next item"
 msgstr "Ga naar het volgende object"
 
-#: stalla/basic/templates/basic/basic_details.html:61
+#: stalla/basic/templates/basic/basic_details.html:64
 msgid "Go to the last item"
 msgstr "Ga naar het laatste object"
 
-#: stalla/seeker/forms.py:133
+#: stalla/seeker/forms.py:144
 msgid "Password"
 msgstr "Wachtwoord"
 
-#: stalla/seeker/forms.py:153
+#: stalla/seeker/forms.py:164
 msgid "Select one or more nature types..."
 msgstr "Kies één of meer aard types..."
 
-#: stalla/seeker/forms.py:155
+#: stalla/seeker/forms.py:166
 msgid "Select a nature type..."
 msgstr "Kies een aard type..."
 
-#: stalla/seeker/forms.py:157
-msgid "Select one or more parts..."
-msgstr "Kies één of meer onderdelen..."
-
-#: stalla/seeker/forms.py:159
+#: stalla/seeker/forms.py:170
 msgid "Select a country..."
 msgstr "Kies een land..."
 
-#: stalla/seeker/forms.py:161
-msgid "Choose a place..."
+#: stalla/seeker/forms.py:172
+msgid "Select a place..."
 msgstr "Kies een plaats..."
 
-#: stalla/seeker/forms.py:162
+#: stalla/seeker/forms.py:173
 #, fuzzy
 #| msgid "Date range"
 msgid "Date start"
 msgstr "Datuminterval"
 
-#: stalla/seeker/forms.py:163
+#: stalla/seeker/forms.py:174
 msgid "Starting from..."
 msgstr "Vanaf..."
 
-#: stalla/seeker/forms.py:164
+#: stalla/seeker/forms.py:175
 #, fuzzy
 #| msgid "Date range"
 msgid "Date until"
 msgstr "Datuminterval"
 
-#: stalla/seeker/forms.py:165
+#: stalla/seeker/forms.py:176
 msgid "Until (including)..."
 msgstr "Tot en met..."
 
-#: stalla/seeker/forms.py:177
+#: stalla/seeker/forms.py:190
 #, fuzzy
 #| msgid "Object number"
 msgid "object number"
 msgstr "Objectnummer"
 
-#: stalla/seeker/forms.py:183
+#: stalla/seeker/forms.py:196
 msgid "Select a location..."
 msgstr "Kies een locatie..."
+
+#: stalla/seeker/forms.py:231 stalla/seeker/forms.py:237
+msgid "Select one or more parts..."
+msgstr "Kies één of meer onderdelen..."
 
 #: stalla/seeker/templates/seeker/stalla_list.html:107
 msgid "Search in description or object number"
@@ -182,151 +182,149 @@ msgid "Place"
 msgstr "Plaats"
 
 #: stalla/seeker/templates/seeker/werkstuk_tooltip.html:10
-#: stalla/seeker/views.py:648 stalla/seeker/views.py:833
-#: stalla/seeker/views.py:844
+#: stalla/seeker/views.py:656 stalla/seeker/views.py:850
+#: stalla/seeker/views.py:861
 msgid "Location"
 msgstr "Locatie"
 
 #: stalla/seeker/templates/seeker/werkstuk_tooltip.html:11
-#: stalla/seeker/views.py:643
+#: stalla/seeker/views.py:651
 msgid "Part"
 msgstr "Onderdeel"
 
-#: stalla/seeker/views.py:641 stalla/seeker/views.py:829
+#: stalla/seeker/views.py:649 stalla/seeker/views.py:846
 msgid "Description"
 msgstr "Beschrijving"
 
-#: stalla/seeker/views.py:642 stalla/seeker/views.py:826
+#: stalla/seeker/views.py:650 stalla/seeker/views.py:843
 msgid "Object number"
 msgstr "Objectnummer"
 
-#: stalla/seeker/views.py:644
+#: stalla/seeker/views.py:652
 msgid "Nature"
 msgstr "Aard"
 
-#: stalla/seeker/views.py:645
+#: stalla/seeker/views.py:653
 msgid "Artist"
 msgstr "Kunstenaar"
 
-#: stalla/seeker/views.py:646
+#: stalla/seeker/views.py:654
 msgid "Position"
 msgstr "Positie"
 
-#: stalla/seeker/views.py:647
+#: stalla/seeker/views.py:655
 msgid "Date"
 msgstr "Datering"
 
-#: stalla/seeker/views.py:649
+#: stalla/seeker/views.py:657
 msgid "Photographer"
 msgstr "Fotograaf"
 
-#: stalla/seeker/views.py:650
+#: stalla/seeker/views.py:658
 msgid "Literature notes"
 msgstr "Duiding"
 
-#: stalla/seeker/views.py:651
-#, fuzzy
-#| msgid "Category"
+#: stalla/seeker/views.py:659
 msgid "Categories"
-msgstr "Categorie"
+msgstr "Categorieën"
 
-#: stalla/seeker/views.py:660
+#: stalla/seeker/views.py:668
 msgid "Author(s)"
 msgstr "Auteur(s)"
 
-#: stalla/seeker/views.py:661
+#: stalla/seeker/views.py:669
 msgid "Title"
 msgstr "Titel"
 
-#: stalla/seeker/views.py:662 stalla/seeker/views.py:843
+#: stalla/seeker/views.py:670 stalla/seeker/views.py:860
 msgid "City"
 msgstr "Plaats"
 
-#: stalla/seeker/views.py:663
+#: stalla/seeker/views.py:671
 msgid "Year"
 msgstr "Jaar"
 
-#: stalla/seeker/views.py:664
+#: stalla/seeker/views.py:672
 msgid "Journal"
 msgstr "Tijdschrift"
 
-#: stalla/seeker/views.py:665
+#: stalla/seeker/views.py:673
 msgid "Pages"
 msgstr "Pagina's"
 
-#: stalla/seeker/views.py:721
+#: stalla/seeker/views.py:729
 msgid "About the object date"
 msgstr "Over de datering"
 
-#: stalla/seeker/views.py:722
+#: stalla/seeker/views.py:730
 msgid "About the origin"
 msgstr "Over de herkomst"
 
-#: stalla/seeker/views.py:723
+#: stalla/seeker/views.py:731
 msgid "About the condition"
 msgstr "Over de toestand"
 
-#: stalla/seeker/views.py:724
+#: stalla/seeker/views.py:732
 msgid "About the material"
 msgstr "Over het materiaal"
 
-#: stalla/seeker/views.py:725
+#: stalla/seeker/views.py:733
 msgid "About the picture"
 msgstr "Over de fotooto"
 
-#: stalla/seeker/views.py:726
+#: stalla/seeker/views.py:734
 msgid "About the parallels"
 msgstr "Over de parallellen"
 
-#: stalla/seeker/views.py:727
+#: stalla/seeker/views.py:735
 msgid "About the picture date"
 msgstr "Over de datering (afbeelding)"
 
-#: stalla/seeker/views.py:757
+#: stalla/seeker/views.py:765
 msgid "Page details"
 msgstr "Paginaverwijzing"
 
-#: stalla/seeker/views.py:827
+#: stalla/seeker/views.py:844
 msgid "Image"
 msgstr "Afbeelding"
 
-#: stalla/seeker/views.py:834
+#: stalla/seeker/views.py:851
 msgid "Dating"
 msgstr "Datering"
 
-#: stalla/seeker/views.py:835 stalla/seeker/views.py:850
+#: stalla/seeker/views.py:852 stalla/seeker/views.py:867
 msgid "Parts"
 msgstr "Onderdeel"
 
-#: stalla/seeker/views.py:836
+#: stalla/seeker/views.py:853
 msgid "Category"
 msgstr "Categorie"
 
-#: stalla/seeker/views.py:842
+#: stalla/seeker/views.py:859
 msgid "Land"
 msgstr "Land"
 
-#: stalla/seeker/views.py:845
+#: stalla/seeker/views.py:862
 msgid "From (year)"
 msgstr "Vanaf (jaar)"
 
-#: stalla/seeker/views.py:846
+#: stalla/seeker/views.py:863
 msgid "Until (year)"
 msgstr "Tot aan (jaar)"
 
-#: stalla/seeker/views.py:851
+#: stalla/seeker/views.py:868
 msgid "Tags"
 msgstr "Kenmerken"
 
-#: stalla/seeker/views.py:870
+#: stalla/seeker/views.py:887
 msgid "beschrijving_en"
 msgstr "beschrijving_nl"
 
-#: stalla/seeker/views.py:1079
+#: stalla/seeker/views.py:1109
 msgid "Show"
 msgstr "Toon"
 
-#: stalla/seeker/views.py:1080
+#: stalla/seeker/views.py:1110
 msgid "objects in the list"
 msgstr "objecten in de lijst"
 
@@ -344,7 +342,7 @@ msgstr "Documentatie"
 
 #: stalla/templates/admin/base.html:55
 #: stalla/templates/archief/topnav_archief.html:74
-#: stalla/templates/topnav.html:59
+#: stalla/templates/topnav.html:68
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
@@ -358,7 +356,7 @@ msgstr "Home"
 
 #: stalla/templates/archief/index_archief.html:11
 #: stalla/templates/archief/index_archief.html:21
-#: stalla/templates/index.html:11
+#: stalla/templates/index.html:14
 msgid "To the database"
 msgstr "Naar de database"
 
@@ -406,12 +404,12 @@ msgid "About"
 msgstr "Over"
 
 #: stalla/templates/archief/topnav_archief.html:73
-#: stalla/templates/topnav.html:58
+#: stalla/templates/topnav.html:67
 msgid "Log off"
 msgstr "Afmelden"
 
 #: stalla/templates/archief/topnav_archief.html:76
-#: stalla/templates/topnav.html:61
+#: stalla/templates/topnav.html:70
 msgid "Log in"
 msgstr "Aanmelden"
 
@@ -429,7 +427,7 @@ msgstr "Postbus"
 
 #: stalla/templates/contact.html:16
 msgid "Netherlands"
-msgstr ""
+msgstr "   "
 
 #: stalla/templates/index.html:26
 msgid "Medieval choir stalls database"

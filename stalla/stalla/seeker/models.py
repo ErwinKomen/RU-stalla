@@ -266,6 +266,8 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
                     if obj == None:
                         lstQ[path] = value
                     elif getattr(obj,path) != value:
+                        if path == "lit_paralel":
+                            iStop = 1
                         # Log change
                         oErr.Status("custom_add change {} from {} into {}".format(path,getattr(obj,path), value ))
                         # Perform the change
@@ -313,7 +315,8 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
                                 lstQ[k] = v
                     else:
                         # Existing one: response will be boolean
-                        bNeedsSaving = obj.custom_set(path, value, oWerkstuk, **kwargs)
+                        if obj.custom_set(path, value, oWerkstuk, **kwargs):
+                            bNeedsSaving = True
 
         # Make sure the update the object
         if obj == None:
@@ -1330,7 +1333,7 @@ class Werkstuk(models.Model):
             lstQ = {} if self is None else False
         return lstQ
 
-    def custom_tags(oWerkstuk, addonly = False, taglist = None):
+    def custom_tags(oWerkstuk, addonly = False, taglist = None, deleting = [], adding = []):
         """Get the tags from oWerkstuk and update"""
 
         oErr = ErrHandle()
@@ -1352,12 +1355,14 @@ class Werkstuk(models.Model):
                         wtag = WerkstukTag.objects.filter(werkstuk=obj, tag_id=oTag['id']).first()
                         if wtag == None:
                             # Add this relation
-                            WerkstukTag.objects.create(werkstuk=obj, tag_id=oTag['id'])
+                            # WerkstukTag.objects.create(werkstuk=obj, tag_id=oTag['id'])
+                            adding.append(dict(werkstuk_id=obj.id, tag_id=oTag['id']))
                     else:
                         # If the relation exists, it must be removed
                         wtag = WerkstukTag.objects.filter(werkstuk=obj, tag_id=oTag['id']).first()
                         if wtag != None:
-                            wtag.delete()
+                            # wtag.delete()
+                            deleting.append(dict(werkstuk_id=obj.id, tag_id=oTag['id']))
         except:
             msg = oErr.get_error_message()
             oErr.DoError("custom_tags")
@@ -1550,10 +1555,11 @@ class Werkstuk(models.Model):
             sBack = self.soort.eng
         return sBack
 
-    def get_tags_html(self):
+    def get_tags_html(self, language):
         lhtml = []
-        for obj in self.tags.all().order_by('name'):
-            sTag = "<span class='badge categorie'>{}</span>".format(obj.name)
+        sort_field = "name" if language == "nl" else "eng"
+        for obj in self.tags.all().order_by(sort_field):
+            sTag = "<span class='badge categorie'>{}</span>".format( getattr(obj, sort_field))
             lhtml.append(sTag)
         sBack = " ".join(lhtml)
         return sBack
@@ -1823,19 +1829,34 @@ class Werkstuk(models.Model):
             if "tags" not in lst_skip:
                 count = 0
                 addonly = (WerkstukTag.objects.count() == 0)
+                wt_adding = []
+                wt_deleting = []
+                for oRow in oStallaData['object']:
+                    # Show where we are
+                    count += 1
+                    if count % 1000 == 0:
+                        oStatus.set("reading tag {}".format(count))
+                        oErr.Status("reading tag {}".format(count))
+                    # Process this item into the database
+                    Werkstuk.custom_tags(oRow, addonly=addonly, taglist=taglist, deleting=wt_deleting, adding=wt_adding)
+                    count_wst_now = WerkstukTag.objects.count()
+                    if count_wst_now < count_wst:
+                        # Did something go wrong?
+                        iStop = True
+                # Do the adding
+                oStatus.set("Adding tags: {}".format(len(wt_adding)))
                 with transaction.atomic():
-                    for oRow in oStallaData['object']:
-                        # Show where we are
-                        count += 1
-                        if count % 1000 == 0:
-                            oStatus.set("reading tag {}".format(count))
-                            oErr.Status("reading tag {}".format(count))
-                        # Process this item into the database
-                        Werkstuk.custom_tags(oRow, addonly=addonly, taglist=taglist)
-                        count_wst_now = WerkstukTag.objects.count()
-                        if count_wst_now < count_wst:
-                            # Did something go wrong?
-                            iStop = True
+                    for oItem in wt_adding:
+                        werkstuk_id = oItem['werkstuk_id']
+                        tag_id = oItem['tag_id']
+                        WerkstukTag.objects.create(werkstuk_id=werkstuk_id, tag_id=tag_id)
+                # Do any deleting
+                oStatus.set("Deleting tags: {}".format(len(wt_deleting)))
+                with transaction.atomic():
+                    for oItem in wt_deleting:
+                        werkstuk_id = oItem['werkstuk_id']
+                        tag_id = oItem['tag_id']
+                        WerkstukTag.objects.filter(werkstuk_id=werkstuk_id, tag_id=tag_id).delete()
 
             # (2) Read the 'iconclassnotatie' objects
             oStatus.set("tables 6", {'table': 'iconclassnotatie'})
