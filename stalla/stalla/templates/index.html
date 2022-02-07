@@ -4,16 +4,16 @@
 
 {% block content %}
 
-<!-- Banner -->
-<div class="stalla-banner" img="{% static 'seeker/content/logo_stalla.jpg' %}">
-  <!-- to the database button -->
-  <div class="stalla-start">
-    <a href="{% url 'werkstuk_list' %}" class="btn btn-success btn-xlarge">{% trans "To the database" %}</a>
-  </div>
-</div>
-
 
 <div class="container body-content">
+
+  <!-- Banner -->
+  <div class="stalla-banner" img="{% static 'seeker/content/logo_stalla.jpg' %}">
+    <!-- to the database button -->
+    <div class="stalla-start">
+      <a href="{% url 'werkstuk_list' %}" class="btn btn-success btn-xlarge">{% trans "To the database" %}</a>
+    </div>
+  </div>
 
   {% if is_404 %}
     <div class="sent-error">

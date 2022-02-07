@@ -112,10 +112,17 @@ class SoortWidget(ModelSelect2MultipleWidget):
 
     def label_from_instance(self, obj):
         sName = "-"
+        sNameEng = "" if obj.eng is None or obj.eng == "" else obj.eng
+        sNameNld = "" if obj.naam is None or obj.naam == "" else obj.naam
         if self.sort_field == "eng":
-            sName = "{} ({})".format(obj.eng, obj.naam)
+            if sNameNld == "":
+                sName = sNameEng
+            else:
+                sName = "{} [{}]".format(sNameEng, sNameNld)
+        elif sNameNld == "":
+            sName = sNameEng
         else:
-            sName = obj.eng if obj.naam == "" else "{} ({})".format(obj.naam, obj.eng)
+            sName = "{} [{}]".format(sNameNld, sNameEng)
         return sName
 
     def get_queryset(self):
