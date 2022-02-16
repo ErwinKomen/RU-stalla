@@ -1292,7 +1292,7 @@ class Werkstuk(models.Model):
                 soort = oWerkstuk.get("soort")
                 soort_eng = oWerkstuk.get("soort_engels")
                 # Find the Soort entry
-                obj = Soort.objects.filter(naam=soort, eng=soort_eng).first()
+                obj = Soort.objects.filter(naam__iexact=soort, eng__iexact=soort_eng).first()
                 if obj == None:
                     obj = Soort.objects.create(naam=soort, eng=soort_eng)
                 # Set myself
@@ -1956,6 +1956,21 @@ class Werkstuk(models.Model):
                         # Process the new m2m list
                         Werkstuk.custom_m2m(oRow, Literatuur, Literatuurverwijzing, "werkstuk_literatuur", "literatuur",
                                             extra_fields = ['paginaverwijzing', 'exemplaar'])
+
+            # Update the SOORT table
+            soort_ids = []
+            with transaction.atomic():
+                for obj in Werkstuk.objects.all():
+                   if not obj.soort.id in soort_ids:
+                       soort_ids.append(obj.soort.id)
+            # Get all the Soort elements that are not actually used in Werkstuk
+            remove_ids = [x.id for x in Soort.objects.exclude(id__in=soort_ids)]
+            if len(remove_ids) > 0:
+                # Remove those soort elements altogether
+                Soort.objects.filter(id__in=remove_ids).delete()
+                # Tell what we have done
+                oStatus.set("soort: removed {} unused items".format(len(remove_ids)))
+
 
             # Now we are ready
             oResult['status'] = "ok"

@@ -132,11 +132,17 @@ class SoortWidget(ModelSelect2MultipleWidget):
             if sNameNld == "":
                 sName = sNameEng
             else:
-                sName = "{} [{}]".format(sNameEng, sNameNld)
+                # Was:
+                # sName = "{} [{}]".format(sNameEng, sNameNld)
+                # Issue #29:
+                sName = sNameEng
         elif sNameNld == "":
             sName = sNameEng
         else:
-            sName = "{} [{}]".format(sNameNld, sNameEng)
+            # Was:
+            # sName = "{} [{}]".format(sNameNld, sNameEng)
+            # Issue #29:
+            sName = sNameNld
         return sName
 
     def get_queryset(self):
