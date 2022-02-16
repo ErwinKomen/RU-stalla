@@ -5,6 +5,7 @@ Definition of urls for stalla.
 from datetime import datetime
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.conf.urls import url
 from django.urls import path, re_path, include, reverse_lazy  #, url
 from django.views.decorators.csrf import csrf_exempt
 
@@ -52,7 +53,7 @@ urlpatterns = [
     path('definitions/', RedirectView.as_view(url='/'+pfx+'admin/'), name='definitions'),
     path('signup/', stalla.seeker.views.signup, name='signup'),
 
-    # url(r'^login/user/(?P<user_id>\w[\w\d_]+)$', stalla.seeker.views.login_as_user, name='login_as'),
+    url(r'^login/user/(?P<user_id>\w[\w\d_]+)$', stalla.seeker.views.login_as_user, name='login_as'),
 
     path('login/',
          LoginView.as_view

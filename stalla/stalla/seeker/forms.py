@@ -84,7 +84,21 @@ class LocatieOneWidget(ModelSelect2Widget):
     # Note: k = form field, v = model field
 
     def label_from_instance(self, obj):
-        return "{} ({}, {})".format(obj.name, obj.city.name, obj.country.name)
+        sCity = "" if obj.city is None else obj.city.name
+        sCountry = "" if obj.country is None else obj.country.name
+        sBack = ""
+        if sCity == "":
+            if sCountry == "":
+                sBack = obj.name
+            else:
+                # There is no city, but there is a country
+                sBack = "{} ({})".format(obj.name, sCountry)
+        elif sCountry == "":
+            sBack = obj.name
+        else:
+            # There is a city, and there is a country
+            sBack = "{} ({}, {})".format(obj.name, sCity, sCountry)
+        return sBack
 
     def get_queryset(self):
         qs = Location.objects.exclude(name="").order_by('name').distinct()
