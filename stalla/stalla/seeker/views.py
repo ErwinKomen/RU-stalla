@@ -655,8 +655,10 @@ class WerkstukEdit(BasicDetails):
                 {'type': 'plain', 'label': _("Date"),               'value': instance.get_daterange(),    },
                 {'type': 'plain', 'label': _("Location"),           'value': instance.get_locatie(),    },
                 {'type': 'plain', 'label': _("Photographer"),       'value': instance.get_fotograaf(),    },
-                {'type': 'safe',  'label': _("Literature notes"),   'value': instance.get_lit_paralel(),    },
+                {'type': 'safe',  'label': _("Interpretation"),     'value': instance.get_lit_paralel(),    },
                 {'type': 'safe',  'label': _("Categories"),         'value': instance.get_tags_html(self.language),    },
+
+                # Issue #38: change "Literature notes" into "Interpretation"
 
                 # Remove this according to issue #16
                 # {'type': 'plain', 'label': _("Iconclass codes"),       'value': instance.get_iconclasscodes(),    },
@@ -669,7 +671,7 @@ class WerkstukEdit(BasicDetails):
             add_literature('title', _('Title'))
             add_literature('plaatsvanuitgave', _('City'))
             add_literature('jaar', _('Year'))
-            add_literature('tijdschrift', _('Journal'))
+            add_literature('tijdschrift', _('Journal/Volume'))
             add_literature('pagina', _('Pages'))
 
             if not self.userhelp is None:
@@ -728,7 +730,7 @@ class WerkstukDetails(WerkstukEdit):
         remark_fields = [
             {'field': 'opmerking_datering_nl',      'label': _("About the object date"), 'efield': 'opmerking_datering_en' },
             {'field': 'opmerking_herkomstplaats',   'label': _("About the origin") },
-            {'field': 'opmerking_toestand',         'label': _("About the condition") },
+            {'field': 'opmerking_toestand',         'label': _("General remarks") },
             {'field': 'opmerking_materiaal',        'label': _("About the material") },
             {'field': 'opmerking_foto',             'label': _("About the picture") },
             {'field': 'opmerking_paralel',          'label': _("About the parallels") },
