@@ -224,6 +224,9 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
     lstQ = {}
     app_name = "seeker"
     bNeedsSaving = False
+    accessid = "undefined"
+    field = "undefined"
+    value = "undefined"
 
     try:
         profile = kwargs.get("profile")
@@ -276,7 +279,15 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
                 elif type == "intfield":
                     # Convert to integer if needed
                     if isinstance(value, str):
-                        value = int(value)
+                        try:
+                            value = int(value)
+                        except:
+                            # Shwo what has gone wrong
+                            msg = "ERROR: at accessid={} cannot convert field [{}], value [{}] into integer".format(accessid, field, value)
+                            oErr.Status(msg)
+                            # Use the default value '0', which may be completely wrong
+                            value = 0
+
                     # Set the correct field's value
                     if obj == None:
                         lstQ[path] = value
@@ -326,8 +337,16 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
             # Save the changes
             obj.save()
     except:
-        msg = oErr.get_error_message()
-        oErr.DoError("custom_add")
+        html = []
+        html.apend(oErr.get_error_message())
+        if not accessid is None:
+            html.append("accessid={}".format(accessid))
+        if not field is None:
+            html.append("field={}".format(field))
+        if not value is None:
+            html.append("value={}".format(value))
+        msg = "custom_add. {}".format("; ".join(html))
+        oErr.DoError(msg)
     return obj
 
 def custom_getkv(obj, item, **kwargs):
