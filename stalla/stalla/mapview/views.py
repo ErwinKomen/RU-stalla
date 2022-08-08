@@ -206,11 +206,22 @@ class MapView(DetailView):
                     oEntry = {}
                     for oItem in self.entry_list:
                         oEntry[oItem['key']] = item[oItem['value_key']]
-                    # Combine point_x, point_y if needed
-                    if not "point" in oEntry and "point_x" in oEntry and "point_y" in oEntry:
-                        oEntry['point'] = "{}, {}".format(oEntry['point_x'], oEntry['point_y'])
-                    oEntry['pop_up'] = self.get_popup(oEntry)
-                    lst_back.append(oEntry)
+
+                    # Check if the points are okay
+                    bSkip = False
+                    if "point_x" in oEntry and "point_y" in oEntry:
+                        try:
+                           point_x = float(oEntry['point_x'])
+                           point_y = float(oEntry['point_y'])
+                        except:
+                            bSkip = True
+
+                    if not bSkip:
+                        # Combine point_x, point_y if needed
+                        if not "point" in oEntry and "point_x" in oEntry and "point_y" in oEntry:
+                            oEntry['point'] = "{}, {}".format(oEntry['point_x'], oEntry['point_y'])
+                        oEntry['pop_up'] = self.get_popup(oEntry)
+                        lst_back.append(oEntry)
 
                 # Possibly perform grouping
                 lst_back = self.group_entries(lst_back)

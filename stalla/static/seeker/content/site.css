@@ -1938,7 +1938,8 @@ h5 { font-size: larger;}
 }
 
 .select2-search__field {
-    width: 300px !important;
+    min-width: 250px !important;
+    width: 100%;
     font-size: large;
 }
 
@@ -1958,7 +1959,7 @@ h5 { font-size: larger;}
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center top;
-    height: 600px;
+    height: 500px;
 }
 
 .stalla-start {
@@ -1969,8 +1970,8 @@ h5 { font-size: larger;}
     align-items: flex-end;
     justify-content: flex-start;
         
-    align-items: center;*/
-    justify-content: center;
+    align-items: center;
+    justify-content: center;*/
     margin: 0px auto;
     max-width: var(--width-container);
 }
@@ -1979,7 +1980,7 @@ h5 { font-size: larger;}
     align-items: center;
     justify-content: center;
     margin-bottom: 0;
-    margin-top: 450px;
+    margin-top: 430px;
     align-content: center;
 }
 

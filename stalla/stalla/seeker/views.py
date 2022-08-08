@@ -941,6 +941,7 @@ class WerkstukListview(BasicList):
 
             # Add a user_button definition
             context['mode'] = "list"
+            context['language'] = self.language
             context['user_button'] = render_to_string("seeker/map_list_switch.html", context, self.request)
 
             context['no_result_count'] = True

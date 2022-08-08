@@ -4,7 +4,7 @@
       <a class="switch-item"
          {% if mode == "map" %}onclick="ru.stalla.seeker.goto_view(this, 'list');" style="cursor: pointer;" {% endif %} >
         <span class="glyphicon glyphicon-menu-hamburger"></span>
-        <strong>&nbsp;Lijst</strong>
+        <strong>&nbsp;{% if language == "en" %}List{% else %}Lijst{% endif %}</strong>
         <span>({{entrycount}})</span>
       </a>
     </li>
@@ -16,7 +16,7 @@
           style="cursor: pointer;" 
          {% endif %} >
         <span class="glyphicon glyphicon-map-marker"></span>&nbsp;
-        <strong>Map</strong>
+        <strong>{% if language == "en" %}Map{% else %}Kaart{% endif %}</strong>
         <span>({{mapcount}})</span>
       </a>
     </li>
