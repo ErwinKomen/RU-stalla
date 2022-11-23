@@ -1541,29 +1541,36 @@ class Werkstuk(models.Model):
     def get_locatie(self, as_object = False):
         sBack = ""
         lhtml = []
-        oItem = dict(country="", city="", location="")
-        obj = self.locatie
-        if obj != None:
-            # Get the city
-            city = obj.city
-            if city == None:
-                plaats = "onbekend"
-                land = "onbekend"
-            else:
-                plaats = city.name
-                # Get the country
-                country = city.country
-                if country == None:
+        oErr = ErrHandle()
+        try:
+            oItem = dict(country="", city="", location="")
+            obj = self.locatie
+            if obj != None:
+                # Get the city
+                city = obj.city
+                if city is None:
+                    plaats = "onbekend"
                     land = "onbekend"
+                    if not obj.country is None:
+                        land = obj.country.name
                 else:
-                    land = country.name
-            if as_object:
-                oItem['country'] = land
-                oItem['city'] = plaats
-                oItem['location'] = obj.name
-                sBack = json.dumps(oItem)
-            else:
-                sBack = "{}, {}: {}".format(land, plaats, obj.name)
+                    plaats = city.name
+                    # Get the country
+                    country = city.country
+                    if country is None:
+                        land = "onbekend"
+                    else:
+                        land = country.name
+                if as_object:
+                    oItem['country'] = land
+                    oItem['city'] = plaats
+                    oItem['location'] = obj.name
+                    sBack = json.dumps(oItem)
+                else:
+                    sBack = "{}, {}: {}".format(land, plaats, obj.name)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Werkstuk/get_locatie")
         return sBack
 
     def get_soort(self, language):
