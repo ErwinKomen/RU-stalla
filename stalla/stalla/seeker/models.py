@@ -283,7 +283,7 @@ def custom_add(oWerkstuk, cls, idfield, addonly=False, **kwargs):
                             value = int(value)
                         except:
                             # Shwo what has gone wrong
-                            msg = "ERROR: at accessid={} cannot convert field [{}], value [{}] into integer".format(accessid, field, value)
+                            msg = "ERROR: at accessid={} cannot convert field [{}], value [{}] into integer. Using [0]".format(accessid, field, value)
                             oErr.Status(msg)
                             # Use the default value '0', which may be completely wrong
                             value = 0
@@ -1288,9 +1288,15 @@ class Werkstuk(models.Model):
                 plaats = oWerkstuk.get('plaats')
                 x_coordinaat = oWerkstuk.get('x-coördinaat')
                 y_coordinaat = oWerkstuk.get('y-coördinaat')
-                # Find the Location entry
+                # Find the Location entry - create country and/or city on-the-fly, if needed
                 country = Country.objects.filter(name__iexact=land).first()
+                if country is None and not land is None and land != "":
+                    # Create the country
+                    country = Country.objects.create(name=land)
                 city = City.objects.filter(name__iexact=plaats, country=country).first()
+                if city is None and not plaats is None and plaats != "":
+                    # Create the city
+                    city = City.objects.create(name=plaats, country=country)
                 obj = Location.objects.filter(name__iexact=name, country=country, city=city).first()
                 if obj == None:
                     obj = Location.objects.create(name=name, country=country, city=city, 
