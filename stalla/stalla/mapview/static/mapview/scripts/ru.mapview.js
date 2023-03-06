@@ -669,16 +669,21 @@ var ru = (function ($, ru) {
 
                   // Make sure it is redrawn
                   setTimeout(function () {
-                    main_map_object.invalidateSize();
-                    if (points.length > 1) {
-                      main_map_object.fitBounds(polyline.getBounds());
+                    // Double check
+                    if (main_map_object === null) {
+                      // Don't do anything here
                     } else {
-                      main_map_object.setView(points[0], 12);
+                      main_map_object.invalidateSize();
+                      if (points.length > 1) {
+                        main_map_object.fitBounds(polyline.getBounds());
+                      } else {
+                        main_map_object.setView(points[0], 12);
+                      }
+
+                      private_methods.leaflet_scrollbars();
                     }
 
-                    private_methods.leaflet_scrollbars();
-
-                  }, 200);
+                  }, 400);
                   // Debug  break point
                   i = 100;
                 } else {

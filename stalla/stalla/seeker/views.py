@@ -966,10 +966,10 @@ class WerkstukListview(BasicList):
                 tooltip_html = self.get_field_tooltip(instance, custom)
                 sBack, sTitle = instance.get_image_html(self.language, tooltip = tooltip_html)
             elif custom == "beschrijving":
-                if self.language == "nl":
-                    sBack = instance.beschrijving_nl
-                else:
+                if self.language == "en":
                     sBack = instance.beschrijving_en
+                else:
+                    sBack = instance.beschrijving_nl
 
         except:
             msg = oErr.get_error_message()
@@ -1020,10 +1020,10 @@ class WerkstukListview(BasicList):
             if generic_search != None and generic_search != "":
                 # The user is using the generic text filter search facility
                 f_combi = Q(inventarisnummer__icontains=generic_search)
-                if self.language == "nl":
-                    f_combi = f_combi | Q(beschrijving_nl__icontains=generic_search)
-                else:
+                if self.language == "en":
                     f_combi = f_combi | Q(beschrijving_en__icontains=generic_search)
+                else:
+                    f_combi = f_combi | Q(beschrijving_nl__icontains=generic_search)
                 fields['inventarisnummer'] = f_combi
 
             # Disable usersearching
@@ -1078,11 +1078,12 @@ class WerkstukMapView(MapView):
         self.add_entry('point_x',   'str', 'locatie__x_coordinaat')
         self.add_entry('point_y',   'str', 'locatie__y_coordinaat')
         self.add_entry('locatie_id','str', 'locatie__id')
-        self.add_entry('soort',     'fk', 'soort', fkfield = "naam" if self.language=="nl" else "eng")
+        self.add_entry('soort',     'fk', 'soort', fkfield = "eng" if self.language=="en" else "naam")
 
         # Get a version of the current listview
         lv = WerkstukListview()
         lv.initializations()
+        lv.language = self.language
         qs = lv.get_queryset(self.request)
         self.qs = qs.exclude(Q(locatie__x_coordinaat="onbekend"))
         # Also get the parameters
