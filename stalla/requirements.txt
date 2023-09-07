@@ -1,4 +1,31 @@
-django==2.2.24
-django-select2==7.7.1
-openpyxl==3.0.7
+# ===========================================================
+# Requirements for STALLA
+# Date: 7/sep/2023
+#
+# Python version this works for: 3.8.10 / Ubuntu 20.04.6
+#
+# For a better overview of dependencies: install pipdeptree
+# ===========================================================
+
+django == 2.2.28
+django_select2 == 7.7.1
+openpyxl==3.0.9
 django-leaflet==0.27.1
+
+
+
+
+# Package            Version
+# ------------------ ---------
+# Django         2.2.24
+# django-appconf 1.0.4
+# django-leaflet 0.27.1
+# django-select2 7.7.1
+# et-xmlfile     1.1.0
+# openpyxl       3.0.7
+# pip            21.2.1
+# pipdeptree     2.13.0
+# pytz           2021.1
+# setuptools     57.1.0
+# sqlparse       0.4.1
+# wheel          0.36.2
