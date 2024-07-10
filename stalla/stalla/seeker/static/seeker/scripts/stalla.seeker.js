@@ -1105,7 +1105,8 @@ var ru = (function ($, ru) {
               $("#generic_search").val($("#generic-search-input").val());
 
               // Initiate showing a map
-              ru.mapview.stalla_map(elStart);
+              // ru.mapview.stalla_map(elStart);
+              ru.mapview.list_to_map(elStart);
               break;
             case "list":  // Open the listview
               $(id_mapview).addClass("hidden");

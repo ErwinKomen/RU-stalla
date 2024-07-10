@@ -25,6 +25,7 @@ var ru = (function ($, ru) {
         attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" title="Open Street Map">OSM</a>',
         // tiles = L.tileLayer(tileUrl, { attribution_1 }),
         stalla_tiles = L.tileLayer(tileUrl, { attribution }),
+        mapview_tiles = L.tileLayer(tileUrl, { attribution }),
         // Trial: for fontawesome *4*
         fontAwesomeIcon = L.divIcon({
           html: '<i class="fa fa-map-marker fa-alt" style="color: darkred;"></i>',
@@ -702,6 +703,201 @@ var ru = (function ($, ru) {
           });
         } catch (ex) {
           private_methods.errMsg("stalla_map", ex);
+        }
+      },
+
+      /**
+       * list_to_map 
+       *    Show all points selected by a user-defined listview - provided these points have coordinates
+       *    The points are grouped around their type (?)
+       * 
+       *    Expectations:
+       *    - the 'el' div should have attributes:
+       *      'targeturl' - The URL to call
+       * 
+       * @param {el}        DOM element where this request starts from
+       * @param {options}   dictionary with 'filter', 'map' and 'title' identifiers (set to default values)
+       * @returns {void}
+       */
+      list_to_map: function (el, options = { filter: "basiclist_filter", map: "werkstuk_map", title: "map_view_title" }) {
+        var frm = null,       // Used in the Radboud 'basic' app
+          frm2 = null,
+          data = null,
+          entries = null,
+          point = null,
+          points = [],
+          id_filter = null,
+          map_id = null,
+          polyline = null,
+          map_title = null,
+          i = 0,
+          idx = 0,
+          label = "",           // This is, so far, only used for a modal-form
+          targeturl = ""; //,
+          //oOverlay = null,    // Possibly this and the remaining ones are NOT USED?
+          //keywords = [],
+          //lemma = "",
+          //targetid = "";
+
+        try {
+          // Get the map_id and the id_filter
+          id_filter = options.filter;
+          map_id = options.map;
+          map_title = options.title;
+          // Make sure the identifiers are correct
+          //  - map_id must *NOT start with #
+          if (map_id.startsWith("#")) { map_id = map_id.substring(1); }
+          //  - id_filter and map_title *MUST* start with #
+          if (!id_filter.startsWith("#")) { id_filter = "#" + id_filter; }
+          if (!map_title.startsWith("#")) { map_title = "#" + map_title; }
+
+          // Figure out which form to take
+          frm2 = $(el).closest("form");
+          if ($(frm2).length > 0) {
+            frm = $(frm2).first();
+          } else if ($(id_filter).length > 0) {
+            frm = $(id_filter).first();
+          }
+
+          // Get the form data
+          data = $(frm).serializeArray();
+          targeturl = $(el).attr("targeturl");
+
+          // Possibly remove what is still there
+          if (main_map_object !== null) {
+            // Remove tile layer from active map
+            mapview_tiles.remove()
+            // Remove the actual map
+            try {
+              main_map_object.remove();
+            } catch (ex) {
+              i = 0;
+            }
+            main_map_object = null;
+            // Reset the 
+          }
+          // Indicate we are waiting
+          $("#" + map_id).html(loc_sWaiting);
+          if (points.length > 0) points.clear();
+          // Other initializations
+          loc_layerDict = {};
+          loc_layerList = [];
+          loc_trefwoord = [];           // THis now contains the first letter of the Kloeke Codes
+          loc_colorDict = {};
+          loc_overlayMarkers = {};
+
+          // Post the data to the server
+          $.post(targeturl, data, function (response) {
+            var key, layername, kvalue;
+
+            // Sanity check
+            if (response !== undefined) {
+              if (response.status == "ok") {
+                if ('entries' in response) {
+                  entries = response['entries'];
+
+                  // The title LABEL is for a Modal Dialog view
+                  label = response['label'];
+                  if ($(map_title).length > 0) {
+                    $(map_title).html(label);
+                  }
+
+                  if (main_map_object == null) {
+                    // now get the first point
+                    for (i = 0; i < entries.length; i++) {
+                      if (entries[i].point !== null && entries[i].point !== "") {
+                        // Add point to the array of points to find out the bounds
+                        points.push(entries[i].point.split(",").map(Number));
+                        // Create a marker for this point
+                        private_methods.make_marker(entries[i]);
+                      }
+                    }
+                    if (points.length > 0) {
+                      // Get the first point
+                      point = points[0];
+                      // CLear the map section from the waiting symbol
+                      $("#" + map_id).html();
+                      // Set the starting map
+                      main_map_object = L.map(map_id).setView([point[0], point[1]], 12);
+                      // Add it to my mapview_tiles
+                      mapview_tiles.addTo(main_map_object);
+                      // https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet to handle overlapping markers
+                      loc_oms = new OverlappingMarkerSpiderfier(main_map_object, { keepSpiderfied: true });
+
+                      // Convert layerdict into layerlist
+                      for (key in loc_layerDict) {
+                        loc_layerList.push({ key: key, value: loc_layerDict[key], freq: loc_layerDict[key].length });
+                      }
+                      // sort the layerlist
+                      loc_layerList.sort(function (a, b) {
+                        return b.freq - a.freq;
+                      });
+
+                      // Make a layer of markers from the layerLIST
+                      for (idx in loc_layerList) {
+                        key = loc_layerList[idx].key;
+                        layername = '<span style="color: ' + loc_colorDict[key] + ';">' + key + '</span>' + ' (' + loc_layerList[idx].freq + ')';
+                        kvalue = loc_layerList[idx].value;
+                        if (kvalue.length > 0) {
+                          try {
+                            loc_overlayMarkers[layername] = L.layerGroup(kvalue).addTo(main_map_object);
+                          } catch (ex) {
+                            i = 100;
+                          }
+                        }
+                      }
+                      L.control
+                        .layers({}, loc_overlayMarkers, { collapsed: false })
+                        .addTo(main_map_object)
+
+                      // Set map to fit the markers
+                      polyline = L.polyline(points);
+                      if (points.length > 1) {
+                        main_map_object.fitBounds(polyline.getBounds());
+                      } else {
+                        main_map_object.setView(points[0], 12);
+                      }
+
+                      private_methods.leaflet_scrollbars();
+
+                    }
+                  }
+
+                  // Make sure it is redrawn
+                  setTimeout(function () {
+                    // Double check
+                    if (main_map_object === null) {
+                      // Don't do anything here
+                    } else {
+                      main_map_object.invalidateSize();
+                      if (points.length > 1) {
+                        main_map_object.fitBounds(polyline.getBounds());
+                      } else {
+                        main_map_object.setView(points[0], 12);
+                      }
+
+                      private_methods.leaflet_scrollbars();
+                    }
+
+                  }, 400);
+                  // Debug  break point
+                  i = 100;
+                } else {
+                  errMsg("Response is okay, but [html] is missing");
+                }
+                // Knoppen weer inschakelen
+
+              } else {
+                if ("msg" in response) {
+                  errMsg(response.msg);
+                } else {
+                  errMsg("Could not interpret response " + response.status);
+                }
+              }
+            }
+          });
+        } catch (ex) {
+          private_methods.errMsg("list_to_map", ex);
         }
       }
 
