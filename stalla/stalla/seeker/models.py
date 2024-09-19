@@ -1677,6 +1677,7 @@ class Werkstuk(models.Model):
                         Werkstuk.custom_tags(oRow, addonly=addonly, taglist=taglist)
 
             # (2) Read the 'iconclassnotatie' objects
+            oErr.Status("Looking at: iconclassnotatie")
             if "iconclassnotatie" not in lst_skip:
                 count = 0
                 bAddOnly = (Iconclassnotatie.objects.count() == 0)
@@ -1690,6 +1691,7 @@ class Werkstuk(models.Model):
                         custom_add(oRow, Iconclassnotatie, "iconobjid")
 
             # (3) Read the 'Kunstenaarnotatie' objects
+            oErr.Status("Looking at: Kunstenaarnotatie")
             if "Kunstenaarnotatie" not in lst_skip:
                 count = 0
                 bAddOnly = (Kunstenaarnotatie.objects.count() == 0)
@@ -1703,6 +1705,7 @@ class Werkstuk(models.Model):
                         custom_add(oRow, Kunstenaarnotatie, "kunstenaarobjid")
 
             # (4) Read the 'literatuurverwijzing' objects
+            oErr.Status("Looking at: literatuurverwijzing")
             if "literatuurverwijzing" not in lst_skip:
                 count = 0
                 bAddOnly = (Literatuurverwijzing.objects.count() == 0)
@@ -1720,6 +1723,8 @@ class Werkstuk(models.Model):
             oResult['status'] = "ok"
             oResult['msg'] = "Read {} items".format(count)
             oResult['count'] = count
+            # Log finish of this 
+            oErr.Status("Finished reading: {} item(s)".format(count))
         except:
             oResult['status'] = "error"
             oResult['msg'] = oErr.get_error_message()
