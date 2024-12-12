@@ -57,62 +57,77 @@ class ErrHandle:
     def get_error_stack(self):
         return " ".join(self.loc_errStack)
 
+errHandle = ErrHandle()
+
+
 def move_dir_to_targz(subdir, imgdir):
-    print("Doing tar.gz of images in: {}".format(imgdir))
-    targetfile = "./{}/stalla_img_{}.tar.gz".format(subdir, imgdir)
-    # Walk all files in this subdirectory
-    reading_dir = os.path.join(subdir, imgdir)
-    with tarfile.open(targetfile, "w:gz") as tar:
-        for fn in os.listdir(reading_dir):
-            p = os.path.join(reading_dir, fn)
-            arcname = os.path.join(imgdir, fn)
-            tar.add(p, arcname=arcname)
-    # Remove the directory
-    print("Removing directory: {}".format(reading_dir))
-    shutil.rmtree(reading_dir)
+    try:
+        print("Doing tar.gz of images in: {}".format(imgdir))
+        targetfile = "./{}/stalla_img_{}.tar.gz".format(subdir, imgdir)
+        # Walk all files in this subdirectory
+        reading_dir = os.path.join(subdir, imgdir)
+        with tarfile.open(targetfile, "w:gz") as tar:
+            for fn in os.listdir(reading_dir):
+                p = os.path.join(reading_dir, fn)
+                arcname = os.path.join(imgdir, fn)
+                tar.add(p, arcname=arcname)
+        # Remove the directory
+        print("Removing directory: {}".format(reading_dir))
+        shutil.rmtree(reading_dir)
+    except:
+        # act
+        msg = errHandle.get_error_message()
+        errHandle.DoError("move_dir_to_targz")
+
 
 def unzip_archive(archive):
     """Unzip [archive] to a directory structure based on it"""
 
     # Keep track of directories
     directories = []
+    subdir = None
+    try:
 
-    # Figure out what the subdir is
-    subdir = archive.filename[0:len(archive.filename)-4]
+        # Figure out what the subdir is
+        subdir = archive.filename[0:len(archive.filename)-4]
 
-    for file in archive.namelist():
-        # Check if this is a JPG
-        if ".jpg" in file.lower():
-            # Get the name of the file after /
-            arName = file.split("/")
-            filename = arName[-1].lower()
-            # Get the first two characters of the name of the file
-            dir_name = filename[0:2]
-            # Directory check
-            if not dir_name in directories:
-                directories.append(dir_name)
-                print("Doing directory {}".format(dir_name))
+        for file in archive.namelist():
+            # Check if this is a JPG
+            if ".jpg" in file.lower():
+                # Get the name of the file after /
+                arName = file.split("/")
+                filename = arName[-1].lower()
+                # Get the first two characters of the name of the file
+                dir_name = filename[0:2]
+                # Directory check
+                if not dir_name in directories:
+                    directories.append(dir_name)
+                    print("Doing directory {}".format(dir_name))
 
-            # Extract to this directory
-            targetdir = Path("./{}/{}".format(subdir, dir_name))
-            # Check if this directory exists
-            if not targetdir.exists():
-                targetdir.mkdir()
+                # Extract to this directory
+                targetdir = Path("./{}/{}".format(subdir, dir_name))
+                # Check if this directory exists
+                if not targetdir.exists():
+                    # Double check the parent
+                    if not targetdir.parent.exists():
+                        targetdir.parent.mkdir()
+                    targetdir.mkdir()
 
-            targetfile = "./{}/{}/{}".format(subdir, dir_name, filename)
-            targetpath = Path(targetfile)
-            if not targetpath.exists():
-                # Read the data
-                data = archive.read(file)
-                targetpath.write_bytes(data)
+                targetfile = "./{}/{}/{}".format(subdir, dir_name, filename)
+                targetpath = Path(targetfile)
+                if not targetpath.exists():
+                    # Read the data
+                    data = archive.read(file)
+                    targetpath.write_bytes(data)
 
-    # Close the archive
-    archive.close()
+        # Close the archive
+        archive.close()
+    except:
+        # act
+        msg = errHandle.get_error_message()
+        errHandle.DoError("unzip_archive")
     # Return the directories and the subdir
     return subdir, directories
-
-errHandle = ErrHandle()
-
 
 # ----------------------------------------------------------------------------------
 # Name :    main
@@ -152,14 +167,19 @@ def main(prgName, argv) :
 
         subdir, directories = unzip_archive(archive)
 
-        errHandle.Status("Moving image directories to TAR.gz...")
-        for imgdir in directories:
-            move_dir_to_targz(subdir, imgdir)
+        if subdir is None:
+            errHandle.Status("Exiting: there is no subdir to write to")
+        else:
+
+            errHandle.Status("Moving image directories to TAR.gz...")
+            for imgdir in directories:
+                move_dir_to_targz(subdir, imgdir)
 
 
-        errHandle.Status("Ready")
+            errHandle.Status("Ready")
     except:
         # act
+        msg = errHandle.get_error_message()
         errHandle.DoError("main")
         return False
 

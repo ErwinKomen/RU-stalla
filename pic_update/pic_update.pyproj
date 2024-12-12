@@ -7,13 +7,13 @@
     <StartupFile>pic_update.py</StartupFile>
     <SearchPath>
     </SearchPath>
-    <WorkingDirectory>D:\Data Files\TG\Stalla\data</WorkingDirectory>
+    <WorkingDirectory>D:\Data Files\TG\Stalla</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>pic_update</Name>
     <RootNamespace>pic_update</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>-i "lowresscans_2022jan31.zip"</CommandLineArguments>
+    <CommandLineArguments>-i "lowresscans_2024dec12.zip"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

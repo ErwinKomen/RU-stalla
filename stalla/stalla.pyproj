@@ -4,8 +4,8 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <Name>stalla</Name>
     <RootNamespace>stalla</RootNamespace>
-    <InterpreterId>MSBuild|stalla|$(MSBuildProjectFullPath)</InterpreterId>
-    <WebBrowserPort>6800</WebBrowserPort>
+    <InterpreterId>MSBuild|stalla39|$(MSBuildProjectFullPath)</InterpreterId>
+    <WebBrowserPort>6801</WebBrowserPort>
     <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
   </PropertyGroup>
   <PropertyGroup>
@@ -19,7 +19,7 @@
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <WebBrowserUrl>http://localhost</WebBrowserUrl>
-    <LaunchProvider>Django launcher</LaunchProvider>
+    <LaunchProvider>Web launcher</LaunchProvider>
     <DjangoSettingsModule>stalla.settings</DjangoSettingsModule>
     <OutputPath>.</OutputPath>
     <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
@@ -116,6 +116,7 @@
     <Folder Include="stalla\templates\archief\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".editorconfig" />
     <Content Include="locale\nl\LC_MESSAGES\django.po" />
     <Content Include="requirements.txt" />
     <Content Include="stalla\basic\migrations\__pycache__\0001_initial.cpython-35.pyc" />
@@ -243,10 +244,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Interpreter Include="..\..\..\..\..\env\stalla39\">
+      <Id>stalla39</Id>
+      <Version>3.9</Version>
+      <Description>stalla39 (Python 3.9 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
     <Interpreter Include="..\..\..\..\..\env\stalla\">
       <Id>stalla</Id>
-      <Version>3.7</Version>
-      <Description>stalla (Python 3.7 (64-bit))</Description>
+      <Version>3.6</Version>
+      <Description>stalla (Python 3.6 (64-bit))</Description>
       <InterpreterPath>Scripts\python.exe</InterpreterPath>
       <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
