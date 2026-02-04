@@ -1491,7 +1491,7 @@ var ru = (function ($, ru) {
        *      Start synchronisation
        *
        */
-      sync_start : function(sSyncType) {
+      sync_start: function(sSyncType) {
         var oJson = {},
             oData = {},
             i,

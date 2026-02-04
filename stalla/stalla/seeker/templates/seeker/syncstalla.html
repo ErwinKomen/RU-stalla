@@ -1,4 +1,10 @@
 {% extends "layout.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+    <link rel="stylesheet" type="text/css" href="{% static 'seeker/content/dropzone.min.css' %}" />
+    <script src="{% static 'seeker/scripts/dropzone.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 
@@ -15,6 +21,47 @@
 
     {% if user.is_superuser %}
       <!-- Syncing is for superusers -->
+
+      <fieldset class="module aligned" >
+        <div class="row" style="border: 1px solid darkgray; padding-top: 15px;  padding-bottom: 15px;">
+          <div class="col-md-4">
+            <h3 class="straight" style="margin-top: 0px; margin-left: 10px;">Upload database</h3>
+              <p style="margin-top: 0px; margin-left: 10px;">Drag and drop the stalla.mdb database here.
+                After that has been done, press the Update database button that will appear.</p>
+          </div>
+          <div class="col-md-2">
+            <!-- Using dropzone to allow uploading a database file -->
+            <form id="sync_form_mdbupload" class="dropzone" action="{% url 'mdb_upload' %}">
+              {% csrf_token %}
+            </form>
+          </div>
+          <div class="col-md-6 mdbprocess hidden">
+            <form id="sync_form_mdbprocess" method="POST">
+              <div class="row">&nbsp;</div>
+              <div class="row">
+                <div class="col-md-4">
+                  <span><a id="sync_start_mdbprocess" class="btn btn-primary btn-xs" 
+                      sync-start="{% url 'sync_start' %}?synctype=mdbprocess" 
+                      sync-progress="{% url 'sync_progress' %}?synctype=mdbprocess" 
+                      onclick="ru.stalla.sync_start('mdbprocess')">Process uploaded MDB</a>
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div id="sync_progress_mdbprocess" class="col-md-12">
+                  <!-- This is where the progress will be reported -->
+                </div>
+              </div>
+              <div class="row">
+                <div id="sync_details_mdbprocess" class="col-md-12"></div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="row">&nbsp;</div>
 
       <fieldset class="module aligned" >
         <div class="row" style="border: 1px solid darkgray; padding-top: 15px;  padding-bottom: 15px;">

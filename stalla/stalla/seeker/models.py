@@ -464,9 +464,8 @@ def process_jsondata(oStatus):
         return oBack
     except:
         oStatus.set("error")
-        oErr.DoError("process_userdata", True)
+        oErr.DoError("process_jsondata", True)
         return oBack
-
 
 
 # ================ STANDARD models ===============================

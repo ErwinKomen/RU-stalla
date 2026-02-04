@@ -38,9 +38,11 @@ import csv, re
 from stalla.settings import APP_PREFIX, WRITABLE_DIR, MEDIA_DIR
 from stalla.utils import ErrHandle
 from stalla.seeker.forms import SignUpForm, WerkstukForm
-from stalla.seeker.models import get_now_time, get_current_datetime, process_userdata, process_jsondata, \
+from stalla.seeker.models import get_now_time, get_current_datetime, \
+    process_userdata, process_jsondata, \
     User, Group, Information, Visit, NewsItem, Status, \
     Werkstuk, Tag, WerkstukTag, Literatuurverwijzing
+from stalla.seeker.services import process_mdbprocess
 from stalla.seeker.adaptations import listview_adaptations
 from stalla.mapview.views import MapView
 
@@ -506,6 +508,19 @@ def sync_start(request):
                 elif oResult != None:
                     data['count'] = oResult
 
+            elif synctype == "mdbprocess":
+                # Indicate that we are starting
+                oStatus.set("startprocessmdb")
+
+                # Actually start processing
+                oResult = process_mdbprocess(oStatus)
+                if oResult == None or oResult['result'] == False:
+                    data['status'] = 'error'
+                elif oResult != None:
+                    data['count'] = oResult
+
+                # Indicate finish
+                oStatus.set("finished")
 
     except:
         oErr.DoError("sync_start error")
@@ -560,6 +575,40 @@ def sync_progress(request):
         oErr.DoError("sync_start error")
         data = {'status': 'error'}
 
+    # Return this response
+    return JsonResponse(data)
+
+def mdb_upload(request):
+    """Upload an MDB file to the server"""
+
+    oErr = ErrHandle()
+    data = {'status': 'starting'}
+    try:
+        # Get the user
+        username = request.user.username
+        if username:
+            # Reset 'mdbuploaded' and 'mdbuser'
+            Information.set_kvalue("mdbuploaded", "")
+            Information.set_kvalue("mdbuser", "")
+            # Try to handle...
+            if request.method == 'POST':
+                file = request.FILES['file']
+                # Save the file to the writable directory
+                filepath = os.path.join(MEDIA_DIR, "stalla", file.name)
+                with open(filepath, 'wb+') as destination:
+                    for chunk in file.chunks():
+                        destination.write(chunk)
+                data['status'] = 'done'
+                # Write the name of this uploaded file
+                Information.set_kvalue("mdbuploaded", file.name)
+                Information.set_kvalue("mdbuser", username)
+            else:
+                data['status'] = 'no POST received'
+        else:
+            data['status'] = "None-user upload attempt"
+    except:
+        oErr.DoError("upload_mdb error")
+        data['status'] = "error"
     # Return this response
     return JsonResponse(data)
 

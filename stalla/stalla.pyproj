@@ -66,6 +66,7 @@
     </Compile>
     <Compile Include="stalla\seeker\migrations\__init__.py" />
     <Compile Include="stalla\seeker\models.py" />
+    <Compile Include="stalla\seeker\services.py" />
     <Compile Include="stalla\seeker\tests.py" />
     <Compile Include="stalla\seeker\views.py" />
     <Compile Include="stalla\seeker\__init__.py" />
@@ -178,6 +179,7 @@
     <Content Include="stalla\mapview\__pycache__\__init__.cpython-35.pyc" />
     <Content Include="stalla\seeker\static\seeker\content\bootstrap.css" />
     <Content Include="stalla\seeker\static\seeker\content\bootstrap.min.css" />
+    <Content Include="stalla\seeker\static\seeker\content\dropzone.min.css" />
     <Content Include="stalla\seeker\static\seeker\content\favicon.ico" />
     <Content Include="stalla\seeker\static\seeker\content\Icon Passim RGB.png" />
     <Content Include="stalla\seeker\static\seeker\content\IconPassimP.ico" />
@@ -195,6 +197,7 @@
     <Content Include="stalla\seeker\static\seeker\scripts\bootstrap.min.js" />
     <Content Include="stalla\seeker\static\seeker\scripts\d3.v6.js" />
     <Content Include="stalla\seeker\static\seeker\scripts\d3.v6.min.js" />
+    <Content Include="stalla\seeker\static\seeker\scripts\dropzone.min.js" />
     <Content Include="stalla\seeker\static\seeker\scripts\html2canvas.js" />
     <None Include="stalla\seeker\static\seeker\scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="stalla\seeker\static\seeker\scripts\jquery-1.10.2.js" />

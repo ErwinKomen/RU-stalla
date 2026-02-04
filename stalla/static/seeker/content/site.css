@@ -1984,6 +1984,11 @@ h5 { font-size: larger;}
     align-content: center;
 }
 
+.stalla-ru {
+    float: right !important;
+    margin-top: -50px;
+}
+
 .jumbo-x {
     margin-top: -10px;
     color: lightgoldenrodyellow;

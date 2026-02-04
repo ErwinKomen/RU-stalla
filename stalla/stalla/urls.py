@@ -40,6 +40,7 @@ urlpatterns = [
     path('sync/stalla/', stalla.seeker.views.sync_stalla, name='sync_stalla'),
     path('sync/start/', stalla.seeker.views.sync_start, name='sync_start'),
     path('sync/progress/', stalla.seeker.views.sync_progress, name='sync_progress'),
+    path('mdb/upload', stalla.seeker.views.mdb_upload, name='mdb_upload'),
 
     path('werkstuk/list', WerkstukListview.as_view(), name='werkstuk_list'),
     path('werkstuk/details/', WerkstukDetails.as_view(), name='werkstuk_details'),

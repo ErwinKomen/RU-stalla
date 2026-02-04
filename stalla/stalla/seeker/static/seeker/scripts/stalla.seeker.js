@@ -27,7 +27,8 @@ var ru = (function ($, ru) {
   ru.stalla.seeker = (function ($, config) {
     // Define variables for ru.stalla.seeker here
     var loc_example = "",
-        loc_vscrolling = 0,
+      loc_vscrolling = 0,
+        loc_mdbupload = null,
         loc_progr = [],         // Progress tracking
         loc_urlStore = "",      // Keep track of URL to be shown
         loc_goldlink_td = null, // Where the goldlink selection should go
@@ -422,13 +423,31 @@ var ru = (function ($, ru) {
             });
           });
 
-          //// Any other draggables
-          //$(".draggable").draggable({
-          //  cursor: "move",
-          //  snap: ".draggable",
-          //  snapMode: "inner",
-          //  snapTolerance: 20
-          //});
+          // Overrule the default 'accept' handling of dropzone
+          Dropzone.autoDiscover = false;
+          loc_mdbupload = $("#sync_form_mdbupload").dropzone({
+            paramName: "file",
+            acceptedFiles: '.mdb',
+            dictDefaultMessage: 'Access .mdb file',
+            accept: function (file, done) {
+              console.log("Dropzone processing accept");
+              $("#mdbname").val(file.name);
+              // this.options.accept.call(this, file, done);
+              return done();
+            },
+            init: function () {
+              //this.on("success", function (file, responseText) {
+              //  console.log("success dropzone");
+              //});
+              this.on("queuecomplete", function (file) {
+                console.log("Dropzone queue complete");
+                $(".mdbprocess").removeClass("hidden");
+              });
+            }
+          });
+          loc_mdbupload.on("queuecomplete", function (file) {
+            console.log("Que complete");
+          });
 
          } catch (ex) {
           private_methods.errMsg("init_events", ex);
