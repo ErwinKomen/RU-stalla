@@ -423,31 +423,36 @@ var ru = (function ($, ru) {
             });
           });
 
-          // Overrule the default 'accept' handling of dropzone
-          Dropzone.autoDiscover = false;
-          loc_mdbupload = $("#sync_form_mdbupload").dropzone({
-            paramName: "file",
-            acceptedFiles: '.mdb',
-            dictDefaultMessage: 'Access .mdb file',
-            accept: function (file, done) {
-              console.log("Dropzone processing accept");
-              $("#mdbname").val(file.name);
-              // this.options.accept.call(this, file, done);
-              return done();
-            },
-            init: function () {
-              //this.on("success", function (file, responseText) {
-              //  console.log("success dropzone");
-              //});
-              this.on("queuecomplete", function (file) {
-                console.log("Dropzone queue complete");
-                $(".mdbprocess").removeClass("hidden");
-              });
-            }
-          });
-          loc_mdbupload.on("queuecomplete", function (file) {
-            console.log("Que complete");
-          });
+          try {
+            // Overrule the default 'accept' handling of dropzone
+            Dropzone.autoDiscover = false;
+            loc_mdbupload = $("#sync_form_mdbupload").dropzone({
+              paramName: "file",
+              acceptedFiles: '.mdb',
+              dictDefaultMessage: 'Access .mdb file',
+              accept: function (file, done) {
+                console.log("Dropzone processing accept");
+                $("#mdbname").val(file.name);
+                // this.options.accept.call(this, file, done);
+                return done();
+              },
+              init: function () {
+                //this.on("success", function (file, responseText) {
+                //  console.log("success dropzone");
+                //});
+                this.on("queuecomplete", function (file) {
+                  console.log("Dropzone queue complete");
+                  $(".mdbprocess").removeClass("hidden");
+                });
+              }
+            });
+            loc_mdbupload.on("queuecomplete", function (file) {
+              console.log("Que complete");
+            });
+
+          } catch (ex_inner) {
+            console.log("Skipping dropzone");
+          }
 
          } catch (ex) {
           private_methods.errMsg("init_events", ex);

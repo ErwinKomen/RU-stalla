@@ -597,7 +597,15 @@ class Status(models.Model):
                 # Create a report of the history
                 if self.history != None and self.history != "":
                     lstHistory = json.loads(self.history)
-                    sBack = "{}".format("\n".join(lstHistory))
+                    html = []
+                    html.append("<table><thead><tr><th>Date</th><th>Status</th><th>Count</th><th>Message</th></tr></thead><tbody>")
+                    for item in lstHistory:
+                        html.append("<tr>")
+                        html.append("<td>{}</td><td>{}</td><td>{}</td><td>{}</td>".format(
+                            item['date'], item['status'], item['count'], item['msg']))
+                        html.append("</tr>")
+                    html.append("</tbody></table>")
+                    sBack = "{}".format("\n".join(html))
             elif action == "stop":
                 self.record_history = "no"
         except:
@@ -1306,7 +1314,7 @@ class Werkstuk(models.Model):
                 else:
                     if self.aard != abbr:
                         # Log change
-                        oErr.Status("custom_add change [aard] from {} into {}".format(self.aard, abbr))
+                        oErr.Status("custom_set change [aard] from {} into {}".format(self.aard, abbr))
                         # Perform change
                         self.aard = abbr
                         lstQ = True
@@ -1323,7 +1331,7 @@ class Werkstuk(models.Model):
                         # Log change
                         original = "None" if self.fotograaf is None else self.fotograaf.id
                         target = "None" if obj is None else obj.id
-                        oErr.Status("custom_add change [aard] from {} into {}".format(original, target))
+                        oErr.Status("custom_set change [aard] from {} into {}".format(original, target))
                         # Perform change
                         self.fotograaf = obj                
                         lstQ = True
@@ -1354,7 +1362,7 @@ class Werkstuk(models.Model):
                         # Log change
                         original = "None" if self.locatie is None else self.locatie.id
                         target = "None" if obj is None else obj.id
-                        oErr.Status("custom_add change [aard] from {} into {}".format(original, target))
+                        oErr.Status("custom_set change [aard] from {} into {}".format(original, target))
                         # Perform change
                         self.locatie = obj
                         lstQ = True
@@ -1373,7 +1381,7 @@ class Werkstuk(models.Model):
                         # Log change
                         original = "None" if self.soort is None else self.soort.id
                         target = "None" if obj is None else obj.id
-                        oErr.Status("custom_add change [aard] from {} into {}".format(original, target))
+                        oErr.Status("custom_set change [aard] from {} into {}".format(original, target))
                         # Perform change
                         self.soort = obj
                         lstQ = True
@@ -1387,7 +1395,7 @@ class Werkstuk(models.Model):
                 else:
                     if self.materiaal != abbr:
                         # Log change
-                        oErr.Status("custom_add change [materiaal] from {} into {}".format(self.materiaal, abbr))
+                        oErr.Status("custom_set change [materiaal] from {} into {}".format(self.materiaal, abbr))
                         # Perform change
                         self.materiaal = abbr
                         lstQ = True
