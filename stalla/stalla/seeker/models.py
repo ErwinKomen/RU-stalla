@@ -548,6 +548,11 @@ class Status(models.Model):
     # [0-1] Error message (if any)
     msg = models.TextField("Error message", blank=True, null=True)
 
+    # [1] History of status changes (as stringified JSON list)
+    history = models.TextField("History of status changes", default="[]")
+    # [1] Whether to record history or not
+    record_history = models.CharField("Whether to record history or not", max_length=5, default="no")
+
     def __str__(self):
         # Refresh the DB connection
         self.refresh_from_db()
@@ -555,12 +560,52 @@ class Status(models.Model):
         return self.status
 
     def set(self, sStatus, oCount = None, msg = None):
-        self.status = sStatus
-        if oCount != None:
-            self.count = json.dumps(oCount)
-        if msg != None:
-            self.msg = msg
-        self.save()
+        oErr = ErrHandle()
+        try:
+            self.status = sStatus
+            if oCount != None:
+                self.count = json.dumps(oCount)
+            if msg != None:
+                self.msg = msg
+            if self.record_history == "yes":
+                # Add this to the history
+                lstHistory = json.loads(self.history)
+                oAdd = dict(count=self.count, msg=msg, status=sStatus, date=get_crpp_date(get_current_datetime(), readable=True))
+                # Add to the history
+                lstHistory.append(oAdd)
+                self.history = json.dumps(lstHistory)
+            # Need to save at any rate
+            self.save()
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("status.set")
+        # Okay, ready now
+        return None
+
+    def set_history(self, action=None):
+        """Decide what to do with history"""
+
+        oErr = ErrHandle()
+        sBack = ""
+        try:
+            if action == "start":
+                # Start adding history
+                self.history = "[]"
+                self.record_history = "yes"
+                sBack = "started"
+            elif action == "report":
+                # Create a report of the history
+                if self.history != None and self.history != "":
+                    lstHistory = json.loads(self.history)
+                    sBack = "{}".format("\n".join(lstHistory))
+            elif action == "stop":
+                self.record_history = "no"
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("status.history")
+            sBack= msg
+        # Okay, ready now
+        return sBack
 
 
 class Action(models.Model):
@@ -1221,8 +1266,9 @@ class Werkstuk(models.Model):
                     clsM2m.objects.filter(id__in=delete_id).delete()
         except:
             msg = oErr.get_error_message()
-            oErr.DoError("Werkstuk/custom_set")
-            lstQ = {} if self is None else False
+            oErr.DoError("Werkstuk/custom_m2m")
+            # lstQ = {} if self is None else False
+        return None
 
     def custom_set(self, path, value, oWerkstuk, **kwargs):
         """Set related items"""
@@ -1799,6 +1845,9 @@ class Werkstuk(models.Model):
             else:
                 oStallaData = data
 
+            # Start processing the history
+            oStatus.set_history("start")
+
             # We are saving this file
             oBack['file'] = "loaded JSON"
             oStatus.set("loaded", oBack)
@@ -2007,6 +2056,8 @@ class Werkstuk(models.Model):
                 # Tell what we have done
                 oStatus.set("soort: removed {} unused items".format(len(remove_ids)))
 
+            # Stop recording history
+            oStatus.set_history("stop")
 
             # Now we are ready
             oResult['status'] = "ok"
