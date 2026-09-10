@@ -447,7 +447,7 @@ var ru = (function ($, ru) {
               }
             });
             loc_mdbupload.on("queuecomplete", function (file) {
-              console.log("Que complete");
+              console.log("Queue complete");
             });
 
           } catch (ex_inner) {

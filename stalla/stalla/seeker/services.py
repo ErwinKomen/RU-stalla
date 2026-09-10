@@ -23,7 +23,9 @@ def process_mdbprocess(oStatus):
 
     oBack = dict(result=False)
 
+    # NOTE: this is probably not used?
     batch_name = "/home/erwin/"
+    
     oErr = ErrHandle()
     try:
         oStatus.set("preparing")
